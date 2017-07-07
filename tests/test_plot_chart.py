@@ -3,8 +3,11 @@
 Tests plotting
 
 """
-from unittest import TestCase
+import matplotlib.pyplot as plt
 import os
+from unittest import TestCase
+
+from psychrochart.psychroplot import plot_psychrochart
 
 
 basedir = os.path.dirname(os.path.abspath(__file__))
@@ -15,14 +18,16 @@ class TestsPsychroPlot(TestCase):
 
     def test_default_psychrochart(self):
         """Test the plot custom styling with JSON files/dicts."""
-        from psychrochart.psychroplot import plot_psychrochart, plt
-
         path_svg_default = os.path.join(
             basedir, 'test_default_psychrochart.svg')
         plot_psychrochart()
         plt.savefig(path_svg_default)
+        plt.close()
 
+    def test_custom_psychrochart(self):
+        """Test the plot custom styling with JSON files/dicts."""
         path_svg_ashrae = os.path.join(
             basedir, 'test_ashrae_psychrochart.svg')
         plot_psychrochart("ashrae")
         plt.savefig(path_svg_ashrae)
+        plt.close()

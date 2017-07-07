@@ -35,7 +35,7 @@ pip install psychrochart
 
 - Labelling!
 - More customization (axes, labels, legends)
-- Encapsulate in object and refactor chart plot (gen data vs plot data)
+- Encapsulate in object and ~refactor chart plot (gen data vs plot data)~
 - **Overlay points**
 - Overlay directions (to show evolution in time)
 - Zone overlay

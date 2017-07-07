@@ -4,7 +4,7 @@ A python library to make psychrometric charts and overlay information in them.
 
 """
 import json
-# from time import time
+from time import time
 import os
 
 
@@ -18,16 +18,16 @@ STYLES = {
 }
 
 
-# def timeit(msg_log):
-#     """Wrapper to time a method call."""
-#     def real_deco(func):
-#         def wrapper(*args, **kwargs):
-#             tic = time()
-#             out = func(*args, **kwargs)
-#             print(msg_log + ' TOOK: {:.3f} s'.format(time() - tic))
-#             return out
-#         return wrapper
-#     return real_deco
+def timeit(msg_log):
+    """Wrapper to time a method call."""
+    def real_deco(func):
+        def wrapper(*args, **kwargs):
+            tic = time()
+            out = func(*args, **kwargs)
+            print(msg_log + ' TOOK: {:.3f} s'.format(time() - tic))
+            return out
+        return wrapper
+    return real_deco
 
 
 def _update_config(old_conf, new_conf, verbose=False, recurs_idx=0):

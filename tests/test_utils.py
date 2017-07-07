@@ -7,7 +7,7 @@ import json
 import os
 from unittest import TestCase
 
-from psychrochart.util import DEFAULT_CHART_CONFIG_FILE
+from psychrochart.util import load_config, DEFAULT_CHART_CONFIG_FILE
 
 
 basedir = os.path.dirname(os.path.abspath(__file__))
@@ -19,8 +19,6 @@ class TestsPsychroUtils(TestCase):
 
     def test_load_plot_config(self):
         """Test the plot custom styling with JSON files/dicts."""
-        from psychrochart.util import load_config
-
         # Test load default config
         default_config = load_config()
 
@@ -53,11 +51,12 @@ class TestsCLI(TestCase):
 
     def test_cli_main(self):
         """Unit test for the CLI entry point."""
+        # import matplotlib
+        #
+        # matplotlib.use('Agg')
         from psychrochart.__main__ import main
-        import matplotlib
-
-        matplotlib.use('Agg')
         main()
+        # plt.close()
 
 
 class TestsColorUtils(TestCase):
