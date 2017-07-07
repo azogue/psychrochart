@@ -119,9 +119,9 @@ class TestsPsychrometrics(TestCase):
 
     def test_press_by_altitude(self):
         """Pressure in kPa from altitude in meters."""
-        from psychrochart.psychrovars import press_and_temp_by_altitude
+        from psychrochart.equations import pressure_by_altitude
 
-        errors = [press_and_temp_by_altitude(alt)[0]
+        errors = [pressure_by_altitude(alt)
                   - ALTITUDE_M_PRESSURE_KPA[alt]
                   for alt in ALTITUDE_M_PRESSURE_KPA]
         self._error_compare(
@@ -129,14 +129,14 @@ class TestsPsychrometrics(TestCase):
             "Pressure for altitude cumulative error > {} kPa ({}) -> {}")
 
         [self._error_compare(
-            press_and_temp_by_altitude(alt)[0],
+            pressure_by_altitude(alt),
             ALTITUDE_M_PRESSURE_KPA[alt],
             10 * self.pressure_error,
             "Pressure for altitude error> {} kPa: alt={} m, est={}")
             for alt in sorted(ALTITUDE_M_PRESSURE_KPA)]
 
     def test_relative_humidity_from_temps(self):
-        from psychrochart.psychrovars import (
+        from psychrochart.equations import (
             relative_humidity_from_temps, PRESSURE_STD_ATM_KPA)
 
         p_atm_kpa = PRESSURE_STD_ATM_KPA
@@ -152,7 +152,7 @@ class TestsPsychrometrics(TestCase):
 
     def test_max_specific_humid(self):
         """Max Specific humidity from dry bulb temperature."""
-        from psychrochart.psychrovars import (
+        from psychrochart.equations import (
             humidity_ratio, saturation_pressure_water_vapor)
 
         for t, (ps_ref, xmax_ref) in TEMP_SAT_PRESS_HUMID_RATIO.items():
@@ -163,7 +163,7 @@ class TestsPsychrometrics(TestCase):
             self.assertAlmostEqual(xmax, xmax_ref, delta=0.0005)
 
     def test_density_water_vapor(self):
-        from psychrochart.psychrovars import (
+        from psychrochart.equations import (
             density_water_vapor, saturation_pressure_water_vapor)
 
         for dry_temp_c, (p_sat_ref, d_ref) in TEMP_SAT_PRES_DENSITY.items():
@@ -184,7 +184,7 @@ class TestsPsychrometrics(TestCase):
 
     def test_enthalpy_moist_air(self):
         """Check the enthalpy of humid air."""
-        from psychrochart.psychrovars import (
+        from psychrochart.equations import (
             PRESSURE_STD_ATM_KPA, saturation_pressure_water_vapor,
             humidity_ratio, enthalpy_moist_air)
 
@@ -199,13 +199,12 @@ class TestsPsychrometrics(TestCase):
         ratio_humid = w_kg_kga / w_max
         p_w_kpa = ratio_humid * p_sat
 
-        h_m, h_a, h_v = enthalpy_moist_air(
-            dry_temp_c, p_w_kpa, press, return_tuple=True)
+        h_m = enthalpy_moist_air(dry_temp_c, p_w_kpa, press)
         h_m_bis = enthalpy_moist_air(dry_temp_c, p_w_kpa, press)
         self.assertEqual(h_m, h_m_bis)
         self.assertEqual(round(h_m, 1), 76.9)
-        self.assertEqual(round(h_a, 2), 25.15)
-        self.assertEqual(round(h_v, 1), 0.93 + 50.77)
+        # self.assertEqual(round(h_a, 2), 25.15)
+        # self.assertEqual(round(h_v, 1), 0.93 + 50.77)
 
     def test_density_at_saturation(self):
         """Density of saturated humid air from dry bulb temperature."""
@@ -216,7 +215,7 @@ class TestsPsychrometrics(TestCase):
         # print(dry_temp_c, p_sat, p_sat_ref, vol_m3_kg, 1/vol_m3_kg, d_ref)
         # self.assertAlmostEqual(1 / vol_m3_kg, d_ref, delta=1)
 
-        from psychrochart.psychrovars import saturation_pressure_water_vapor
+        from psychrochart.equations import saturation_pressure_water_vapor
 
         for t, (ps_ref, dens_ref) in TEMP_PRESS_PA_DENS_G_KG.items():
             # dens_ref_kg_m3 = dens_ref / 1000.
@@ -230,7 +229,7 @@ class TestsPsychrometrics(TestCase):
 
     def test_press_sat_abs_error(self):
         """Saturation pressure in kPa from dry bulb temperature. Sum error."""
-        from psychrochart.psychrovars import saturation_pressure_water_vapor
+        from psychrochart.equations import saturation_pressure_water_vapor
 
         for mode in [1, 2, 3]:
             errors = [saturation_pressure_water_vapor(t, mode=mode)
@@ -243,7 +242,7 @@ class TestsPsychrometrics(TestCase):
 
     def test_press_sat_mode_1(self):
         """Saturation pressure in kPa from dry bulb temperature. Mode 1."""
-        from psychrochart.psychrovars import saturation_pressure_water_vapor
+        from psychrochart.equations import saturation_pressure_water_vapor
 
         mode = 1
         [self._error_compare(
@@ -254,7 +253,7 @@ class TestsPsychrometrics(TestCase):
 
     def test_press_sat_mode_2(self):
         """Saturation pressure in kPa from dry bulb temperature. Mode 2."""
-        from psychrochart.psychrovars import saturation_pressure_water_vapor
+        from psychrochart.equations import saturation_pressure_water_vapor
 
         mode = 2
         [self._error_compare(
@@ -265,7 +264,7 @@ class TestsPsychrometrics(TestCase):
 
     def test_press_sat_mode_3(self):
         """Saturation pressure in kPa from dry bulb temperature. Mode 3."""
-        from psychrochart.psychrovars import saturation_pressure_water_vapor
+        from psychrochart.equations import saturation_pressure_water_vapor
 
         mode = 3
         [self._error_compare(
@@ -277,7 +276,7 @@ class TestsPsychrometrics(TestCase):
     def test_dew_point_temperature(self):
         """Dew point temperature testing."""
         from numpy import arange
-        from psychrochart.psychrovars import (
+        from psychrochart.equations import (
             saturation_pressure_water_vapor, dew_point_temperature)
 
         temps = arange(-20, 60, 1)
@@ -293,7 +292,7 @@ class TestsPsychrometrics(TestCase):
     def test_wet_bulb_temperature(self):
         """Wet bulb temperature from dry bulb temp and relative humidity."""
         from numpy import arange
-        from psychrochart.psychrovars import (
+        from psychrochart.equations import (
             wet_bulb_temperature, relative_humidity_from_temps,
             PRESSURE_STD_ATM_KPA)
 

@@ -6,8 +6,8 @@ A python library to make psychrometric charts and overlay information in them.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from psychrochart.psychrovars import (
-    PRESSURE_STD_ATM_KPA, press_and_temp_by_altitude, humidity_ratio,
+from psychrochart.equations import (
+    PRESSURE_STD_ATM_KPA, pressure_by_altitude, humidity_ratio,
     specific_volume, dew_point_temperature, water_vapor_pressure,
     enthalpy_moist_air, saturation_pressure_water_vapor,
     dry_temperature_for_enthalpy_of_moist_air, relative_humidity_from_temps,
@@ -83,7 +83,7 @@ def plot_psychrochart(styles=None):
     chart_params = config['chart_params']
 
     # Base pressure
-    p_atm_kpa, _temp_ref = press_and_temp_by_altitude(altitude_m)
+    p_atm_kpa = pressure_by_altitude(altitude_m)
 
     # Prepare fig & axis
     fig = _get_figure(**config['figure'])

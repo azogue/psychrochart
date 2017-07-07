@@ -12,8 +12,8 @@ packages = find_packages(exclude=['docs', '*tests*', 'notebooks', 'htmlcov'])
 setup(
     name='psychrochart',
     version=version,
-    description='A python library to make psychrometric charts and overlay '
-                'information in them.',
+    description='A Python 3 library to make psychrometric charts and overlay '
+                'information on them.',
     keywords='psychrometrics, moist, humid air, climate control, matplotlib',
     author='Eugenio Panadero',
     author_email='eugenio.panadero@gmail.com',
