@@ -1,0 +1,9 @@
+# Include the license file
+include LICENSE
+include README.md
+
+# Include JSON config files
+recursive-include *.json
+
+# Excluded
+global-exclude .DS_Store

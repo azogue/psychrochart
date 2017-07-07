@@ -1,0 +1,50 @@
+{
+	"figure": {
+		"figsize": [16, 9],
+		"title": "Psychrometric Chart (sea level)",
+		"x_label": "DRY-BULB TEMPERATURE, ºC",
+		"y_label": "HUMIDITY RATIO w, g_w / kg_da"
+	},
+	"limits": {
+		"range_temp_c": [0, 50],
+		"range_humidity_g_kg": [0, 30],
+		"altitude_m": 0,
+		"step_temp": 1.0
+	},
+	"default": {"color": "k", "linewidth": 0.25, "linestyle": "-"},
+
+	"saturation": {"color": "k", "linewidth": 2, "linestyle": "-"},
+	"constant_rh": {"color": "k", "linewidth": 1, "linestyle": "-"},
+	"constant_v": {"color": "k", "linewidth": 0.5, "linestyle": "-"},
+	"constant_h": {"color": "k", "linewidth": 0.75, "linestyle": "-"},
+	"constant_wet_temp": {"color": "k", "linewidth": 1, "linestyle": "--"},
+	"constant_dry_temp": {"color": "k", "linewidth": 0.25, "linestyle": "-"},
+	"constant_humidity": {"color": "k", "linewidth": 0.25, "linestyle": "-"},
+
+	"chart_params": {
+		"temp_increment": 1,
+		"temp_range": [15, 40],
+		"humidity_range": [0, 0.05],
+		
+		"with_constant_rh": true,
+		"constant_rh_curves": [10, 20, 30, 40, 50, 60, 70, 80, 90],
+		
+		"with_constant_v": true,
+		"constant_v_step": 0.01,
+		"range_vol_m3_kg": [0.78, 1.0],
+
+		"with_constant_h": true,
+		"constant_h_step": 10,
+		"range_h": [10, 130],
+
+		"with_constant_wet_temp": true,
+		"constant_wet_temp_step": 1,
+		"range_wet_temp": [-10, 35],
+
+		"with_constant_dry_temp": true,
+		"constant_temp_step": 1,
+		
+		"with_constant_humidity": true,
+		"constant_humid_step": 0.5
+	}
+}

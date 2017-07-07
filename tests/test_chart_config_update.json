@@ -1,0 +1,25 @@
+{
+	"figure": {
+		"figsize": [8, 6],
+		"title": "Psychrometric Chart"
+	},
+
+	"constant_h": {"linewidth": 7},
+
+	"chart_params": {
+		"temp_increment": 0.25,
+		"temp_range": [0, 60],
+		"humidity_range": [0, 0.1],
+
+		"with_constant_rh": true,
+		"constant_rh_curves": [10, 25, 45, 50, 55, 75, 90],
+
+		"with_constant_v": false,
+		"with_constant_h": false,
+		"with_constant_wet_temp": false,
+		"with_constant_dry_temp": true,
+		"with_constant_humidity": false
+	},
+
+	"test_fake_param": {"linewidth": 7}
+}
