@@ -14,7 +14,7 @@ DELTA_TEMP_C_TO_KELVIN = 273.15
 # Eq. (1) 2009 ASHRAE Handbook—Fundamentals (SI)
 GAS_CONSTANT_R_DA = 0.287042  # = 8314.472/28.966 kJ/(kg_da·K)
 # Eq. (2) 2009 ASHRAE Handbook—Fundamentals (SI)
-GAS_CONSTANT_R_W = 461.524  # = 8314.472/18.015268 = J/(kgw·K)
+# GAS_CONSTANT_R_W = 461.524  # = 8314.472/18.015268 = J/(kgw·K)
 
 
 def press_and_temp_by_altitude(altitude_m):
@@ -45,21 +45,13 @@ def humidity_ratio(p_vapor_kpa, p_atm_kpa=PRESSURE_STD_ATM_KPA):
     kg water vapor / kg dry air, eq (22)
     2009 ASHRAE Handbook—Fundamentals (SI).
     """
-    # Humidity Ratio by Vapor Partial Pressure
-    # http://www.engineeringtoolbox.com/humidity-ratio-air-d_686.html
-    # x = 0.62198 pw / (pa - pw)
-    # M_w / M_a = .6219575; pero se admite (y en CTE tb) .62198
-    # M_a = 28.966
-    # M_w = 18.015
-    # w_kg_kga = (M_w / M_a) * p_vapor_kpa ./ (p_atm_kpa - p_vapor_kpa)
-    # HUMID_RATIO_VAP_PRES = .62198
     humid_ratio_vap_pres = .621945
     w_kg_kga = humid_ratio_vap_pres * p_vapor_kpa / (p_atm_kpa - p_vapor_kpa)
     return w_kg_kga
 
 
-def humidity_ratio_from_temps(dry_bulb_temp_c, wet_bulb_temp_c,
-                              p_atm_kpa=PRESSURE_STD_ATM_KPA):
+def humidity_ratio_from_temps(
+        dry_bulb_temp_c, wet_bulb_temp_c, p_atm_kpa=PRESSURE_STD_ATM_KPA):
     """Obtain the specific humidity from the dry and wet bulb temperatures.
 
     kg water vapor / kg dry air, eqs (35) and (37)
@@ -69,9 +61,6 @@ def humidity_ratio_from_temps(dry_bulb_temp_c, wet_bulb_temp_c,
         saturation_pressure_water_vapor(wet_bulb_temp_c), p_atm_kpa)
     delta_t = dry_bulb_temp_c - wet_bulb_temp_c
     assert (delta_t >= 0)
-    # if delta_t >= 0:
-    #     return w_sat_wet_bulb
-
     factor_delta = 1.006 * delta_t
     if dry_bulb_temp_c > 0:
         num_1 = (2501 - 2.326 * wet_bulb_temp_c) * w_sat_wet_bulb
@@ -84,26 +73,8 @@ def humidity_ratio_from_temps(dry_bulb_temp_c, wet_bulb_temp_c,
     return w_kg_kga
 
 
-# def degree_of_saturation(w_kg_kga, wsat_kg_kga):
-#     """Ratio of air humidity ratio to humidity ratio of saturated moist air.
-#
-#     µ (no dimension), eq (12) 2009 ASHRAE Handbook—Fundamentals (SI).
-#     """
-#     return w_kg_kga / wsat_kg_kga
-#
-#
-# def relative_humidity(p_vapor_kpa, p_sat_vapor_kpa):
-#     """Ratio of the mole fraction of water vapor x_w in a given moist
-#     air sample to the mole fraction xws in an air sample
-#     saturated at the same temperature and pressure.
-#
-#     Eq (24) 2009 ASHRAE Handbook—Fundamentals (SI).
-#     """
-#     return p_vapor_kpa / p_sat_vapor_kpa
-
-
-def relative_humidity_from_temps(dry_bulb_temp_c, wet_bulb_temp_c,
-                                 p_atm_kpa=PRESSURE_STD_ATM_KPA):
+def relative_humidity_from_temps(
+        dry_bulb_temp_c, wet_bulb_temp_c, p_atm_kpa=PRESSURE_STD_ATM_KPA):
     """Ratio of the mole fraction of water vapor x_w in a given moist
     air sample to the mole fraction xws in an air sample
     saturated at the same temperature and pressure.
@@ -117,8 +88,8 @@ def relative_humidity_from_temps(dry_bulb_temp_c, wet_bulb_temp_c,
     return min(1., p_w_vapor / p_sat)
 
 
-def specific_volume(dry_temp_c, p_vapor_kpa,
-                    p_atm_kpa=PRESSURE_STD_ATM_KPA):
+def specific_volume(
+        dry_temp_c, p_vapor_kpa, p_atm_kpa=PRESSURE_STD_ATM_KPA):
     """Obtain the specific volume v of a moist air mixture.
 
     m3 / kg dry air, eq. (28) 2009 ASHRAE Handbook—Fundamentals (SI).
@@ -153,8 +124,6 @@ def saturation_pressure_water_vapor(dry_temp_c, mode=3):
       - mode 2: Simpler, values for T > 0 / T < 0, but same speed as 1
       - mode 3: More simpler, near 2x vs mode 1.
     """
-    # Fórmula de Alt (e*(T)=0,6107*(1+RAIZ(2)*sind(T/3))^8,827
-    # p_ws_kpa = 0.6107 * (1 + 2^.5 * sind(dry_temp_c / 3))**8.827;
     if mode == 1:  # 2009 ASHRAE Handbook—Fundamentals (SI)
         abs_temp = dry_temp_c + DELTA_TEMP_C_TO_KELVIN
         if dry_temp_c > 0:  # Eq (6) 2009 ASHRAE Handbook—Fundamentals (SI)
@@ -190,9 +159,9 @@ def saturation_pressure_water_vapor(dry_temp_c, mode=3):
         return 19314560 * 10. ** (-1779.75 / (237.3 + dry_temp_c))
 
 
-def enthalpy_moist_air(dry_temp_c, p_vapor_kpa,
-                       p_atm_kpa=PRESSURE_STD_ATM_KPA,
-                       return_tuple=False):
+def enthalpy_moist_air(
+        dry_temp_c, p_vapor_kpa, p_atm_kpa=PRESSURE_STD_ATM_KPA,
+        return_tuple=False):
     """Moist air specific enthalpy.
 
     KJ / kg. Eqs. (32), (30), (31) 2009 ASHRAE Handbook—Fundamentals (SI)."""
@@ -245,10 +214,8 @@ def dew_point_temperature(p_w_kpa):
 
 
 def wet_bulb_temperature(
-        dry_temp_c, relative_humid,
-        p_atm_kpa=PRESSURE_STD_ATM_KPA,
-        num_iters_max=100,
-        precision=0.00001):
+        dry_temp_c, relative_humid, p_atm_kpa=PRESSURE_STD_ATM_KPA,
+        num_iters_max=100, precision=0.00001):
     """Wet bulb temperature.
 
     Requires trial-and-error or numerical solution method
@@ -266,3 +233,20 @@ def wet_bulb_temperature(
     if out > dry_temp_c:
         out = dry_temp_c
     return out
+
+# def degree_of_saturation(w_kg_kga, wsat_kg_kga):
+#     """Ratio of air humidity ratio to humidity ratio of saturated moist air.
+#
+#     µ (no dimension), eq (12) 2009 ASHRAE Handbook—Fundamentals (SI).
+#     """
+#     return w_kg_kga / wsat_kg_kga
+#
+#
+# def relative_humidity(p_vapor_kpa, p_sat_vapor_kpa):
+#     """Ratio of the mole fraction of water vapor x_w in a given moist
+#     air sample to the mole fraction xws in an air sample
+#     saturated at the same temperature and pressure.
+#
+#     Eq (24) 2009 ASHRAE Handbook—Fundamentals (SI).
+#     """
+#     return p_vapor_kpa / p_sat_vapor_kpa

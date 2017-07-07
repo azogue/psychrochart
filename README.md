@@ -8,7 +8,7 @@ Calculations are made by implementing experimental equations extracted from reco
 
 ## Install
 
-Get it [from pypi]() or [clone it]() if you want to run the tests.
+Get it **[from pypi](https://pypi.python.org/pypi?:action=display&name=psychrochart)** or **[clone it](https://github.com/azogue/psychrochart.git)** if you want to run the tests.
 
 ```bash
 pip install psychrochart
@@ -27,15 +27,17 @@ pip install psychrochart
     * **Constant specific volume lines**
     * **Constant dry-bulb temperature lines** (internal orthogonal grid, vertical)
     * **Constant humidity ratio lines** (internal orthogonal grid, horizontal)
+- **Export SVG files**
 - Tested against example tables from [http://www.engineeringtoolbox.com](http://www.engineeringtoolbox.com)
 - 100 % code coverage.
 
 #### TODO list:
 
+- Labelling!
+- More customization (axes, labels, legends)
 - Encapsulate in object and refactor chart plot (gen data vs plot data)
 - **Overlay points**
 - Overlay directions (to show evolution in time)
-- **Export SVG files**
 - Zone overlay
 - contour plot overlay
 - **Docs!**
@@ -60,15 +62,15 @@ to generate the coverage reports.
 
 ## License
 
-[MIT license](/LICENSE), so do with it as you like ;-)
+[MIT license](https://github.com/azogue/psychrochart/blob/master/LICENSE), so do with it as you like ;-)
 
 ## Examples
 
 **ASHRAE Handbook black and white style**:
 
-![psychrochart_ashrae](https://github.com/azogue/psychrochart/blob/master/tests/test_ashrae_psychrochart.svg?raw=true)
+![psychrochart_ashrae](https://github.com/azogue/psychrochart/blob/master/tests/test_ashrae_psychrochart.svg)
 
 **Default style**:
 
-![psychrochart_default](https://github.com/azogue/psychrochart/blob/master/tests/test_default_psychrochart.svg?raw=true)
+![psychrochart_default](https://github.com/azogue/psychrochart/blob/master/tests/test_default_psychrochart.svg)
 

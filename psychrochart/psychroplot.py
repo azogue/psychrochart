@@ -16,11 +16,11 @@ from psychrochart.psychrovars import (
 from psychrochart.util import load_config, iter_solver
 
 
-# CURVE GENERATION
 def _gen_mat_curves_range_temps(
         func_curve, dbt_min, dbt_max, increment,
         curves_values,
         p_atm_kpa=PRESSURE_STD_ATM_KPA):
+    """Generic curve generation in a range of temperatures."""
     temps = np.arange(dbt_min, dbt_max + increment, increment)
     curves = np.zeros((len(temps), len(curves_values)))
 
@@ -33,6 +33,7 @@ def _gen_mat_curves_range_temps(
 def _curve_constant_humidity_ratio(
         dry_temps, rh_percentage=100.,
         p_atm_kpa=PRESSURE_STD_ATM_KPA, mode_sat=1):
+    """Generate a curve (numpy array) of constant humidity ratio."""
     return np.array(
         [1000 * humidity_ratio(
             saturation_pressure_water_vapor(t, mode=mode_sat)
@@ -40,7 +41,8 @@ def _curve_constant_humidity_ratio(
          for t in dry_temps])
 
 
-def i_get_figure(figsize=(16, 9), x_label=None, y_label=None, title=None):
+def _get_figure(figsize=(16, 9), x_label=None, y_label=None, title=None):
+    """Create matplotlib figure and axis."""
     fig = plt.figure(figsize=figsize)
     fig.gca().yaxis.tick_right()
     if x_label is not None:
@@ -56,7 +58,7 @@ def i_get_figure(figsize=(16, 9), x_label=None, y_label=None, title=None):
 def _plot_zone(t_min, t_max, increment, rh_min, rh_max,
                p_atm_kpa=PRESSURE_STD_ATM_KPA,
                color='m', line_width=3):
-    # Dibuja sector entre T1-T2 y HR1-HR2
+    """Draw zone between constant dry bulb temps and constant rel. humid."""
     temps = np.arange(t_min, t_max + increment, increment)
 
     curve_rh_up = _curve_constant_humidity_ratio(temps, rh_max, p_atm_kpa)
@@ -84,7 +86,7 @@ def plot_psychrochart(styles=None):
     p_atm_kpa, _temp_ref = press_and_temp_by_altitude(altitude_m)
 
     # Prepare fig & axis
-    fig = i_get_figure(**config['figure'])
+    fig = _get_figure(**config['figure'])
     plt.xlim([dbt_min, dbt_max])
     plt.ylim([w_min, w_max])
 

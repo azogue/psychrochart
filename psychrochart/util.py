@@ -68,37 +68,15 @@ def load_config(styles=None, verbose=False):
 
 def iter_solver(initial_value, objective_value, func_eval,
                 initial_increment=4, num_iters_max=100, precision=0.01):
-                # return_iter_matrix=False):
-    """Solve by iteration."""
-    # last_error_2 = last_error = error = 100 * precision
+    """Simple solver by iteration."""
     error = 100 * precision
-    # evolution = np.zeros((num_iters_max, 3)) if return_iter_matrix else None
-
     decreasing = True
     increment = initial_increment
     num_iter = 0
-    # last_value_calc_2 = last_value_calc = value_calc = initial_value
     value_calc = initial_value
     while abs(error) > precision and num_iter < num_iters_max:
-        # last_error_2 = last_error
-        # last_error = error
-        # last_value_calc_2 = last_value_calc
-        last_value_calc = value_calc
-
         iteration_value = func_eval(value_calc)
         error = objective_value - iteration_value
-        # if num_iter > num_iters_max / 2 and abs(error)
-        # > abs(last_error) and abs(last_error_2 - error) < precision / 10:
-        #     # Rebote
-        #     print(
-        #         'REBOTE!! {}, prec{} -> v:{}, obj={}, iter_v={}, err={},
-        #         last_err={}, last_v={}, last_err_2={}, last_v_2={}'
-        #         .format(num_iter, precision, value_calc, objective_value,
-        #                 iteration_value, error, last_error, last_value_calc,
-        #          last_error_2, last_value_calc_2))
-        #     # TODO Interpolación lineal simple:
-        #     value_calc = (last_value_calc + last_value_calc_2) / 2
-        #     break
         if error < 0:
             if not decreasing:
                 increment /= 2
@@ -116,15 +94,7 @@ def iter_solver(initial_value, objective_value, func_eval,
         if num_iter >= num_iters_max:
             raise AssertionError(
                 'NO CONVERGENCE ERROR AFTER {} ITERATIONS! '
-                'Last value: {} [{}], ∆: {}. Objective: {}, iter_value: {}'
-                .format(num_iter, value_calc, last_value_calc, increment,
+                'Last value: {}, ∆: {}. Objective: {}, iter_value: {}'
+                .format(num_iter, value_calc, increment,
                         objective_value, iteration_value))
-
-        # if return_iter_matrix:
-        #     evolution[num_iters, 0] = value_calc
-        #     evolution[num_iters, 1] = increment
-        #     evolution[num_iters, 2] = error
-
-    # if return_iter_matrix:
-    #     return [value_calc, evolution[:num_iters, :]]
     return value_calc
