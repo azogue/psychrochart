@@ -68,9 +68,9 @@ to generate the coverage reports.
 
 **ASHRAE Handbook black and white style**:
 
-<img src="https://github.com/azogue/psychrochart/blob/master/tests/test_ashrae_psychrochart.svg" width="100%" height="100%">
+<img src="https://rawgit.com/azogue/psychrochart/master/tests/test_ashrae_psychrochart.svg" width="100%" height="100%">
 
 **Default style**:
 
-<img src="https://github.com/azogue/psychrochart/blob/master/tests/test_default_psychrochart.svg?raw=true" width="100%" height="100%">
+<img src="https://rawgit.com/azogue/psychrochart/master/tests/test_default_psychrochart.svg" width="100%" height="100%">
 
