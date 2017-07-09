@@ -19,7 +19,7 @@ pip install psychrochart
 - **SI** units (with temperatures in celsius for better readability).
 - Easy style customization with a **JSON template** (colors, line styles and line widths).
 - Psychrometric charts within a temperature range and humidity ratio ranges,
-  for any pressure, with:
+  for any pressure\*, with:
     * **Saturation line**
     * **Constant RH lines**
     * **Constant enthalpy lines**
@@ -31,11 +31,12 @@ pip install psychrochart
 - Tested against example tables from [http://www.engineeringtoolbox.com](http://www.engineeringtoolbox.com)
 - 100 % code coverage.
 
+\* The ranges of temperature, humidity and pressure where this library should provide good results are within the normal environments for people to live in. Don't use this library to do other type of thermodinamic calculations.
+
 #### TODO list:
 
 - Labelling!
 - More customization (axes, labels, legends)
-- Encapsulate in object and ~refactor chart plot (gen data vs plot data)~
 - **Overlay points**
 - Overlay directions (to show evolution in time)
 - Zone overlay
