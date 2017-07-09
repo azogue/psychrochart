@@ -13,6 +13,7 @@ from psychrochart.util import timeit
 @timeit('Psychrometric chart plot')
 def plot_psychrochart(styles=None) -> Axes:
     """Plot the psychrometric chart."""
+
     def _get_figure(figsize=(16, 9), x_label=None, y_label=None, title=None):
         """Create matplotlib figure and axis."""
         figure = plt.figure(figsize=figsize)
@@ -26,26 +27,27 @@ def plot_psychrochart(styles=None) -> Axes:
             plt.title(title, fontsize=14, fontweight='bold')
         return figure
 
-    data = data_psychrochart(styles)
+    chart = data_psychrochart(styles)
 
     # Prepare fig & axis
-    fig = _get_figure(**data.figure)
-    plt.xlim([data.dbt_min, data.dbt_max])
-    plt.ylim([data.w_min, data.w_max])
+    fig = _get_figure(**chart.figure)
+    # noinspection PyUnresolvedReferences
+    plt.xlim([chart.dbt_min, chart.dbt_max])
+    # noinspection PyUnresolvedReferences
+    plt.ylim([chart.w_min, chart.w_max])
     ax = fig.gca()
 
     # Plot curves:
-    # TODO getitem from data keys
-    # noinspection PyProtectedMember
-    data_curves = data._asdict()
-    for curve_family in PSYCHRO_CURVES_KEYS:
-        if data_curves.get(curve_family) is not None:
-            data_curves.get(curve_family).plot(ax=ax)
+    [chart[curve_family].plot(ax=ax)
+     for curve_family in PSYCHRO_CURVES_KEYS
+     if chart[curve_family] is not None]
 
     # TODO añadir zonas como overlay externo
     # Comfort zones (Spain RITE)
-    if data.zones:
-        for zone in data.zones:
+    # noinspection PyUnresolvedReferences
+    if chart.zones:
+        # noinspection PyUnresolvedReferences
+        for zone in chart.zones:
             zone.plot()
 
     return ax

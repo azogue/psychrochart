@@ -24,6 +24,9 @@ PSYCHRO_CURVES_KEYS = [
     'constant_dry_temp_data', 'constant_humidity_data',
     'constant_h_data', 'constant_v_data', 'constant_rh_data',
     'constant_wbt_data', 'saturation']
+PSYCHRO_DATA_KEYS = [
+    'limits', 'p_atm_kpa', 'dbt_min', 'dbt_max', 'w_min', 'w_max',
+    'figure', 'chart_params'] + PSYCHRO_CURVES_KEYS + ['zones']
 
 
 class PsychroCurve:
@@ -117,14 +120,27 @@ class PsychroCurves:
         # TODO family labelling here
 
 
-# TODO convertir a clase heredada
-PsychroData = namedtuple(
-        'PsychroData',
-        ['limits', 'p_atm_kpa', 'dbt_min', 'dbt_max', 'w_min', 'w_max',
-         'figure', 'chart_params',
-         'constant_dry_temp_data', 'constant_humidity_data',
-         'constant_rh_data', 'constant_h_data', 'constant_v_data',
-         'constant_wbt_data', 'saturation', 'zones'])
+class PsychroChart:
+    """Psychrometric chart object handler"""
+
+    def __init__(self, *data_args):
+        named_tuple = namedtuple('PsychroChart', PSYCHRO_DATA_KEYS)
+        self._data = named_tuple(*data_args)
+        # noinspection PyProtectedMember
+        [self.__setattr__(name, value)
+         for name, value in zip(self._data._fields, self._data)]
+
+    def __repr__(self):
+        mask = '<PsychroChart object, limits: {}, data: {}>'
+        # noinspection PyProtectedMember
+        return mask.format(
+            ', '.join(['{}: {}'.format(k, self._data.limits[k])
+                       for k in sorted(self._data.limits)]),
+            self._data._fields)
+
+    def __getitem__(self, item):
+        """Getitem with data keys."""
+        return getattr(self._data, item, None)
 
 
 def _gen_mat_curves_range_temps(
@@ -168,10 +184,10 @@ def _make_zone_dbt_rh(
 
 
 @timeit('Psychrometric data generation')
-def data_psychrochart(styles=None) -> PsychroData:
+def data_psychrochart(styles=None) -> PsychroChart:
     """Generate the data to plot the psychrometric chart.
 
-    # Return a namedtuple object (PsychroData)."""
+    Return a PsychroChart object."""
     # Get styling
     config = load_config(styles)
     dbt_min, dbt_max = config['limits']['range_temp_c']
@@ -335,7 +351,7 @@ def data_psychrochart(styles=None) -> PsychroData:
         [_make_zone_dbt_rh(23, 25, increment, 45, 60, p_atm_kpa, style_z1),
          _make_zone_dbt_rh(21, 23, increment, 40, 50, p_atm_kpa, style_z2)])
 
-    data = PsychroData(
+    data = PsychroChart(
         config['limits'], p_atm_kpa, dbt_min, dbt_max, w_min, w_max,
         config['figure'], chart_params,
         constant_dry_temp_data, constant_humidity_data,

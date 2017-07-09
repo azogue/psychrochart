@@ -42,10 +42,12 @@ class TestsPsychroCurves(TestCase):
         curve_js = PsychroCurve()
         self.assertEqual(str(curve_js), '<Empty PsychroCurve (label: None)>')
         if curve_js:  # Existence test
-            assert()
+            raise AssertionError()
         curve_js = curve_js.from_json(json_curve)
         if not curve_js:  # Existence test
-            assert()
+            raise AssertionError()
+        self.assertEqual(str(curve_js),
+                         '<PsychroCurve 50 values (label: None)>')
 
         self.assertCountEqual(curve.x_data, curve_js.x_data)
         self.assertListEqual(curve.x_data.tolist(), curve_js.x_data.tolist())
@@ -73,5 +75,19 @@ class TestsPsychroCurves(TestCase):
     def test_data_psychrochart(self):
         from psychrochart.chart import data_psychrochart
 
+        obj_repr = "<PsychroChart object, limits: altitude_m: 0, " \
+                   "range_humidity_g_kg: [0, 40], range_temp_c: [0, 50], " \
+                   "step_temp: 1.0, data: ('limits', 'p_atm_kpa', " \
+                   "'dbt_min', 'dbt_max', 'w_min', 'w_max', 'figure', " \
+                   "'chart_params', 'constant_dry_temp_data', " \
+                   "'constant_humidity_data', 'constant_h_data', " \
+                   "'constant_v_data', 'constant_rh_data', " \
+                   "'constant_wbt_data', 'saturation', 'zones')>"
         data_chart = data_psychrochart()
         print(data_chart)
+        self.assertEqual(str(data_chart), obj_repr)
+
+        # noinspection PyUnresolvedReferences
+        self.assertEqual(
+            str(data_chart.constant_rh_data),
+            '<11 PsychroCurves (label: Constant specific volume)>')
