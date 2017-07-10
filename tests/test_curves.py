@@ -75,9 +75,7 @@ class TestsPsychroCurves(TestCase):
     def test_data_psychrochart(self):
         from psychrochart.chart import data_psychrochart
 
-        obj_repr = "<PsychroChart object, limits: altitude_m: 0, " \
-                   "range_humidity_g_kg: [0, 40], range_temp_c: [0, 50], " \
-                   "step_temp: 1.0, data: ('limits', 'p_atm_kpa', " \
+        obj_repr = "<PsychroChart object, data: ('p_atm_kpa', " \
                    "'dbt_min', 'dbt_max', 'w_min', 'w_max', 'figure', " \
                    "'chart_params', 'constant_dry_temp_data', " \
                    "'constant_humidity_data', 'constant_h_data', " \

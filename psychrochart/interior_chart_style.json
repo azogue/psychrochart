@@ -1,24 +1,23 @@
 {
 	"figure": {
-		"figsize": [16, 6],
-		"base_fontsize": 10,
+		"figsize": [8, 9],
 		"title": "Diagrama psicrométrico",
 		"x_label": "Temperatura (ºC)",
 		"y_label": "Humedad específica (g_w / kg_da)",
-		"x_axis": {"color": [0.2, 0.2, 0.2], "linewidth": 2, "linestyle": "-"},
-		"x_axis_labels": {"color": [0.2, 0.2, 0.2], "fontsize": 9},
-		"y_axis": {"color": [0.3, 0.3, 0.3], "linewidth": 2, "linestyle": "-"},
-		"y_axis_labels": {"color": [0.3, 0.3, 0.3], "fontsize": 8},
+		"x_axis": {"color": [0.855, 0.145, 0.114], "linewidth": 2, "linestyle": "-"},
+		"x_axis_labels": {"color": [0.855, 0.145, 0.114], "fontsize": 11},
+		"y_axis": {"color": [0.0, 0.125, 0.376], "linewidth": 2, "linestyle": "-"},
+		"y_axis_labels": {"color": [0.0, 0.125, 0.376], "fontsize": 10},
 		"partial_axis": true
 	},
 	"limits": {
-		"range_temp_c": [0, 50],
-		"range_humidity_g_kg": [0, 40],
-		"altitude_m": 0,
-		"step_temp": 1.0
+		"range_temp_c": [15, 35],
+		"range_humidity_g_kg": [0, 25],
+		"altitude_m": 550,
+		"step_temp": 0.25
 	},
 
-	"saturation": {"color": [0.855, 0.004, 0.278], "linewidth": 3, "linestyle": "-"},
+	"saturation": {"color": [0.855, 0.145, 0.114], "linewidth": 4, "linestyle": "-"},
 	"constant_rh": {"color": [0.0, 0.498, 1.0], "linewidth": 1, "linestyle": "-."},
 	"constant_v": {"color": [0.0, 0.502, 0.337], "linewidth": 1, "linestyle": "--"},
 	"constant_h": {"color": [0.251, 0.0, 0.502], "linewidth": 1, "linestyle": "--"},
@@ -29,29 +28,26 @@
 	"chart_params": {
 		"with_constant_rh": true,
 		"constant_rh_curves": [10, 20, 30, 40, 45, 50, 55, 60, 70, 80, 90],
-		"constant_rh_labels": [20, 30, 40, 50, 60, 70, 80],
-
+		"constant_rh_labels": [10, 20, 30, 40, 50, 60, 70, 80, 90],
+		
 		"with_constant_v": true,
-		"constant_v_step": 0.02,
-		"range_vol_m3_kg": [0.78, 1.0],
-		"constant_v_labels": [0.78, 0.9, 1.0],
+		"constant_v_step": 0.025,
+		"range_vol_m3_kg": [0.75, 1.0],
 
 		"with_constant_h": true,
 		"constant_h_step": 5,
 		"range_h": [0, 250],
-		"constant_h_labels": [0, 50, 100, 150, 200],
 
 		"with_constant_wet_temp": true,
-		"constant_wet_temp_step": 5,
-		"range_wet_temp": [-10, 35],
-		"constant_wet_temp_labels": [0, 10, 20, 30],
+		"constant_wet_temp_step": 1,
+		"range_wet_temp": [-10, 30],
 
 		"with_constant_dry_temp": true,
 		"constant_temp_step": 1,
-		"constant_temp_label_step": 5,
+		"constant_temp_label_step": 1,
 
 		"with_constant_humidity": true,
-		"constant_humid_step": 1,
+		"constant_humid_step": 5,
 		"constant_humid_label_step": 2,
 
 		"with_zones": true

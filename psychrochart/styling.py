@@ -137,7 +137,7 @@ COLOR_PALETTE = {
 # }
 
 
-def _mod_color(color, modification):
+def mod_color(color, modification):
     if abs(modification) < .999:  # is alpha level
         color = list(color) + [modification]
     else:
@@ -149,7 +149,7 @@ def _mod_color(color, modification):
 def _rgba(color, nivel_alpha=None):
     # color = [c / 255 for c in color]
     if nivel_alpha is not None:
-        color = _mod_color(color, nivel_alpha)
+        color = mod_color(color, nivel_alpha)
     return color
 
 

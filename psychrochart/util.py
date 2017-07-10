@@ -11,10 +11,14 @@ import os
 basedir = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_CHART_CONFIG_FILE = os.path.join(basedir, 'default_chart_config.json')
 ASHRAE_CHART_CONFIG_FILE = os.path.join(basedir, 'ashrae_chart_style.json')
+INTERIOR_CHART_CONFIG_FILE = os.path.join(basedir, 'interior_chart_style.json')
+DEFAULT_ZONES_FILE = os.path.join(basedir, 'default_comfort_zones.json')
 
 STYLES = {
     "ashrae": ASHRAE_CHART_CONFIG_FILE,
     "default": DEFAULT_CHART_CONFIG_FILE,
+    "interior": INTERIOR_CHART_CONFIG_FILE,
+    "pruebas": os.path.join(basedir, 'pruebas_chart_style.json'),
 }
 
 
@@ -32,7 +36,9 @@ def timeit(msg_log):
 
 def _update_config(old_conf, new_conf, verbose=False, recurs_idx=0):
     """Update a dict recursively."""
-    assert(recurs_idx < 2)
+    assert(recurs_idx < 3)
+    if old_conf is None:
+        return new_conf
     for key, value in old_conf.items():
         if key in new_conf:
             if isinstance(value, dict):
@@ -47,23 +53,38 @@ def _update_config(old_conf, new_conf, verbose=False, recurs_idx=0):
     return old_conf
 
 
-def load_config(styles=None, verbose=False):
-    """Load the plot params for the psychrometric chart."""
-    with open(DEFAULT_CHART_CONFIG_FILE) as f:
-        config = json.load(f)
-    if styles is not None:
-        if isinstance(styles, str) and styles.endswith('.json'):
-            with open(styles) as f:
+def _load_config(new_config=None, default_config_file=None, verbose=False):
+    """Load plot parameters from a JSON file."""
+    if default_config_file is not None:
+        with open(default_config_file) as f:
+            config = json.load(f)
+    else:
+        config = None
+    if new_config is not None:
+        if isinstance(new_config, str) and new_config.endswith('.json'):
+            with open(new_config) as f:
                 new_config = json.load(f)
-        elif isinstance(styles, str) and styles in STYLES:
-            with open(STYLES[styles]) as f:
+        elif isinstance(new_config, str) and new_config in STYLES:
+            with open(STYLES[new_config]) as f:
                 new_config = json.load(f)
         else:
-            assert(isinstance(styles, dict))
-            new_config = styles
+            assert(isinstance(new_config, dict))
+            new_config = new_config
         config = _update_config(config, new_config, verbose=verbose)
 
     return config
+
+
+def load_config(styles=None, verbose=False):
+    """Load the plot params for the psychrometric chart."""
+    return _load_config(
+        styles, default_config_file=DEFAULT_CHART_CONFIG_FILE,
+        verbose=verbose)
+
+
+def load_zones(zones=DEFAULT_ZONES_FILE, verbose=False):
+    """Load a zones JSON file to overlay in the psychrometric chart."""
+    return _load_config(zones, verbose=verbose)
 
 
 def iter_solver(initial_value, objective_value, func_eval,

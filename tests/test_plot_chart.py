@@ -31,3 +31,15 @@ class TestsPsychroPlot(TestCase):
         plot_psychrochart("ashrae")
         plt.savefig(path_svg_ashrae)
         plt.close()
+
+        path_svg_2 = os.path.join(
+            basedir, 'test_interior_psychrochart.svg')
+        plot_psychrochart("interior")
+        plt.savefig(path_svg_2)
+        plt.close()
+
+        path_svg_3 = os.path.join(
+            basedir, 'test_interior_psychrochart.svg')
+        plot_psychrochart("pruebas")
+        plt.savefig(path_svg_3)
+        plt.close()

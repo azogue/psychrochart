@@ -31,17 +31,17 @@ pip install psychrochart
 - Tested against example tables from [http://www.engineeringtoolbox.com](http://www.engineeringtoolbox.com)
 - 100 % code coverage.
 
-\* The ranges of temperature, humidity and pressure where this library should provide good results are within the normal environments for people to live in. Don't use this library to do other type of thermodinamic calculations.
+\* The ranges of temperature, humidity and pressure where this library should provide good results are within the normal environments for people to live in. Don't expect right results if doing other type of thermodynamic calculations. Over saturated water vapor states are not implemented.
 
 #### TODO list:
 
-- Labelling!
-- More customization (axes, labels, legends)
+- Fix Label rotations!
+- More customization (~axes~, ~labels~, legends)
 - **Overlay points**
 - Overlay directions (to show evolution in time)
-- Zone overlay
-- contour plot overlay
+- Zone overlay post plot
 - **Docs!**
+- contour plot overlay
 - **Vectorize** all calc functions.
 - Profiling and optimizations with `numba` or `cython` if needed.
 

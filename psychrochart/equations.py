@@ -26,7 +26,7 @@ def pressure_by_altitude(altitude_m: float) -> float:
 
 
 def water_vapor_pressure(
-        w_kg_kga: float, p_atm_kpa=PRESSURE_STD_ATM_KPA) -> float:
+        w_kg_kga: float, p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> float:
     """Obtain the water vapor pressure from the humidity ratio (w_kg_kga).
 
     kPa, eq (38)
@@ -38,7 +38,7 @@ def water_vapor_pressure(
 
 
 def humidity_ratio(
-        p_vapor_kpa: float, p_atm_kpa=PRESSURE_STD_ATM_KPA) -> float:
+        p_vapor_kpa: float, p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> float:
     """Obtain the humidity ratio from the water vapor pressure.
 
     kg water vapor / kg dry air, eq (22)
@@ -51,7 +51,7 @@ def humidity_ratio(
 
 def humidity_ratio_from_temps(
         dry_bulb_temp_c: float, wet_bulb_temp_c: float,
-        p_atm_kpa=PRESSURE_STD_ATM_KPA) -> float:
+        p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> float:
     """Obtain the specific humidity from the dry and wet bulb temperatures.
 
     kg water vapor / kg dry air, eqs (35) and (37)
@@ -75,7 +75,7 @@ def humidity_ratio_from_temps(
 
 def relative_humidity_from_temps(
         dry_bulb_temp_c: float, wet_bulb_temp_c: float,
-        p_atm_kpa=PRESSURE_STD_ATM_KPA) -> float:
+        p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> float:
     """Ratio of the mole fraction of water vapor x_w in a given moist
     air sample to the mole fraction xws in an air sample
     saturated at the same temperature and pressure.
@@ -91,7 +91,7 @@ def relative_humidity_from_temps(
 
 def specific_volume(
         dry_temp_c: float, p_vapor_kpa: float,
-        p_atm_kpa=PRESSURE_STD_ATM_KPA) -> float:
+        p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> float:
     """Obtain the specific volume v of a moist air mixture.
 
     m3 / kg dry air, eq. (28) 2009 ASHRAE Handbook—Fundamentals (SI).
@@ -105,7 +105,7 @@ def specific_volume(
 
 def dry_temperature_for_specific_volume_of_moist_air(
         w_kg_kga: float, specific_vol: float,
-        p_atm_kpa=PRESSURE_STD_ATM_KPA) -> float:
+        p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> float:
     """Solve the dry bulb temp from humidity ratio and specific volume.
 
     ºC. Derived from eq. (28), 2009 ASHRAE Handbook—Fundamentals (SI)."""
@@ -164,7 +164,7 @@ def saturation_pressure_water_vapor(dry_temp_c: float, mode=3) -> float:
 
 def enthalpy_moist_air(
         dry_temp_c: float, p_vapor_kpa: float,
-        p_atm_kpa=PRESSURE_STD_ATM_KPA) -> float:
+        p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> float:
     """Moist air specific enthalpy.
 
     KJ / kg. Eqs. (32), (30), (31) 2009 ASHRAE Handbook—Fundamentals (SI)."""
@@ -217,7 +217,7 @@ def dew_point_temperature(p_w_kpa: float) -> float:
 
 def wet_bulb_temperature(
         dry_temp_c: float, relative_humid: float,
-        p_atm_kpa=PRESSURE_STD_ATM_KPA,
+        p_atm_kpa: float=PRESSURE_STD_ATM_KPA,
         num_iters_max=100, precision=0.00001) -> float:
     """Wet bulb temperature.
 
