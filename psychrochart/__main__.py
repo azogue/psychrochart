@@ -4,12 +4,12 @@ A python library to make psychrometric charts and overlay information in them.
 
 """
 # from matplotlib.pyplot import show
-from psychrochart.psychroplot import plot_psychrochart
+from psychrochart.chart import PsychroChart
 
 
 def main():
     """CLI entry point to show the default psychrometric chart."""
-    plot_psychrochart()
+    PsychroChart().plot()
     # show()
 
 
