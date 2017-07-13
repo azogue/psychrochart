@@ -1,9 +1,9 @@
 {
 	"figure": {
-		"figsize": [16, 6],
+		"figsize": [16, 9],
 		"base_fontsize": 10,
 		"title": "Diagrama psicrométrico",
-		"x_label": "Temperatura (ºC)",
+		"x_label": "Temperatura (°C)",
 		"y_label": "Humedad específica (g_w / kg_da)",
 		"x_axis": {"color": [0.2, 0.2, 0.2], "linewidth": 2, "linestyle": "-"},
 		"x_axis_labels": {"color": [0.2, 0.2, 0.2], "fontsize": 9},

@@ -31,7 +31,7 @@
 		
 		"with_constant_v": true,
 		"constant_v_step": 0.01,
-		"range_vol_m3_kg": [0.78, 1.0],
+		"range_vol_m3_kg": [0.78, 0.96],
 
 		"with_constant_h": true,
 		"constant_h_step": 10,
