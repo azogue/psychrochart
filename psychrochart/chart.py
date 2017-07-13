@@ -104,7 +104,7 @@ class PsychroCurve:
         self._label = data.get('label')
         return self
 
-    def plot(self, ax: Axes=None, limits: tuple=None):
+    def plot(self, ax: Axes=None):
         """Plot the curve."""
         if ax is None:
             ax = plt.gca()
@@ -114,7 +114,8 @@ class PsychroCurve:
         if not _between_limits(self.x_data, self.y_data,
                                xmin, xmax, ymin, ymax):
             print('{} Not between limits ([{}, {}, {}, {}]) -> x:{}, y:{}'
-                  .format(self._type_curve, xmin, xmax, ymin, ymax, self.x_data, self.y_data))
+                  .format(self._type_curve, xmin, xmax, ymin, ymax,
+                          self.x_data, self.y_data))
             return ax
 
         if self._is_patch:
@@ -129,67 +130,70 @@ class PsychroCurve:
         else:
             ax.plot(self.x_data, self.y_data, **self.style)
 
-        # def add_label(self, ax: Axes = None):
-        #     """Plot the curve."""
-
-        # TODO curve labelling here
+        # Labelling
         if not self._is_patch and self._label is not None:
-            num_samples = len(self.x_data)
-            assert len(self.y_data) > 1
+            self.add_label(ax)
 
-            fig_size = ax.get_figure().get_size_inches()
-            ax_size = ax.get_position().size
-            fig_ratio = fig_size[0] * ax_size[0] / (fig_size[1] * ax_size[1])
+    def add_label(self, ax: Axes = None,
+                  text_label: str=None,
+                  va: str=None, ha: str=None, loc: float=None):
+        """Annotate the curve with its label."""
+        num_samples = len(self.x_data)
+        assert num_samples > 1
+        text_style = {'va': 'bottom', 'ha': 'left'}
+        loc_f = self._label_loc if loc is None else loc
+        label = self._label if text_label is None else text_label
 
-            if num_samples == 2:
-                delta_x = self.x_data[1] - self.x_data[0]
-                delta_y = self.y_data[1] - self.y_data[0]
-                if delta_x == 0:
-                    rotation = 90  # up to bottom
-                    xy = (self.x_data[0],
-                          (self.y_data[0] + self._label_loc * delta_y))
-                    text_style = {'rotation': rotation,
-                                  'va': 'baseline', 'ha': 'left'}
-                elif self._label_loc == 1.:
-                    if self.x_data[1] > xmax:
-                        tilt = delta_y / delta_x
-                        xy = (xmax,
-                              self.y_data[0] + tilt * (xmax - self.x_data[0]))
-                    else:
-                        xy = (self.x_data[1], self.y_data[1])
-                    rotation = degrees(atan2(delta_y / fig_ratio, delta_x))
-                    # print('XY -> ', self._type_curve, xy, rotation)
-                    text_style = {'rotation': rotation,
-                                  "rotation_mode": "anchor",
-                                  'va': 'bottom', 'ha': 'right'}
-                else:
-                    tilt = delta_y / delta_x
-                    x = self.x_data[0] + self._label_loc * (xmax - xmin)
-                    if x < xmin:
-                        # print('enderezando: ', self._type_curve)
-                        x = xmin + self._label_loc * (xmax - xmin)
-                    y = self.y_data[0] + tilt * (x - self.x_data[0])
-                    xy = (x, y)
-                    rotation = degrees(atan2(delta_y / fig_ratio, delta_x))
-                    # print('XY left-> ', self._type_curve, xy, rotation)
-                    text_style = {'rotation': rotation,
-                                  "rotation_mode": "anchor",
-                                  'va': 'bottom', 'ha': 'left'}
+        def _tilt_params(x_data, y_data, idx_0, idx_f):
+            delta_x = x_data[idx_f] - self.x_data[idx_0]
+            delta_y = y_data[idx_f] - self.y_data[idx_0]
+            if delta_x == 0:
+                rotation_deg = 90  # up to bottom
+                tilt_curve = 1e12
             else:
-                idx = int(num_samples * self._label_loc)
-                if idx == num_samples - 1:
-                    idx -= 1
-                delta_x = self.x_data[idx + 1] - self.x_data[idx]
-                delta_y = self.y_data[idx + 1] - self.y_data[idx]
+                rotation_deg = degrees(atan2(delta_y, delta_x))
+                tilt_curve = delta_y / delta_x
+            return rotation_deg, tilt_curve
 
-                rotation = degrees(atan2(delta_y / fig_ratio, delta_x * fig_ratio))
-                xy = (self.x_data[idx], self.y_data[idx])
-                text_style = {'rotation': rotation,
-                              "rotation_mode": "anchor",
-                              'va': 'bottom', 'ha': 'center'}
-            if 'color' in self.style:
-                text_style['color'] = mod_color(self.style['color'], -25)
-            ax.annotate(self._label, xy, **text_style)
+        if num_samples == 2:
+            xmin, xmax = ax.get_xlim()
+            rotation, tilt = _tilt_params(self.x_data, self.y_data, 0, 1)
+            if abs(rotation) == 90:
+                text_x = self.x_data[0]
+                text_y = (self.y_data[0]
+                          + loc_f * (self.y_data[1] - self.y_data[0]))
+            elif loc_f == 1.:
+                if self.x_data[1] > xmax:
+                    text_x = xmax
+                    text_y = self.y_data[0] + tilt * (xmax - self.x_data[0])
+                else:
+                    text_x, text_y = self.x_data[1], self.y_data[1]
+            else:
+                text_x = self.x_data[0] + loc_f * (xmax - xmin)
+                if text_x < xmin:
+                    text_x = xmin + loc_f * (xmax - xmin)
+                text_y = self.y_data[0] + tilt * (text_x - self.x_data[0])
+        else:
+            idx = min(num_samples - 2, int(num_samples * loc_f))
+            rotation, tilt = _tilt_params(self.x_data, self.y_data,
+                                          idx, idx + 1)
+            text_x, text_y = self.x_data[idx], self.y_data[idx]
+            text_style['ha'] = 'center'
+
+        if 'color' in self.style:
+            text_style['color'] = mod_color(self.style['color'], -25)
+
+        text_loc = np.array((text_x, text_y))
+        text_style['rotation'] = ax.transData.transform_angles(
+            np.array((rotation,)), text_loc.reshape((1, 2)))[0]
+        text_style['rotation_mode'] = 'anchor'
+
+        if ha is not None:
+            text_style['ha'] = ha
+        if va is not None:
+            text_style['va'] = va
+
+        ax.annotate(label, (text_x, text_y), **text_style)
 
 
 class PsychroCurves:
@@ -216,9 +220,9 @@ class PsychroCurves:
         return '<{} PsychroCurves (label: {})>'.format(
             len(self), self.family_label)
 
-    def plot(self, ax: Axes=None, limits: tuple=None):
+    def plot(self, ax: Axes=None):
         """Plot the family curves."""
-        [curve.plot(ax, limits=limits) for curve in self.curves]
+        [curve.plot(ax) for curve in self.curves]
         # TODO family labelling here
 
 
@@ -307,15 +311,14 @@ class PsychroChart:
                     ['{:g}'.format(t) for t in ticks], **y_style_labels)
 
         # Plot curves:
-        [self[curve_family].plot(ax=ax, limits=limits)
+        [self[curve_family].plot(ax=ax)
          for curve_family in PSYCHRO_CURVES_KEYS
          if self[curve_family] is not None]
 
-        # TODO añadir zonas como overlay externo
-        # Comfort zones (Spain RITE)
+        # Plot zones:
         if self._data.zones:
             for zone in self._data.zones:
-                zone.plot(ax=ax, limits=limits)
+                zone.plot(ax=ax)
 
         return ax
 
@@ -372,8 +375,6 @@ def _make_zone(
             *zone_conf['points_x'], increment,
             *zone_conf['points_y'], p_atm_kpa, zone_conf['style'])
 
-    # 'fill_color': [0.859, 0.0, 0.6], 'label': None,
-
 
 @timeit('Psychrometric data generation')
 def data_psychrochart(styles=None, zones_file=None) -> PsychroChart:
@@ -387,7 +388,7 @@ def data_psychrochart(styles=None, zones_file=None) -> PsychroChart:
     altitude_m = config['limits']['altitude_m']
     increment = config['limits']['step_temp']
     chart_params = config['chart_params']
-    limits = [dbt_min, dbt_max, w_min, w_max]
+    # limits = [dbt_min, dbt_max, w_min, w_max]
 
     # Base pressure
     p_atm_kpa = pressure_by_altitude(altitude_m)
@@ -480,7 +481,7 @@ def data_psychrochart(styles=None, zones_file=None) -> PsychroChart:
                     saturation_pressure_water_vapor(t_sat), p_atm_kpa),
                                  w_min], style,
                 type_curve='constant_h_data',
-                label_loc=1., label='H = {:g} kJ/kg_da'.format(h)
+                label_loc=1., label='{:g} kJ/kg_da'.format(h)
                 if round(h, 3) in h_label_values else None)
              for t_sat, t_max, h in zip(
                 sat_points, temps_max_constant_h, enthalpy_values)],
@@ -511,7 +512,7 @@ def data_psychrochart(styles=None, zones_file=None) -> PsychroChart:
                 [t_sat, t_max], [1000 * humidity_ratio(
                     saturation_pressure_water_vapor(t_sat), p_atm_kpa), 0],
                 style, type_curve='constant_v_data',
-                label_loc=1., label='V = {:g} m3/kg_da'.format(vol)
+                label_loc=1., label='{:g} m3/kg_da'.format(vol)
                 if round(vol, 3) in vol_label_values else None)
              for t_sat, t_max, vol in zip(
                 sat_points, temps_max_constant_v, vol_values)],
@@ -536,7 +537,7 @@ def data_psychrochart(styles=None, zones_file=None) -> PsychroChart:
                                          dbt_max, wbt, p_atm_kpa=p_atm_kpa),
                                      p_atm_kpa=p_atm_kpa)], style,
                 type_curve='constant_wbt_data',
-                label_loc=0.05, label='WBT {:g} ºC'.format(wbt)
+                label_loc=0.05, label='{:g} ºC'.format(wbt)
                 if wbt in wbt_label_values else None)
              for wbt, w_max in zip(wbt_values, w_max_constant_wbt)],
             family_label='Constant wet bulb temperature')
@@ -549,25 +550,25 @@ def data_psychrochart(styles=None, zones_file=None) -> PsychroChart:
             dbt_min, dbt_max, increment,
             [100], p_atm_kpa=p_atm_kpa)
 
-        saturation = PsychroCurve(temps_sat_line, w_sat_line[:, 0], sat_style,
-                                  type_curve='saturation')
+        saturation = PsychroCurve(temps_sat_line, w_sat_line[:, 0],
+                                  sat_style, type_curve='saturation')
 
-    # TODO añadir zonas desde config
-    # Comfort zones (Spain RITE)
-    if zones_file is None:
-        conf_zones = load_zones()
-    else:
+    # Zones
+    if chart_params["with_zones"] and zones_file is None:
+        conf_zones = load_zones()  # load default 'Comfort' zones (Spain RITE)
+    elif zones_file is not None:
         conf_zones = load_zones(zones_file)
+    else:
+        conf_zones = []
 
     zones = PsychroCurves(
         [_make_zone(zone_conf, increment, p_atm_kpa)
          for zone_conf in conf_zones])
 
-    data = PsychroChart(
+    # PsychroChart object
+    return PsychroChart(
         p_atm_kpa, dbt_min, dbt_max, w_min, w_max,
         config['figure'], chart_params,
         constant_dry_temp_data, constant_humidity_data,
         constant_rh_data, constant_h_data, constant_v_data,
         constant_wbt_data, saturation, zones)
-
-    return data
