@@ -5,7 +5,7 @@ A python library to make psychrometric charts and overlay information in them.
 """
 from matplotlib.axes import Axes
 
-from psychrochart.chart import data_psychrochart
+from psychrochart.chart import PsychroChart
 from psychrochart.util import timeit
 
 
@@ -13,4 +13,4 @@ from psychrochart.util import timeit
 def plot_psychrochart(styles=None) -> Axes:
     """Plot the psychrometric chart."""
 
-    return data_psychrochart(styles).plot()
+    return PsychroChart(styles).plot()
