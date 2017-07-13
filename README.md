@@ -35,8 +35,7 @@ pip install psychrochart
 
 #### TODO list:
 
-- Fix Label rotations!
-- More customization (~axes~, ~labels~, legends)
+- Legends
 - **Overlay points**
 - Overlay directions (to show evolution in time)
 - Zone overlay post plot
@@ -74,4 +73,8 @@ to generate the coverage reports.
 **Default style**:
 
 <img src="https://rawgit.com/azogue/psychrochart/master/tests/test_default_psychrochart.svg" width="100%" height="100%">
+
+**Minimal style**:
+
+<img src="https://rawgit.com/azogue/psychrochart/master/tests/test_minimal_psychrochart.svg" width="100%" height="100%">
 
