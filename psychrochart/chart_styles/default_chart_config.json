@@ -44,7 +44,7 @@
 		"with_constant_wet_temp": true,
 		"constant_wet_temp_step": 5,
 		"range_wet_temp": [-10, 35],
-		"constant_wet_temp_labels": [0, 10, 20, 30],
+		"constant_wet_temp_labels": [0, 5, 10, 15, 20, 25, 30],
 
 		"with_constant_dry_temp": true,
 		"constant_temp_step": 1,

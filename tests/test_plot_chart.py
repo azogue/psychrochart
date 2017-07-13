@@ -39,7 +39,7 @@ class TestsPsychroPlot(TestCase):
         plt.close()
 
         path_svg_3 = os.path.join(
-            basedir, 'test_interior_psychrochart.svg')
-        plot_psychrochart("pruebas")
+            basedir, 'test_minimal_psychrochart.svg')
+        plot_psychrochart("minimal")
         plt.savefig(path_svg_3)
         plt.close()
