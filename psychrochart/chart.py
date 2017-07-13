@@ -100,6 +100,18 @@ class PsychroCurve:
         self._label = data.get('label')
         return self
 
+    @staticmethod
+    def _annotate_label(ax: Axes, label: str,
+                        text_x: float, text_y: float, rotation: float,
+                        text_style: dict):
+        if abs(rotation) > 0:
+            text_loc = np.array((text_x, text_y))
+            text_style['rotation'] = ax.transData.transform_angles(
+                np.array((rotation,)), text_loc.reshape((1, 2)))[0]
+            text_style['rotation_mode'] = 'anchor'
+        print(label, (text_x, text_y), text_style)
+        ax.annotate(label, (text_x, text_y), **text_style)
+
     def plot(self, ax: Axes=None):
         """Plot the curve."""
         if ax is None:
@@ -121,14 +133,22 @@ class PsychroCurve:
                      + [Path.CLOSEPOLY])
             path = Path(verts, codes)
             patch = patches.PathPatch(path, **self.style)
-
             ax.add_patch(patch)
+
+            if self._label is not None:
+                bbox_p = path.get_extents()
+                text_x = .5 * (bbox_p.x0 + bbox_p.x1)
+                text_y = .5 * (bbox_p.y0 + bbox_p.y1)
+                style = {'ha': 'center', 'va': 'center',
+                         "backgroundcolor": [1, 1, 1, .4]}
+                if 'edgecolor' in self.style:
+                    style['color'] = mod_color(self.style['edgecolor'], -25)
+                self._annotate_label(ax, self._label,
+                                     text_x, text_y, 0, style)
         else:
             ax.plot(self.x_data, self.y_data, **self.style)
-
-        # Labelling
-        if not self._is_patch and self._label is not None:
-            self.add_label(ax)
+            if self._label is not None:
+                self.add_label(ax)
 
         return ax
 
@@ -145,11 +165,10 @@ class PsychroCurve:
         def _tilt_params(x_data, y_data, idx_0, idx_f):
             delta_x = x_data[idx_f] - self.x_data[idx_0]
             delta_y = y_data[idx_f] - self.y_data[idx_0]
+            rotation_deg = degrees(atan2(delta_y, delta_x))
             if delta_x == 0:
-                rotation_deg = 90  # up to bottom
                 tilt_curve = 1e12
             else:
-                rotation_deg = degrees(atan2(delta_y, delta_x))
                 tilt_curve = delta_y / delta_x
             return rotation_deg, tilt_curve
 
@@ -182,18 +201,11 @@ class PsychroCurve:
 
         if 'color' in self.style:
             text_style['color'] = mod_color(self.style['color'], -25)
-
-        text_loc = np.array((text_x, text_y))
-        text_style['rotation'] = ax.transData.transform_angles(
-            np.array((rotation,)), text_loc.reshape((1, 2)))[0]
-        text_style['rotation_mode'] = 'anchor'
-
         if ha is not None:
             text_style['ha'] = ha
         if va is not None:
             text_style['va'] = va
-
-        ax.annotate(label, (text_x, text_y), **text_style)
+        self._annotate_label(ax, label, text_x, text_y, rotation, text_style)
 
         return ax
 
@@ -228,6 +240,64 @@ class PsychroCurves:
         # TODO family labelling here
 
 
+def _gen_mat_curves_range_temps(
+        func_curve: Callable,
+        dbt_min: float, dbt_max: float, increment: float,
+        curves_values: list,
+        p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> tuple:
+    """Generic curve generation in a range of temperatures."""
+    temps = np.arange(dbt_min, dbt_max + increment, increment)
+    curves = np.zeros((len(temps), len(curves_values)))
+
+    for i, value in enumerate(curves_values):
+        curves[:, i] = func_curve(
+            temps, value, p_atm_kpa)
+    return temps, curves
+
+
+def _curve_constant_humidity_ratio(
+        dry_temps: Iterable, rh_percentage: float=100.,
+        p_atm_kpa: float=PRESSURE_STD_ATM_KPA, mode_sat=1) -> np.array:
+    """Generate a curve (numpy array) of constant humidity ratio."""
+    return np.array(
+        [1000 * humidity_ratio(
+            saturation_pressure_water_vapor(t, mode=mode_sat)
+            * rh_percentage / 100., p_atm_kpa)
+         for t in dry_temps])
+
+
+def _make_zone_dbt_rh(
+        t_min: float, t_max: float, increment: float,
+        rh_min: float, rh_max: float,
+        p_atm_kpa: float=PRESSURE_STD_ATM_KPA,
+        style: dict=None, label: str=None) -> PsychroCurve:
+    """Generate points for zone between constant dry bulb temps and RH."""
+    temps = np.arange(t_min, t_max + increment, increment)
+    curve_rh_up = _curve_constant_humidity_ratio(temps, rh_max, p_atm_kpa)
+    curve_rh_down = _curve_constant_humidity_ratio(temps, rh_min, p_atm_kpa)
+    abs_humid = np.array(list(curve_rh_up)
+                         + list(curve_rh_down[::-1]) + [curve_rh_up[0]])
+    temps_zone = np.array(list(temps) + list(temps[::-1]) + [temps[0]])
+    return PsychroCurve(temps_zone, abs_humid, style,
+                        type_curve='constant_rh_data', label=label)
+
+
+def _make_zone(
+        zone_conf: dict, increment: float,
+        p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> PsychroCurve:
+    """Generate points for zone between constant dry bulb temps and RH."""
+    if zone_conf['zone_type'] == 'dbt-rh':
+        return _make_zone_dbt_rh(
+            *zone_conf['points_x'], increment,
+            *zone_conf['points_y'], p_atm_kpa, zone_conf['style'],
+            label=zone_conf.get('label'))
+    elif zone_conf['zone_type'] == 'xy-points':
+        return PsychroCurve(
+            zone_conf['points_x'], zone_conf['points_y'], zone_conf['style'],
+            type_curve='custom path', label=zone_conf.get('label'))
+    # elif zone_conf['zone_type'] == 'dbt-rh-points':
+    # make conversion rh -> w
+
 class PsychroChart:
     """Psychrometric chart object handler"""
 
@@ -238,6 +308,7 @@ class PsychroChart:
         self.figure_params = {}
         self.dbt_min = self.dbt_max = -100
         self.w_min = self.w_max = -1
+        self.temp_step = 1.
         self.altitude_m = -1
         self.chart_params = {}
         self.p_atm_kpa = -1
@@ -248,6 +319,7 @@ class PsychroChart:
         self.constant_v_data = None
         self.constant_wbt_data = None
         self.saturation = None
+        self.zones = []
 
         self._make_chart_data(styles, zones_file)
 
@@ -263,7 +335,7 @@ class PsychroChart:
         """Generate the data to plot the psychrometric chart."""
         # Get styling
         config = load_config(styles)
-        increment = config['limits']['step_temp']
+        self.temp_step = config['limits']['step_temp']
 
         self.figure_params = config['figure']
         self.dbt_min, self.dbt_max = config['limits']['range_temp_c']
@@ -323,7 +395,7 @@ class PsychroChart:
             style = config["constant_rh"]
             temps_ct_rh, curves_ct_rh = _gen_mat_curves_range_temps(
                 _curve_constant_humidity_ratio,
-                self.dbt_min, self.dbt_max, increment,
+                self.dbt_min, self.dbt_max, self.temp_step,
                 rh_perc_values, p_atm_kpa=self.p_atm_kpa)
 
             self.constant_rh_data = PsychroCurves(
@@ -435,7 +507,7 @@ class PsychroChart:
             sat_style = config["saturation"]
             temps_sat_line, w_sat_line = _gen_mat_curves_range_temps(
                 _curve_constant_humidity_ratio,
-                self.dbt_min, self.dbt_max, increment,
+                self.dbt_min, self.dbt_max, self.temp_step,
                 [100], p_atm_kpa=self.p_atm_kpa)
 
             self.saturation = PsychroCurve(
@@ -443,17 +515,21 @@ class PsychroChart:
                 type_curve='saturation')
 
         # Zones
-        if self.chart_params["with_zones"] and zones_file is None:
-            # load default 'Comfort' zones (Spain RITE)
-            conf_zones = load_zones()
-        elif zones_file is not None:
-            conf_zones = load_zones(zones_file)
-        else:
-            conf_zones = []
+        if self.chart_params["with_zones"] or zones_file is not None:
+            self.append_zones(zones_file)
 
-        self.zones = PsychroCurves(
-            [_make_zone(zone_conf, increment, self.p_atm_kpa)
-             for zone_conf in conf_zones])
+    def append_zones(self, zones: Union[dict, str]=None):
+        """Append zones as patches to the psychrometric chart."""
+        if zones is None:
+            # load default 'Comfort' zones (Spain RITE)
+            d_zones = load_zones()
+        else:
+            d_zones = load_zones(zones)
+
+        self.zones.append(
+            PsychroCurves(
+                [_make_zone(zone_conf, self.temp_step, self.p_atm_kpa)
+                 for zone_conf in d_zones['zones']]))
 
     def plot(self) -> plt.Axes:
         """Plot the psychrochart and return the matplotlib Axes instance."""
@@ -533,55 +609,3 @@ class PsychroChart:
                 zone.plot(ax=ax)
 
         return ax
-
-
-def _gen_mat_curves_range_temps(
-        func_curve: Callable,
-        dbt_min: float, dbt_max: float, increment: float,
-        curves_values: list,
-        p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> tuple:
-    """Generic curve generation in a range of temperatures."""
-    temps = np.arange(dbt_min, dbt_max + increment, increment)
-    curves = np.zeros((len(temps), len(curves_values)))
-
-    for i, value in enumerate(curves_values):
-        curves[:, i] = func_curve(
-            temps, value, p_atm_kpa)
-    return temps, curves
-
-
-def _curve_constant_humidity_ratio(
-        dry_temps: Iterable, rh_percentage: float=100.,
-        p_atm_kpa: float=PRESSURE_STD_ATM_KPA, mode_sat=1) -> np.array:
-    """Generate a curve (numpy array) of constant humidity ratio."""
-    return np.array(
-        [1000 * humidity_ratio(
-            saturation_pressure_water_vapor(t, mode=mode_sat)
-            * rh_percentage / 100., p_atm_kpa)
-         for t in dry_temps])
-
-
-def _make_zone_dbt_rh(
-        t_min: float, t_max: float, increment: float,
-        rh_min: float, rh_max: float,
-        p_atm_kpa: float=PRESSURE_STD_ATM_KPA,
-        style: dict=None, label: str=None) -> PsychroCurve:
-    """Generate points for zone between constant dry bulb temps and RH."""
-    temps = np.arange(t_min, t_max + increment, increment)
-    curve_rh_up = _curve_constant_humidity_ratio(temps, rh_max, p_atm_kpa)
-    curve_rh_down = _curve_constant_humidity_ratio(temps, rh_min, p_atm_kpa)
-    abs_humid = np.array(list(curve_rh_up)
-                         + list(curve_rh_down[::-1]) + [curve_rh_up[0]])
-    temps_zone = np.array(list(temps) + list(temps[::-1]) + [temps[0]])
-    return PsychroCurve(temps_zone, abs_humid, style,
-                        type_curve='constant_rh_data', label=label)
-
-
-def _make_zone(
-        zone_conf: dict, increment: float,
-        p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> PsychroCurve:
-    """Generate points for zone between constant dry bulb temps and RH."""
-    if zone_conf['zone_type'] == 'dbt-rh':
-        return _make_zone_dbt_rh(
-            *zone_conf['points_x'], increment,
-            *zone_conf['points_y'], p_atm_kpa, zone_conf['style'])

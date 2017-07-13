@@ -78,7 +78,7 @@ class TestsPsychroCurves(TestCase):
         # Add label
         vertical_curve.add_label(ax, 'TEST', va='baseline', ha='center')
 
-        plt.savefig('test_line_vert.svg')
+        # plt.savefig('test_line_vert.svg')
         plt.close()
 
     def test_data_psychrochart(self):
@@ -96,15 +96,15 @@ class TestsPsychroCurves(TestCase):
 
         self.assertEqual(
             str(data_chart.constant_v_data),
-            '<11 PsychroCurves (label: Constant specific volume)>')
+            '<10 PsychroCurves (label: Constant specific volume)>')
 
         self.assertEqual(
             str(data_chart.constant_wbt_data),
-            '<9 PsychroCurves (label: Constant wet bulb temperature)>')
+            '<10 PsychroCurves (label: Constant wet bulb temperature)>')
 
         self.assertEqual(
             str(data_chart.constant_h_data),
-            '<50 PsychroCurves (label: Constant enthalpy)>')
+            '<30 PsychroCurves (label: Constant enthalpy)>')
 
         self.assertEqual(
             str(data_chart.constant_dry_temp_data),

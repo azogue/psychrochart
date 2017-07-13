@@ -2,7 +2,7 @@
 	"figure": {
 		"figsize": [16, 9],
 		"title": "Psychrometric Chart (sea level)",
-		"x_label": "DRY-BULB TEMPERATURE, ºC",
+		"x_label": "DRY-BULB TEMPERATURE, °C",
 		"y_label": "HUMIDITY RATIO w, g_w / kg_da",
 		"x_axis": {"color": [0.0, 0.0, 0.0], "linewidth": 1.5, "linestyle": "-"},
 		"x_axis_labels": {"color": [0.0, 0.0, 0.0], "fontsize": 8},

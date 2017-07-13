@@ -43,7 +43,7 @@
 		"with_constant_wet_temp": true,
 		"constant_wet_temp_step": 5,
 		"range_wet_temp": [-10, 30],
-		"constant_wet_temp_labels": [10, 15, 20, 25],
+		"constant_wet_temp_labels": [10, 20],
 
 		"with_constant_dry_temp": true,
 		"constant_temp_step": 5,
@@ -53,6 +53,6 @@
 		"constant_humid_step": 10,
 		"constant_humid_label_step": 10,
 
-		"with_zones": true
+		"with_zones": false
 	}
 }

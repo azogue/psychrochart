@@ -49,6 +49,7 @@ def humidity_ratio(
     return w_kg_kga
 
 
+# TODO prec revision:
 def humidity_ratio_from_temps(
         dry_bulb_temp_c: float, wet_bulb_temp_c: float,
         p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> float:
@@ -60,7 +61,7 @@ def humidity_ratio_from_temps(
     w_sat_wet_bulb = humidity_ratio(
         saturation_pressure_water_vapor(wet_bulb_temp_c), p_atm_kpa)
     delta_t = dry_bulb_temp_c - wet_bulb_temp_c
-    assert (delta_t >= 0)
+    # assert (delta_t >= 0)
     factor_delta = 1.006 * delta_t
     if dry_bulb_temp_c > 0:
         num_1 = (2501 - 2.326 * wet_bulb_temp_c) * w_sat_wet_bulb
