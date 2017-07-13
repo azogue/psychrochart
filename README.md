@@ -66,13 +66,13 @@ to generate the coverage reports.
 
 ## Examples
 
-**ASHRAE Handbook black and white style**:
-
-<img src="https://rawgit.com/azogue/psychrochart/master/tests/test_ashrae_psychrochart.svg" width="100%" height="100%">
-
 **Default style**:
 
 <img src="https://rawgit.com/azogue/psychrochart/master/tests/test_default_psychrochart.svg" width="100%" height="100%">
+
+**ASHRAE Handbook black and white style**:
+
+<img src="https://rawgit.com/azogue/psychrochart/master/tests/test_ashrae_psychrochart.svg" width="100%" height="100%">
 
 **Minimal style**:
 

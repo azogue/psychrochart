@@ -10,7 +10,7 @@ import matplotlib.patches as patches
 from matplotlib.path import Path
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import Iterable, Callable
+from typing import Iterable, Callable, Union
 
 from psychrochart.equations import (
     PRESSURE_STD_ATM_KPA, pressure_by_altitude, humidity_ratio,
@@ -166,6 +166,8 @@ class PsychroCurve:
                     text_y = self.y_data[0] + tilt * (xmax - self.x_data[0])
                 else:
                     text_x, text_y = self.x_data[1], self.y_data[1]
+                label += '    '
+                text_style['ha'] = 'right'
             else:
                 text_x = self.x_data[0] + loc_f * (xmax - xmin)
                 if text_x < xmin:
@@ -230,8 +232,8 @@ class PsychroChart:
     """Psychrometric chart object handler"""
 
     def __init__(self,
-                 styles: dict or str=None,
-                 zones_file: dict or str=None):
+                 styles: Union[dict, str]=None,
+                 zones_file: Union[dict, str]=None):
         """Initialization of the PsychroChart object."""
         self.figure_params = {}
         self.dbt_min = self.dbt_max = -100
@@ -256,8 +258,8 @@ class PsychroChart:
 
     @timeit('Psychrometric data generation')
     def _make_chart_data(self,
-                         styles: dict or str=None,
-                         zones_file: dict or str=None):
+                         styles: Union[dict, str]=None,
+                         zones_file: Union[dict, str]=None):
         """Generate the data to plot the psychrometric chart."""
         # Get styling
         config = load_config(styles)

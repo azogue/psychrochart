@@ -33,18 +33,18 @@
 
 		"with_constant_v": true,
 		"constant_v_step": 0.02,
-		"range_vol_m3_kg": [0.78, 1.0],
-		"constant_v_labels": [0.78, 0.9, 1.0],
+		"range_vol_m3_kg": [0.78, 0.98],
+		"constant_v_labels": [0.8, 0.9, 0.96],
 
 		"with_constant_h": true,
 		"constant_h_step": 5,
-		"range_h": [0, 250],
-		"constant_h_labels": [0, 50, 100, 150, 200],
+		"range_h": [5, 155],
+		"constant_h_labels": [5, 25, 50, 75, 100, 125],
 
 		"with_constant_wet_temp": true,
 		"constant_wet_temp_step": 5,
-		"range_wet_temp": [-10, 35],
-		"constant_wet_temp_labels": [0, 5, 10, 15, 20, 25, 30],
+		"range_wet_temp": [-10, 40],
+		"constant_wet_temp_labels": [0, 5, 10, 15, 20, 25, 30, 35],
 
 		"with_constant_dry_temp": true,
 		"constant_temp_step": 1,
