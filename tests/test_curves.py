@@ -69,23 +69,48 @@ class TestsPsychroCurves(TestCase):
         curve = PsychroCurve(x_data, y_data, style)
 
         # Plotting
-        curve.plot()
+        ax = curve.plot()
+
+        # Vertical line
+        vertical_curve = PsychroCurve([25, 25], [2, 48])
+        vertical_curve.plot()
+
+        # Add label
+        vertical_curve.add_label(ax, 'TEST', va='baseline', ha='center')
+
+        plt.savefig('test_line_vert.svg')
         plt.close()
 
     def test_data_psychrochart(self):
-        from psychrochart.chart import data_psychrochart
+        from psychrochart.chart import PsychroChart
 
-        obj_repr = "<PsychroChart object, data: ('p_atm_kpa', " \
-                   "'dbt_min', 'dbt_max', 'w_min', 'w_max', 'figure', " \
-                   "'chart_params', 'constant_dry_temp_data', " \
-                   "'constant_humidity_data', 'constant_h_data', " \
-                   "'constant_v_data', 'constant_rh_data', " \
-                   "'constant_wbt_data', 'saturation', 'zones')>"
-        data_chart = data_psychrochart()
+        obj_repr = "<PsychroChart [0->50 °C, 0->40 gr/kg_da]>"
+        data_chart = PsychroChart()
         print(data_chart)
         self.assertEqual(str(data_chart), obj_repr)
 
         # noinspection PyUnresolvedReferences
         self.assertEqual(
             str(data_chart.constant_rh_data),
+            '<11 PsychroCurves (label: Constant relative humidity)>')
+
+        self.assertEqual(
+            str(data_chart.constant_v_data),
             '<11 PsychroCurves (label: Constant specific volume)>')
+
+        self.assertEqual(
+            str(data_chart.constant_wbt_data),
+            '<9 PsychroCurves (label: Constant wet bulb temperature)>')
+
+        self.assertEqual(
+            str(data_chart.constant_h_data),
+            '<50 PsychroCurves (label: Constant enthalpy)>')
+
+        self.assertEqual(
+            str(data_chart.constant_dry_temp_data),
+            '<50 PsychroCurves (label: Dry bulb temperature)>')
+
+        self.assertEqual(
+            str(data_chart.saturation),
+            '<PsychroCurve 51 values (label: None)>')
+

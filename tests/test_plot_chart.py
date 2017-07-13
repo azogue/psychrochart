@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import os
 from unittest import TestCase
 
-from psychrochart.psychroplot import plot_psychrochart
+from psychrochart.chart import PsychroChart
 
 
 basedir = os.path.dirname(os.path.abspath(__file__))
@@ -20,7 +20,7 @@ class TestsPsychroPlot(TestCase):
         """Test the plot custom styling with JSON files/dicts."""
         path_svg_default = os.path.join(
             basedir, 'test_default_psychrochart.svg')
-        plot_psychrochart()
+        PsychroChart().plot()
         plt.savefig(path_svg_default)
         plt.close()
 
@@ -28,18 +28,23 @@ class TestsPsychroPlot(TestCase):
         """Test the plot custom styling with JSON files/dicts."""
         path_svg_ashrae = os.path.join(
             basedir, 'test_ashrae_psychrochart.svg')
-        plot_psychrochart("ashrae")
+        chart = PsychroChart("ashrae")
+        chart.plot()
         plt.savefig(path_svg_ashrae)
+        # plt.savefig(path_svg_ashrae.replace('svg', 'png'), transparent=True)
+        # plt.savefig(path_svg_ashrae.replace('svg', 'png'))
         plt.close()
 
         path_svg_2 = os.path.join(
             basedir, 'test_interior_psychrochart.svg')
-        plot_psychrochart("interior")
+        chart = PsychroChart("interior")
+        chart.plot()
         plt.savefig(path_svg_2)
         plt.close()
 
         path_svg_3 = os.path.join(
             basedir, 'test_minimal_psychrochart.svg')
-        plot_psychrochart("minimal")
+        chart = PsychroChart("minimal")
+        chart.plot()
         plt.savefig(path_svg_3)
         plt.close()
