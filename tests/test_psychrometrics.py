@@ -215,13 +215,21 @@ class TestsPsychrometrics(TestCase):
         # print(dry_temp_c, p_sat, p_sat_ref, vol_m3_kg, 1/vol_m3_kg, d_ref)
         # self.assertAlmostEqual(1 / vol_m3_kg, d_ref, delta=1)
 
-        from psychrochart.equations import saturation_pressure_water_vapor
+        from psychrochart.equations import (
+            PRESSURE_STD_ATM_KPA, saturation_pressure_water_vapor,
+            specific_volume)
 
+        press = PRESSURE_STD_ATM_KPA
         for t, (ps_ref, dens_ref) in TEMP_PRESS_PA_DENS_G_KG.items():
             # dens_ref_kg_m3 = dens_ref / 1000.
 
             psat = saturation_pressure_water_vapor(t, mode=1)
             # xmax = humidity_ratio(psat)
+            vol_psat = specific_volume(t, psat, p_atm_kpa=press)
+            vol_p0 = specific_volume(t, 0, p_atm_kpa=press)
+            print('DEB', t, dens_ref, vol_psat, vol_p0, 1/vol_psat, 1/vol_p0)
+            dens_kg_m3 = 1 / vol_psat - 1 / vol_p0
+            print(dens_kg_m3)
 
             self.assertAlmostEqual(psat, ps_ref / 1000, delta=27)
             # self.assertAlmostEqual(psat, ps_ref / 1000, delta=0.05)
