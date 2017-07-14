@@ -11,8 +11,8 @@
 		"partial_axis": false
 	},
 	"limits": {
-		"range_temp_c": [10, 35],
-		"range_humidity_g_kg": [0, 30],
+		"range_temp_c": [10, 40],
+		"range_humidity_g_kg": [0, 25],
 		"altitude_m": 550,
 		"step_temp": 0.25
 	},
@@ -42,8 +42,8 @@
 
 		"with_constant_wet_temp": true,
 		"constant_wet_temp_step": 5,
-		"range_wet_temp": [-10, 30],
-		"constant_wet_temp_labels": [10, 20],
+		"range_wet_temp": [-10, 35],
+		"constant_wet_temp_labels": [10, 20, 30],
 
 		"with_constant_dry_temp": true,
 		"constant_temp_step": 5,

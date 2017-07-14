@@ -111,5 +111,8 @@ class TestsPsychroCurves(TestCase):
 
         self.assertEqual(
             str(data_chart.saturation),
+            '<1 PsychroCurves (label: Saturation line)>')
+        self.assertEqual(
+            str(data_chart.saturation[0]),
             '<PsychroCurve 51 values (label: None)>')
 

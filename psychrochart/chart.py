@@ -232,9 +232,9 @@ class PsychroCurves:
         """Return the # of curves."""
         return len(self.curves)
 
-    def __iter__(self) -> Iterable:
-        """Iterate over the curves."""
-        return self.curves.__iter__()
+    def __getitem__(self, item) -> PsychroCurve:
+        """Get item from the PsychroCurve list."""
+        return self.curves[item]
 
     def __repr__(self) -> str:
         """Object string representation."""
@@ -244,7 +244,14 @@ class PsychroCurves:
     def plot(self, ax: Axes=None) -> Axes:
         """Plot the family curves."""
         [curve.plot(ax) for curve in self.curves]
-        # TODO family labelling here
+
+        # Curves family labelling
+        if self.curves and self.family_label is not None:
+            style = self.curves[0].style or {}
+            print('LABEL FAMILY: {}, style: {}'.format(self.family_label, style))
+            plt.plot([-1], [-1], label=self.family_label,
+                     marker='D', markersize=10, **style)
+
         return ax
 
 
@@ -522,9 +529,10 @@ class PsychroChart:
                 self.dbt_min, self.dbt_max, self.temp_step,
                 [100], p_atm_kpa=self.p_atm_kpa)
 
-            self.saturation = PsychroCurve(
-                temps_sat_line, w_sat_line[:, 0], sat_style,
-                type_curve='saturation')
+            self.saturation = PsychroCurves(
+                [PsychroCurve(
+                    temps_sat_line, w_sat_line[:, 0], sat_style,
+                    type_curve='saturation')], family_label='Saturation line')
 
         # Zones
         if self.chart_params["with_zones"] or zones_file is not None:
@@ -577,22 +585,24 @@ class PsychroChart:
                         lw=50, solid_capstyle='round')
 
         for point in points_plot.values():
-            print('POINT: ', point)
             ax.plot(point[0], point[1], **point[2])
 
         return points_plot
 
     def plot_vertical_dry_bulb_temp_line(
-            self, ax: Axes, temp: float, style: Optional[Dict]=None,
+            self, ax: Axes, temp: float,
+            style: Optional[Dict]=None,
             label: Optional[AnyStr]=None,
+            reverse: bool=False,
             **label_params) -> Axes:
         # Vertical lines
-        w_gr_kg_da = 1000 * humidity_ratio(
+        w_max = 1000 * humidity_ratio(
             saturation_pressure_water_vapor(temp), self.p_atm_kpa)
 
         style_curve = style or self.d_config.get("constant_dry_temp")
+        path_y = [w_max, self.w_min] if reverse else [self.w_min, w_max]
         curve = PsychroCurve(
-            [temp, temp], [self.w_min, w_gr_kg_da], style=style_curve)
+            [temp, temp], path_y, style=style_curve)
         curve.plot(ax)
         if label is not None:
             curve.add_label(ax, label, **label_params)
@@ -609,7 +619,7 @@ class PsychroChart:
         ax.legend(
             loc=loc, markerscale=markerscale, frameon=frameon,
             edgecolor=edgecolor, fontsize=fontsize, fancybox=fancybox,
-            labelspacing=labelspacing)
+            labelspacing=labelspacing, **params)
         return ax
 
     def plot(self) -> plt.Axes:
@@ -625,8 +635,8 @@ class PsychroChart:
         partial_axis = fig_params.pop('partial_axis', True)
 
         # Create figure and format axis
-        fig = plt.figure(figsize=figsize)
-        # fig.set_tight_layout(True)
+        fig = plt.figure(figsize=figsize, dpi=150, facecolor=[1., 1., 1., 0.],
+                         edgecolor=[1., 1., 1., 0.], frameon=False)
         ax = fig.gca()
         ax.yaxis.tick_right()
         ax.yaxis.set_label_position("right")
