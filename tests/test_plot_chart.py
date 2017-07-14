@@ -3,7 +3,6 @@
 Tests plotting
 
 """
-import matplotlib.pyplot as plt
 import os
 from unittest import TestCase
 
@@ -20,9 +19,9 @@ class TestsPsychroPlot(TestCase):
         """Test the plot custom styling with JSON files/dicts."""
         path_svg_default = os.path.join(
             basedir, 'test_default_psychrochart.svg')
-        PsychroChart().plot()
-        plt.savefig(path_svg_default)
-        plt.close()
+        ax = PsychroChart().plot()
+        ax.get_figure().savefig(path_svg_default)
+        # plt.close()
 
     def test_custom_style_psychrochart(self):
         """Test the plot custom styling with dicts."""
@@ -59,35 +58,35 @@ class TestsPsychroPlot(TestCase):
             }
         }
         chart = PsychroChart(custom_style)
-        chart.plot()
+        ax = chart.plot()
 
         path_png = os.path.join(
             basedir, 'test_custom_psychrochart.png')
-        plt.savefig(path_png)
-        plt.close()
+        ax.get_figure().savefig(path_png)
+        # plt.close()
 
-    def test_custom_psychrochart(self):
+    def test_default_styles_psychrochart(self):
         """Test the plot custom styling with JSON files."""
         path_svg_ashrae = os.path.join(
             basedir, 'test_ashrae_psychrochart.svg')
         chart = PsychroChart("ashrae")
-        chart.plot()
-        plt.savefig(path_svg_ashrae)
+        ax = chart.plot()
+        ax.get_figure().savefig(path_svg_ashrae)
         # plt.savefig(path_svg_ashrae.replace('svg', 'png'), transparent=True)
         # plt.savefig(path_svg_ashrae.replace('svg', 'png'))
-        plt.close()
+        # plt.close()
 
         path_svg_2 = os.path.join(
             basedir, 'test_interior_psychrochart.svg')
         chart = PsychroChart("interior")
-        chart.plot()
-        plt.savefig(path_svg_2)
-        plt.close()
+        ax_2 = chart.plot()
+        ax_2.get_figure().savefig(path_svg_2)
+        # plt.close()
 
         path_svg_3 = os.path.join(
             basedir, 'test_minimal_psychrochart.svg')
         chart = PsychroChart("minimal")
-        chart.plot()
-        plt.savefig(path_svg_3)
-        plt.close()
+        ax_3 = chart.plot()
+        ax_3.get_figure().savefig(path_svg_3)
+        # plt.close()
 

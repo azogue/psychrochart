@@ -3,10 +3,8 @@
 Tests plotting
 
 """
-import matplotlib.pyplot as plt
 import os
 from unittest import TestCase
-
 
 
 basedir = os.path.dirname(os.path.abspath(__file__))
@@ -18,35 +16,8 @@ class TestsPsychroOverlay(TestCase):
     def test_custom_psychrochart(self):
         """Customize a chart with some additions"""
         from psychrochart.chart import PsychroChart
-        from psychrochart.chart import PsychroCurve
-        from psychrochart.equations import (
-            saturation_pressure_water_vapor, humidity_ratio, humidity_ratio_from_temps)
 
         chart = PsychroChart("minimal")
-
-        # Vertical lines
-        t_min, t_opt, t_max = 16, 23, 30
-        # w_t_min = 1000 * humidity_ratio_from_temps(t_min, t_min)
-        # w_t_opt = 1000 * humidity_ratio_from_temps(t_opt, t_opt)
-        # w_t_max = 1000 * humidity_ratio_from_temps(t_max, t_max)
-        w_t_min = 1000 * humidity_ratio(saturation_pressure_water_vapor(t_min), chart.p_atm_kpa)
-        w_t_opt = 1000 * humidity_ratio(saturation_pressure_water_vapor(t_opt), chart.p_atm_kpa)
-        w_t_max = 1000 * humidity_ratio(saturation_pressure_water_vapor(t_max), chart.p_atm_kpa)
-
-        # ax.plot([t_min, t_min], [chart.w_min, w_t_min], color=[0.0, 0.125, 0.376], lw=2, ls=':')
-        # ax.plot([t_opt, t_opt], [chart.w_min, w_t_opt], color=[0.475, 0.612, 0.075], lw=2, ls=':')
-        # ax.plot([t_max, t_max], [w_t_max, chart.w_min], color=[1.0, 0.0, 0.247], lw=2, ls=':')
-
-        c1 = PsychroCurve(
-            [t_min, t_min], [chart.w_min, w_t_min],
-            style={"color": [0.0, 0.125, 0.376], "lw":2, "ls":':'})
-        c2 = PsychroCurve(
-            [t_opt, t_opt], [chart.w_min, w_t_opt],
-            style={"color": [0.475, 0.612, 0.075], "lw":2, "ls":':'})
-        c3 = PsychroCurve(
-            [t_max, t_max], [w_t_max, chart.w_min],
-            style={"color": [1.0, 0.0, 0.247], "lw":2, "ls":':'})
-
 
         # Zones:
         zones_conf = {
@@ -81,7 +52,7 @@ class TestsPsychroOverlay(TestCase):
                                   "facecolor": [0.498, 0.624, 1.0, 0.3]
                                   },
                         "points_x": [23, 28, 28, 24, 23],
-                        "points_y": [0, 0, 4, 4, 2],
+                        "points_y": [1, 3, 4, 4, 2],
                         "label": "Custom"
                     }
                 ]
@@ -91,14 +62,53 @@ class TestsPsychroOverlay(TestCase):
         # Plotting
         ax = chart.plot()
 
-        c1.plot(ax)
-        c1.add_label(ax, 'TOO COLD ({}°C)'.format(t_min), ha='center', loc=.5)
-        c2.plot(ax)
-        c3.plot(ax)
-        c3.add_label(ax, 'TOO HOT ({}°C)'.format(t_max), ha='center', loc=.5)
+        # Vertical lines
+        t_min, t_opt, t_max = 16, 23, 30
+        chart.plot_vertical_dry_bulb_temp_line(
+            ax, t_min, {"color": [0.0, 0.125, 0.376], "lw": 2, "ls": ':'},
+            'TOO COLD ({}°C)  '.format(t_min), ha='right', loc=1)
+        chart.plot_vertical_dry_bulb_temp_line(
+            ax, t_opt, {"color": [0.475, 0.612, 0.075], "lw": 2, "ls": ':'})
+        chart.plot_vertical_dry_bulb_temp_line(
+            ax, t_max, {"color": [1.0, 0.0, 0.247], "lw": 2, "ls": ':'},
+            '  TOO HOT ({}°C)'.format(t_max), ha='left', loc=0)
+
+        # points = {'exterior': (31.06, 32.9),
+        #           'exterior_estimated': (36.7, 25.0),
+        #           'interior': (29.42, 52.34)}
+
+        points = {'exterior': {'label': 'Exterior',
+                               'style': {'color': [0.855, 0.004, 0.278, 0.8],
+                                         'marker': 'X', 'markersize': 15},
+                               'xy': (31.06, 32.9)},
+                  'exterior_estimated': {'label': 'Estimado', 'style': {
+                      'color': [0.573, 0.106, 0.318, 0.5], 'marker': 'x',
+                      'markersize': 10}, 'xy': (36.7, 25.0)},
+                  'interior': {'label': 'Interior',
+                               'style': {'color': [0.592, 0.745, 0.051, 0.9],
+                                         'marker': 'o', 'markersize': 30},
+                               'xy': (29.42, 52.34)}}
+        connectors = [{'start': 'exterior',
+                       'end': 'exterior_estimated',
+                       'style': {'color': [0.573, 0.106, 0.318, 0.7],
+                                 "linewidth": 2, "linestyle": "-."}},
+                      {'start': 'exterior',
+                       'end': 'interior',
+                       'style': {'color': [0.855, 0.145, 0.114, 0.8],
+                                 "linewidth": 2, "linestyle": ":"}}]
+
+        points_plot = chart.plot_points_dbt_rh(ax, points, connectors)
+        print('Points in chart: %s' % points_plot)
+
+        # Legend
+        chart.plot_legend(
+            ax, frameon=False, fontsize=14, #fancybox=False,
+            labelspacing=1.3)
 
         # Save to disk
         path_svg = os.path.join(
             basedir, '..', 'docs', 'chart_overlay_style_minimal.svg')
-        plt.savefig(path_svg)
-        plt.close()
+
+        fig = ax.get_figure()
+        fig.savefig(path_svg)
+        # plt.close()

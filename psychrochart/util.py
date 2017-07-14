@@ -4,8 +4,9 @@ A python library to make psychrometric charts and overlay information in them.
 
 """
 import json
-from time import time
 import os
+from time import time
+from typing import Callable, Union, Dict, Optional
 
 
 PATH_STYLES = os.path.join(
@@ -31,9 +32,9 @@ STYLES = {
 }
 
 
-def timeit(msg_log):
+def timeit(msg_log: str) -> Callable:
     """Wrapper to time a method call."""
-    def real_deco(func):
+    def real_deco(func) -> Callable:
         def wrapper(*args, **kwargs):
             tic = time()
             out = func(*args, **kwargs)
@@ -43,7 +44,8 @@ def timeit(msg_log):
     return real_deco
 
 
-def _update_config(old_conf, new_conf, verbose=False, recurs_idx=0):
+def _update_config(old_conf: Optional[Dict], new_conf: Dict,
+                   verbose: bool=False, recurs_idx: int=0) -> Dict:
     """Update a dict recursively."""
     assert(recurs_idx < 3)
     if old_conf is None:
@@ -62,7 +64,9 @@ def _update_config(old_conf, new_conf, verbose=False, recurs_idx=0):
     return old_conf
 
 
-def _load_config(new_config=None, default_config_file=None, verbose=False):
+def _load_config(new_config: Optional[Union[Dict, str]]=None,
+                 default_config_file: Optional[str]=None,
+                 verbose: bool=False) -> Dict:
     """Load plot parameters from a JSON file."""
     if default_config_file is not None:
         with open(default_config_file) as f:
@@ -84,20 +88,23 @@ def _load_config(new_config=None, default_config_file=None, verbose=False):
     return config
 
 
-def load_config(styles=None, verbose=False):
+def load_config(styles: Optional[Union[Dict, str]]=None,
+                verbose: bool=False) -> Dict:
     """Load the plot params for the psychrometric chart."""
     return _load_config(
         styles, default_config_file=DEFAULT_CHART_CONFIG_FILE,
         verbose=verbose)
 
 
-def load_zones(zones=DEFAULT_ZONES_FILE, verbose=False):
+def load_zones(zones: Optional[Union[Dict, str]]=DEFAULT_ZONES_FILE,
+               verbose: bool=False) -> Dict:
     """Load a zones JSON file to overlay in the psychrometric chart."""
     return _load_config(zones, verbose=verbose)
 
 
-def iter_solver(initial_value, objective_value, func_eval,
-                initial_increment=4, num_iters_max=100, precision=0.01):
+def iter_solver(initial_value: float, objective_value: float,
+                func_eval: Callable, initial_increment: float=4.,
+                num_iters_max: int=100, precision: float=0.01) -> float:
     """Simple solver by iteration."""
     error = 100 * precision
     decreasing = True

@@ -59,7 +59,6 @@ class TestsPsychroCurves(TestCase):
 
     def test_plot_curve(self):
         """Test the plotting of PsychroCurve objects."""
-        import matplotlib.pyplot as plt
         import numpy as np
 
         x_data = np.arange(0, 50, 1)
@@ -79,7 +78,7 @@ class TestsPsychroCurves(TestCase):
         vertical_curve.add_label(ax, 'TEST', va='baseline', ha='center')
 
         # plt.savefig('test_line_vert.svg')
-        plt.close()
+        # plt.close()
 
     def test_data_psychrochart(self):
         from psychrochart.chart import PsychroChart

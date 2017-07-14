@@ -6,11 +6,12 @@ A python library to make psychrometric charts and overlay information in them.
 import json
 from math import atan2, degrees
 from matplotlib.axes import Axes
-import matplotlib.patches as patches
+from matplotlib import patches
 from matplotlib.path import Path
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import Iterable, Callable, Union
+from typing import Iterable, Callable, Union, Dict, Optional, AnyStr
+
 
 from psychrochart.equations import (
     PRESSURE_STD_ATM_KPA, pressure_by_altitude, humidity_ratio,
@@ -29,7 +30,9 @@ PSYCHRO_CURVES_KEYS = [
     'constant_wbt_data', 'saturation']
 
 
-def _between_limits(x_data, y_data, xmin, xmax, ymin, ymax):
+def _between_limits(x_data: np.array, y_data: np.array,
+                    xmin: float, xmax: float,
+                    ymin: float, ymax: float) -> bool:
     # TODO validate between limits in data creation!
     data_xmin = min(x_data)
     data_xmax = max(x_data)
@@ -45,12 +48,12 @@ class PsychroCurve:
     """Object to store a psychrometric curve for plotting."""
 
     def __init__(self,
-                 x_data: np.array=None,
-                 y_data: np.array=None,
-                 style: dict=None,
-                 type_curve: str=None,
-                 limits: dict=None,
-                 label: str=None, label_loc: float=.75):
+                 x_data: Optional[np.array]=None,
+                 y_data: Optional[np.array]=None,
+                 style: Optional[Dict]=None,
+                 type_curve: Optional[AnyStr]=None,
+                 limits: Optional[Dict]=None,
+                 label: Optional[AnyStr]=None, label_loc: float=.75):
         self.x_data = x_data
         self.y_data = y_data
         self.style = style or {}
@@ -60,7 +63,7 @@ class PsychroCurve:
         self._limits = limits
         self._is_patch = style is not None and 'facecolor' in style
 
-    def __dict__(self) -> dict:
+    def __dict__(self) -> Dict:
         """Return the curve as a dict."""
         return {
             "x_data": self.x_data,
@@ -68,14 +71,14 @@ class PsychroCurve:
             "style": self.style,
             "label": self._label}
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """Return the valid existence of the curve."""
         if self.x_data is not None and len(self.x_data) > 1 \
                 and self.y_data is not None and len(self.y_data) > 1:
             return True
         return False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Object string representation."""
         name = 'PsychroZone' if self._is_patch else 'PsychroCurve'
         if self:
@@ -91,7 +94,7 @@ class PsychroCurve:
         data['y_data'] = data['y_data'].tolist()
         return json.dumps(data)
 
-    def from_json(self, json_str: str):
+    def from_json(self, json_str: AnyStr):
         """Load a curve from a JSON string."""
         data = json.loads(json_str)
         self.x_data = np.array(data['x_data'])
@@ -101,18 +104,17 @@ class PsychroCurve:
         return self
 
     @staticmethod
-    def _annotate_label(ax: Axes, label: str,
+    def _annotate_label(ax: Axes, label: AnyStr,
                         text_x: float, text_y: float, rotation: float,
-                        text_style: dict):
+                        text_style: Dict):
         if abs(rotation) > 0:
             text_loc = np.array((text_x, text_y))
             text_style['rotation'] = ax.transData.transform_angles(
                 np.array((rotation,)), text_loc.reshape((1, 2)))[0]
             text_style['rotation_mode'] = 'anchor'
-        print(label, (text_x, text_y), text_style)
         ax.annotate(label, (text_x, text_y), **text_style)
 
-    def plot(self, ax: Axes=None):
+    def plot(self, ax: Axes=None) -> Axes:
         """Plot the curve."""
         if ax is None:
             ax = plt.gca()
@@ -121,6 +123,7 @@ class PsychroCurve:
         ymin, ymax = ax.get_ylim()
         if not _between_limits(self.x_data, self.y_data,
                                xmin, xmax, ymin, ymax):
+            # TODO raise Exception / warning in data generation
             print('{} Not between limits ([{}, {}, {}, {}]) -> x:{}, y:{}'
                   .format(self._type_curve, xmin, xmax, ymin, ymax,
                           self.x_data, self.y_data))
@@ -153,8 +156,9 @@ class PsychroCurve:
         return ax
 
     def add_label(self, ax: Axes=None,
-                  text_label: str=None,
-                  va: str=None, ha: str=None, loc: float=None):
+                  text_label: Optional[AnyStr]=None,
+                  va: Optional[str]=None, ha: Optional[str]=None,
+                  loc: float=None, **params) -> Axes:
         """Annotate the curve with its label."""
         num_samples = len(self.x_data)
         assert num_samples > 1
@@ -205,6 +209,9 @@ class PsychroCurve:
             text_style['ha'] = ha
         if va is not None:
             text_style['va'] = va
+        if params:
+            text_style.update(params)
+
         self._annotate_label(ax, label, text_x, text_y, rotation, text_style)
 
         return ax
@@ -215,29 +222,30 @@ class PsychroCurves:
 
     def __init__(self,
                  curves: Iterable(PsychroCurve),
-                 extra: dict=None,
-                 family_label: str=None):
+                 extra: Optional[Dict]=None,
+                 family_label: Optional[AnyStr]=None):
         self.curves = curves
         self.family_label = family_label
         self.extra = extra
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the # of curves."""
         return len(self.curves)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable:
         """Iterate over the curves."""
         return self.curves.__iter__()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Object string representation."""
         return '<{} PsychroCurves (label: {})>'.format(
             len(self), self.family_label)
 
-    def plot(self, ax: Axes=None):
+    def plot(self, ax: Axes=None) -> Axes:
         """Plot the family curves."""
         [curve.plot(ax) for curve in self.curves]
         # TODO family labelling here
+        return ax
 
 
 def _gen_mat_curves_range_temps(
@@ -270,7 +278,8 @@ def _make_zone_dbt_rh(
         t_min: float, t_max: float, increment: float,
         rh_min: float, rh_max: float,
         p_atm_kpa: float=PRESSURE_STD_ATM_KPA,
-        style: dict=None, label: str=None) -> PsychroCurve:
+        style: Optional[Dict]=None,
+        label: Optional[AnyStr]=None) -> PsychroCurve:
     """Generate points for zone between constant dry bulb temps and RH."""
     temps = np.arange(t_min, t_max + increment, increment)
     curve_rh_up = _curve_constant_humidity_ratio(temps, rh_max, p_atm_kpa)
@@ -283,7 +292,7 @@ def _make_zone_dbt_rh(
 
 
 def _make_zone(
-        zone_conf: dict, increment: float,
+        zone_conf: Dict, increment: float,
         p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> PsychroCurve:
     """Generate points for zone between constant dry bulb temps and RH."""
     if zone_conf['zone_type'] == 'dbt-rh':
@@ -298,6 +307,7 @@ def _make_zone(
     # elif zone_conf['zone_type'] == 'dbt-rh-points':
     # make conversion rh -> w
 
+
 class PsychroChart:
     """Psychrometric chart object handler"""
 
@@ -305,6 +315,7 @@ class PsychroChart:
                  styles: Union[dict, str]=None,
                  zones_file: Union[dict, str]=None):
         """Initialization of the PsychroChart object."""
+        self.d_config = {}
         self.figure_params = {}
         self.dbt_min = self.dbt_max = -100
         self.w_min = self.w_max = -1
@@ -335,6 +346,7 @@ class PsychroChart:
         """Generate the data to plot the psychrometric chart."""
         # Get styling
         config = load_config(styles)
+        self.d_config = config
         self.temp_step = config['limits']['step_temp']
 
         self.figure_params = config['figure']
@@ -531,6 +543,75 @@ class PsychroChart:
                 [_make_zone(zone_conf, self.temp_step, self.p_atm_kpa)
                  for zone_conf in d_zones['zones']]))
 
+    def plot_points_dbt_rh(self, ax: Axes,
+                           points: Dict,
+                           connectors: list=None) -> Dict:
+        """Append individual points to the plot."""
+        points_plot = {}
+        default_style = {'marker': 'o', 'markersize': 10,
+                         'color': [1, .8, 0.1, .8], 'linewidth': 0}
+        for key, point in points.items():
+            plot_params = default_style.copy()
+            if isinstance(point, dict):
+                plot_params.update(point.get('style', {}))
+                plot_params['label'] = point.get('label')
+                point = point['xy']
+            temp = point[0]
+            w_g_ka = 1000. * humidity_ratio(
+                point[1] * saturation_pressure_water_vapor(point[0]) / 100,
+                p_atm_kpa=self.p_atm_kpa)
+            points_plot[key] = [temp], [w_g_ka], plot_params
+
+        if connectors is not None:
+            for i, d_con in enumerate(connectors):
+                x_start = points_plot[d_con['start']][0][0]
+                y_start = points_plot[d_con['start']][1][0]
+                x_end = points_plot[d_con['end']][0][0]
+                y_end = points_plot[d_con['end']][1][0]
+                x_line = [x_start, x_end]
+                y_line = [y_start, y_end]
+                style = d_con.get('style', points_plot[d_con['start']][2])
+                ax.plot(x_line, y_line, dash_capstyle='round', **style)
+                ax.plot(x_line, y_line,
+                        color=list(style['color'][:3]) + [.15],
+                        lw=50, solid_capstyle='round')
+
+        for point in points_plot.values():
+            print('POINT: ', point)
+            ax.plot(point[0], point[1], **point[2])
+
+        return points_plot
+
+    def plot_vertical_dry_bulb_temp_line(
+            self, ax: Axes, temp: float, style: Optional[Dict]=None,
+            label: Optional[AnyStr]=None,
+            **label_params) -> Axes:
+        # Vertical lines
+        w_gr_kg_da = 1000 * humidity_ratio(
+            saturation_pressure_water_vapor(temp), self.p_atm_kpa)
+
+        style_curve = style or self.d_config.get("constant_dry_temp")
+        curve = PsychroCurve(
+            [temp, temp], [self.w_min, w_gr_kg_da], style=style_curve)
+        curve.plot(ax)
+        if label is not None:
+            curve.add_label(ax, label, **label_params)
+
+        return ax
+
+    @staticmethod
+    def plot_legend(
+            ax: Axes, loc: str='upper left', markerscale: float=.9,
+            frameon: bool=True, fancybox: bool=True,
+            edgecolor: Union[str, Iterable]='darkgrey', fontsize: float=15.,
+            labelspacing: float=1.5, **params) -> plt.Axes:
+        """Append a legend to the psychrochart plot."""
+        ax.legend(
+            loc=loc, markerscale=markerscale, frameon=frameon,
+            edgecolor=edgecolor, fontsize=fontsize, fancybox=fancybox,
+            labelspacing=labelspacing)
+        return ax
+
     def plot(self) -> plt.Axes:
         """Plot the psychrochart and return the matplotlib Axes instance."""
         # Prepare fig & axis
@@ -545,7 +626,7 @@ class PsychroChart:
 
         # Create figure and format axis
         fig = plt.figure(figsize=figsize)
-        fig.set_tight_layout(True)
+        # fig.set_tight_layout(True)
         ax = fig.gca()
         ax.yaxis.tick_right()
         ax.yaxis.set_label_position("right")
