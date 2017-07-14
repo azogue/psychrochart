@@ -7,8 +7,6 @@ import json
 import os
 from unittest import TestCase
 
-from psychrochart.util import load_config, DEFAULT_CHART_CONFIG_FILE
-
 
 basedir = os.path.dirname(os.path.abspath(__file__))
 PATH_CONFIG_UPDATE = os.path.join(basedir, 'test_chart_config_update.json')
@@ -19,6 +17,8 @@ class TestsPsychroUtils(TestCase):
 
     def test_load_plot_config(self):
         """Test the plot custom styling with JSON files/dicts."""
+        from psychrochart.util import load_config, DEFAULT_CHART_CONFIG_FILE
+
         # Test load default config
         default_config = load_config()
 
@@ -51,12 +51,8 @@ class TestsCLI(TestCase):
 
     def test_cli_main(self):
         """Unit test for the CLI entry point."""
-        # import matplotlib
-        #
-        # matplotlib.use('Agg')
         from psychrochart.__main__ import main
         main()
-        # plt.close()
 
 
 class TestsColorUtils(TestCase):
@@ -64,20 +60,20 @@ class TestsColorUtils(TestCase):
 
     def test_color_palette(self):
         """Test rgba utilities."""
-        from psychrochart.styling import get_color_palette
+        from psychrochart.util import mod_color
 
         def _to_8bit_color(color):
             return tuple([int(round(255 * c)) if i < 3 else c
                           for i, c in enumerate(color)])
 
-        color_base = get_color_palette('color_escala_iee_clase_a')
+        color_base = [0.475, 0.612, 0.075]
         self.assertEqual(_to_8bit_color(color_base), (121, 156, 19))
 
-        color_light_20 = get_color_palette('color_escala_iee_clase_a', 20)
+        color_light_20 = mod_color(color_base, 20)
         self.assertEqual(_to_8bit_color(color_light_20), (145, 187, 23))
 
-        color_dark_40 = get_color_palette('color_escala_iee_clase_a', -40)
+        color_dark_40 = mod_color(color_base, -40)
         self.assertEqual(_to_8bit_color(color_dark_40), (73, 94, 11))
 
-        color_alpha_08 = get_color_palette('color_escala_iee_clase_a', .8)
+        color_alpha_08 = mod_color(color_base, .8)
         self.assertEqual(_to_8bit_color(color_alpha_08), (121, 156, 19, 0.8))

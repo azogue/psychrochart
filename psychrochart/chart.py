@@ -18,10 +18,9 @@ from psychrochart.equations import (
     specific_volume, dew_point_temperature, water_vapor_pressure,
     enthalpy_moist_air, saturation_pressure_water_vapor,
     dry_temperature_for_enthalpy_of_moist_air, relative_humidity_from_temps,
-    dry_temperature_for_specific_volume_of_moist_air
-)
-from psychrochart.util import load_config, load_zones, iter_solver, timeit
-from psychrochart.styling import mod_color
+    dry_temperature_for_specific_volume_of_moist_air)
+from psychrochart.util import (
+    load_config, load_zones, iter_solver, timeit, mod_color)
 
 
 PSYCHRO_CURVES_KEYS = [
@@ -248,7 +247,6 @@ class PsychroCurves:
         # Curves family labelling
         if self.curves and self.family_label is not None:
             style = self.curves[0].style or {}
-            print('LABEL FAMILY: {}, style: {}'.format(self.family_label, style))
             plt.plot([-1], [-1], label=self.family_label,
                      marker='D', markersize=10, **style)
 
