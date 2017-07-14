@@ -635,11 +635,13 @@ class PsychroChart:
         # Create figure and format axis
         fig = plt.figure(figsize=figsize, dpi=150, facecolor=[1., 1., 1., 0.],
                          edgecolor=[1., 1., 1., 0.], frameon=False)
-        ax = fig.gca()
+        ax = fig.gca(position=[0.025, 0.075, .925, .875])
         ax.yaxis.tick_right()
         ax.yaxis.set_label_position("right")
         plt.xlim([self.dbt_min, self.dbt_max])
         plt.ylim([self.w_min, self.w_max])
+        plt.grid(False, which='major', axis='both')
+        plt.grid(False, which='minor', axis='both')
 
         # Apply axis styles
         if fig_params['x_label'] is not None:
