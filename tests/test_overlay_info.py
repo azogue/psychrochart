@@ -94,7 +94,7 @@ class TestsPsychroOverlay(TestCase):
 
         # Save to disk
         path_svg = os.path.join(
-            basedir, '..', 'docs', 'chart_overlay_style_minimal.svg')
+            basedir, 'chart_overlay_style_minimal.svg')
         ax.get_figure().savefig(path_svg)
 
     def test_custom_psychrochart_2(self):
