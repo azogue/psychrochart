@@ -7,6 +7,7 @@ import os
 from unittest import TestCase
 
 from psychrochart.chart import PsychroChart
+from psychrochart.util import timeit
 
 
 basedir = os.path.dirname(os.path.abspath(__file__))
@@ -15,6 +16,7 @@ basedir = os.path.dirname(os.path.abspath(__file__))
 class TestsPsychroPlot(TestCase):
     """Unit Tests to check the psychrometric charts."""
 
+    @timeit('test_default_psychrochart')
     def test_default_psychrochart(self):
         """Test the plot custom styling with JSON files/dicts."""
         path_svg_default = os.path.join(

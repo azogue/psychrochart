@@ -6,6 +6,8 @@ Tests plotting
 import os
 from unittest import TestCase
 
+from psychrochart.util import timeit
+
 
 basedir = os.path.dirname(os.path.abspath(__file__))
 
@@ -13,6 +15,7 @@ basedir = os.path.dirname(os.path.abspath(__file__))
 class TestsPsychroOverlay(TestCase):
     """Unit Tests to check the addition of info to psychrometric charts."""
 
+    @timeit('test_custom_psychrochart')
     def test_custom_psychrochart(self):
         """Customize a chart with some additions"""
         from psychrochart.chart import PsychroChart

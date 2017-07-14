@@ -12,15 +12,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from typing import Iterable, Callable, Union, Dict, Optional, AnyStr
 
-
 from psychrochart.equations import (
     PRESSURE_STD_ATM_KPA, pressure_by_altitude, humidity_ratio,
     specific_volume, dew_point_temperature, water_vapor_pressure,
     enthalpy_moist_air, saturation_pressure_water_vapor,
     dry_temperature_for_enthalpy_of_moist_air, relative_humidity_from_temps,
     dry_temperature_for_specific_volume_of_moist_air)
-from psychrochart.util import (
-    load_config, load_zones, iter_solver, timeit, mod_color)
+from psychrochart.util import load_config, load_zones, iter_solver, mod_color
 
 
 PSYCHRO_CURVES_KEYS = [
@@ -344,7 +342,6 @@ class PsychroChart:
         return '<PsychroChart [{:g}->{:g} °C, {:g}->{:g} gr/kg_da]>'.format(
             self.dbt_min, self.dbt_max, self.w_min, self.w_max)
 
-    @timeit('Psychrometric data generation')
     def _make_chart_data(self,
                          styles: Union[dict, str]=None,
                          zones_file: Union[dict, str]=None):
