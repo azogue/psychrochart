@@ -389,7 +389,7 @@ class PsychroChart:
                               type_curve='constant_dry_temp_data',
                               label=None)
                  for t, h in zip(temps_vl, heights)],
-                family_label='Dry bulb temperature')
+                family_label=self.chart_params["constant_temp_label"])
 
         # Absolute humidity constant lines (horizontal):
         if self.chart_params["with_constant_humidity"]:
@@ -415,7 +415,7 @@ class PsychroChart:
                               type_curve='constant_humidity_data',
                               label=None)
                  for w, t_dp in zip(ws_hl, dew_points)],
-                family_label='Absolute humidity')
+                family_label=self.chart_params["constant_humid_label"])
 
         # Constant relative humidity curves:
         if self.chart_params["with_constant_rh"]:
@@ -434,7 +434,7 @@ class PsychroChart:
                     label_loc=.85, label='RH {:g} %'.format(rh)
                     if round(rh, 1) in rh_label_values else None)
                     for i, rh in enumerate(rh_perc_values)],
-                family_label='Constant relative humidity')
+                family_label=self.chart_params["constant_rh_label"])
 
         # Constant enthalpy lines:
         if self.chart_params["with_constant_h"]:
@@ -468,7 +468,7 @@ class PsychroChart:
                     if round(h, 3) in h_label_values else None)
                     for t_sat, t_max, h in zip(
                     sat_points, temps_max_constant_h, enthalpy_values)],
-                family_label='Constant enthalpy')
+                family_label=self.chart_params["constant_h_label"])
 
         # Constant specific volume lines:
         if self.chart_params["with_constant_v"]:
@@ -503,7 +503,7 @@ class PsychroChart:
                     if round(vol, 3) in vol_label_values else None)
                     for t_sat, t_max, vol in zip(
                     sat_points, temps_max_constant_v, vol_values)],
-                family_label='Constant specific volume')
+                family_label=self.chart_params["constant_v_label"])
 
         # Constant wet bulb temperature lines:
         if self.chart_params["with_constant_wet_temp"]:
@@ -529,7 +529,7 @@ class PsychroChart:
                     label_loc=0.05, label='{:g} °C'.format(wbt)
                     if wbt in wbt_label_values else None)
                     for wbt, w_max in zip(wbt_values, w_max_constant_wbt)],
-                family_label='Constant wet bulb temperature')
+                family_label=self.chart_params["constant_wet_temp_label"])
 
         # Saturation line:
         if True:
@@ -542,7 +542,7 @@ class PsychroChart:
             self.saturation = PsychroCurves(
                 [PsychroCurve(
                     temps_sat_line, w_sat_line[:, 0], sat_style,
-                    type_curve='saturation')], family_label='Saturation line')
+                    type_curve='saturation')])
 
         # Zones
         if self.chart_params["with_zones"] or zones_file is not None:
@@ -691,7 +691,8 @@ class PsychroChart:
                                   self.dbt_max + step_label / 10, step_label)
                 if not self.chart_params.get(
                         "constant_temp_label_include_limits", True):
-                    ticks = ticks[1:-1]
+                    ticks = [t for t in ticks
+                             if t not in [self.dbt_min, self.dbt_max]]
                 ax.set_xticks(ticks)
                 ax.set_xticklabels(
                     ['{:g}'.format(t) for t in ticks], **x_style_labels)
@@ -706,7 +707,8 @@ class PsychroChart:
                                   step_label)
                 if not self.chart_params.get(
                         "constant_humid_label_include_limits", True):
-                    ticks = ticks[1:-1]
+                    ticks = [t for t in ticks
+                             if t not in [self.w_min, self.w_max]]
                 ax.set_yticks(ticks)
                 ax.set_yticklabels(
                     ['{:g}'.format(t) for t in ticks], **y_style_labels)

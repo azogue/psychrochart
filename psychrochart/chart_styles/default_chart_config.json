@@ -32,30 +32,36 @@
 
 	"chart_params": {
 		"with_constant_rh": true,
+		"constant_rh_label": "Constant relative humidity",
 		"constant_rh_curves": [10, 20, 30, 40, 45, 50, 55, 60, 70, 80, 90],
 		"constant_rh_labels": [20, 30, 40, 50, 60, 70, 80],
 
 		"with_constant_v": true,
+		"constant_v_label": "Constant specific volume",
 		"constant_v_step": 0.02,
 		"range_vol_m3_kg": [0.78, 0.98],
 		"constant_v_labels": [0.8, 0.9, 0.96],
 
 		"with_constant_h": true,
+		"constant_h_label": "Constant enthalpy",
 		"constant_h_step": 5,
 		"range_h": [5, 155],
 		"constant_h_labels": [5, 25, 50, 75, 100, 125],
 
 		"with_constant_wet_temp": true,
+		"constant_wet_temp_label": "Constant wet bulb temperature",
 		"constant_wet_temp_step": 5,
 		"range_wet_temp": [-10, 40],
 		"constant_wet_temp_labels": [0, 5, 10, 15, 20, 25, 30, 35],
 
 		"with_constant_dry_temp": true,
+		"constant_temp_label": "Dry bulb temperature",
 		"constant_temp_step": 1,
 		"constant_temp_label_step": 5,
 		"constant_temp_label_include_limits": true,
 
 		"with_constant_humidity": true,
+		"constant_humid_label": "Absolute humidity",
 		"constant_humid_step": 1,
 		"constant_humid_label_step": 2,
 		"constant_humid_label_include_limits": true,
