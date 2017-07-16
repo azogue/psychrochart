@@ -421,6 +421,7 @@ class PsychroChart:
         if self.chart_params["with_constant_rh"]:
             rh_perc_values = self.chart_params["constant_rh_curves"]
             rh_label_values = self.chart_params.get("constant_rh_labels", [])
+            label_loc = self.chart_params.get("constant_rh_labels_loc", .85)
             style = config["constant_rh"]
             temps_ct_rh, curves_ct_rh = _gen_mat_curves_range_temps(
                 _curve_constant_humidity_ratio,
@@ -431,7 +432,7 @@ class PsychroChart:
                 [PsychroCurve(
                     temps_ct_rh, curves_ct_rh[:, i], style,
                     type_curve='constant_rh_data',
-                    label_loc=.85, label='RH {:g} %'.format(rh)
+                    label_loc=label_loc, label='RH {:g} %'.format(rh)
                     if round(rh, 1) in rh_label_values else None)
                     for i, rh in enumerate(rh_perc_values)],
                 family_label=self.chart_params["constant_rh_label"])
@@ -441,6 +442,7 @@ class PsychroChart:
             step = self.chart_params["constant_h_step"]
             enthalpy_values = np.arange(*self.chart_params["range_h"], step)
             h_label_values = self.chart_params.get("constant_h_labels", [])
+            label_loc = self.chart_params.get("constant_h_labels_loc", 1.)
             style = config["constant_h"]
             temps_max_constant_h = [
                 dry_temperature_for_enthalpy_of_moist_air(
@@ -464,7 +466,7 @@ class PsychroChart:
                         saturation_pressure_water_vapor(t_sat),
                         self.p_atm_kpa), self.w_min], style,
                     type_curve='constant_h_data',
-                    label_loc=1., label='{:g} kJ/kg_da'.format(h)
+                    label_loc=label_loc, label='{:g} kJ/kg_da'.format(h)
                     if round(h, 3) in h_label_values else None)
                     for t_sat, t_max, h in zip(
                     sat_points, temps_max_constant_h, enthalpy_values)],
@@ -476,6 +478,7 @@ class PsychroChart:
             vol_values = np.arange(
                 *self.chart_params["range_vol_m3_kg"], step)
             vol_label_values = self.chart_params.get("constant_v_labels", [])
+            label_loc = self.chart_params.get("constant_v_labels_loc", 1.)
             style = config["constant_v"]
             temps_max_constant_v = [
                 dry_temperature_for_specific_volume_of_moist_air(
@@ -499,7 +502,7 @@ class PsychroChart:
                         saturation_pressure_water_vapor(t_sat),
                         self.p_atm_kpa), 0],
                     style, type_curve='constant_v_data',
-                    label_loc=1., label='{:g} m3/kg_da'.format(vol)
+                    label_loc=label_loc, label='{:g} m3/kg_da'.format(vol)
                     if round(vol, 3) in vol_label_values else None)
                     for t_sat, t_max, vol in zip(
                     sat_points, temps_max_constant_v, vol_values)],
@@ -511,6 +514,8 @@ class PsychroChart:
             wbt_values = np.arange(*self.chart_params["range_wet_temp"], step)
             wbt_label_values = self.chart_params.get(
                 "constant_wet_temp_labels", [])
+            label_loc = self.chart_params.get(
+                "constant_wet_temp_labels_loc", .05)
             style = config["constant_wet_temp"]
             w_max_constant_wbt = [humidity_ratio(
                 saturation_pressure_water_vapor(wbt), self.p_atm_kpa)
@@ -526,7 +531,7 @@ class PsychroChart:
                              self.dbt_max, wbt, p_atm_kpa=self.p_atm_kpa),
                          p_atm_kpa=self.p_atm_kpa)], style,
                     type_curve='constant_wbt_data',
-                    label_loc=0.05, label='{:g} °C'.format(wbt)
+                    label_loc=label_loc, label='{:g} °C'.format(wbt)
                     if wbt in wbt_label_values else None)
                     for wbt, w_max in zip(wbt_values, w_max_constant_wbt)],
                 family_label=self.chart_params["constant_wet_temp_label"])
