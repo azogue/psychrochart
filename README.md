@@ -51,6 +51,7 @@ pip install psychrochart
 - v0.1.0:   Initial version.
 - v0.1.1:   Minor plotting fixes, set axis position, define P with `altitude_m` or `pressure_kpa`, reuse plot removing annotations (`chart.remove_annotations`). Axes as internal prop, lazy plotting, save to disk helper (`chart.save`).
 - v0.1.2:   Add `agg` module to set that `matplotlib` backend.
+- v0.1.3:   Add custom params for plotting styles, option to exclude first and last tick (`constant_{humid/temp}_label_include_limits`).
 
 ## Usage
 

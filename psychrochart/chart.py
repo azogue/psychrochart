@@ -689,6 +689,9 @@ class PsychroChart:
             if step_label:  # Explicit xticks
                 ticks = np.arange(self.dbt_min,
                                   self.dbt_max + step_label / 10, step_label)
+                if not self.chart_params.get(
+                        "constant_temp_label_include_limits", True):
+                    ticks = ticks[1:-1]
                 ax.set_xticks(ticks)
                 ax.set_xticklabels(
                     ['{:g}'.format(t) for t in ticks], **x_style_labels)
@@ -701,6 +704,9 @@ class PsychroChart:
             if step_label:  # Explicit xticks
                 ticks = np.arange(self.w_min, self.w_max + step_label / 10,
                                   step_label)
+                if not self.chart_params.get(
+                        "constant_humid_label_include_limits", True):
+                    ticks = ticks[1:-1]
                 ax.set_yticks(ticks)
                 ax.set_yticklabels(
                     ['{:g}'.format(t) for t in ticks], **y_style_labels)
@@ -713,9 +719,7 @@ class PsychroChart:
          if getattr(self, curve_family) is not None]
 
         # Plot zones:
-        if self.zones:
-            for zone in self.zones:
-                zone.plot(ax=ax)
+        [zone.plot(ax=ax) for zone in self.zones]
 
         # Set the Axes object
         self._axes = ax

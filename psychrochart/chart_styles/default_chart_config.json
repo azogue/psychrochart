@@ -53,10 +53,12 @@
 		"with_constant_dry_temp": true,
 		"constant_temp_step": 1,
 		"constant_temp_label_step": 5,
+		"constant_temp_label_include_limits": true,
 
 		"with_constant_humidity": true,
 		"constant_humid_step": 1,
 		"constant_humid_label_step": 2,
+		"constant_humid_label_include_limits": true,
 
 		"with_zones": true
 	}

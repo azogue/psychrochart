@@ -4,4 +4,4 @@ A python library to make psychrometric charts and overlay information in them.
 
 """
 
-__version__ = '0.1.2'
+__version__ = '0.1.3'

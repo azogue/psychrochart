@@ -61,6 +61,9 @@ def _update_config(old_conf: Optional[Dict], new_conf: Dict,
                     print('Update {}: from {} to {}'
                           .format(key, value, new_value))
             old_conf[key] = new_value
+    if recurs_idx > 0:
+        old_conf.update({key: new_conf[key] for key in filter(
+            lambda x: x not in old_conf, new_conf)})
     return old_conf
 
 
