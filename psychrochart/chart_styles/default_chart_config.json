@@ -2,19 +2,23 @@
 	"figure": {
 		"figsize": [16, 9],
 		"base_fontsize": 10,
-		"title": "Diagrama psicrométrico",
-		"x_label": "Temperatura (°C)",
-		"y_label": "Humedad específica (g_w / kg_da)",
+		"title": "Psychrometric Chart",
+		"x_label": "Dry-bulb temperature, $°C$",
+		"y_label": "Humidity ratio $w, g_w / kg_{da}$",
 		"x_axis": {"color": [0.2, 0.2, 0.2], "linewidth": 2, "linestyle": "-"},
 		"x_axis_labels": {"color": [0.2, 0.2, 0.2], "fontsize": 9},
 		"y_axis": {"color": [0.3, 0.3, 0.3], "linewidth": 2, "linestyle": "-"},
 		"y_axis_labels": {"color": [0.3, 0.3, 0.3], "fontsize": 8},
-		"partial_axis": true
+		"x_axis_ticks": {"direction": "out", "color": [0.2, 0.2, 0.2]},
+		"y_axis_ticks": {"direction": "out", "color": [0.3, 0.3, 0.3]},
+		"partial_axis": true,
+		"position": [0.025, 0.075, 0.925, 0.875]
 	},
 	"limits": {
 		"range_temp_c": [0, 50],
 		"range_humidity_g_kg": [0, 40],
 		"altitude_m": 0,
+		"pressure_kpa": null,
 		"step_temp": 1.0
 	},
 

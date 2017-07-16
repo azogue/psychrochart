@@ -2,13 +2,16 @@
 	"figure": {
 		"figsize": [16, 10],
 		"title": null,
-		"x_label": "Dry-bulb temperature (°C)",
-		"y_label": "Humidity ratio (g_w / kg_da)",
+		"x_label": "Dry-bulb temperature ($°C$)",
+		"y_label": "Humidity ratio ($g_w / kg_{da}$)",
 		"x_axis": {"color": [0.855, 0.145, 0.114], "linewidth": 2, "linestyle": "-"},
 		"x_axis_labels": {"color": [0.855, 0.145, 0.114], "fontsize": 11},
+		"x_axis_ticks": {"direction": "in", "color": [0.855, 0.145, 0.114], "pad": -20},
 		"y_axis": {"color": [0.0, 0.125, 0.376], "linewidth": 2, "linestyle": "-"},
 		"y_axis_labels": {"color": [0.0, 0.125, 0.376], "fontsize": 10},
-		"partial_axis": false
+		"y_axis_ticks": {"direction": "in", "color": [0.0, 0.125, 0.376], "pad": -20},
+		"partial_axis": true,
+		"position": [0, 0, 1, 1]
 	},
 	"limits": {
 		"range_temp_c": [10, 40],

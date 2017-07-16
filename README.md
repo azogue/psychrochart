@@ -50,6 +50,7 @@ pip install psychrochart
 #### Changelog
 
 - v0.1.0:   Initial version.
+- v0.1.1:   Minor plotting fixes, set axis position, define P with `altitude_m` or `pressure_kpa`, reuse plot removing annotations (`chart.remove_annotations`). Axes as internal prop, lazy plotting, save to disk helper (`chart.save`).
 
 ## Usage
 

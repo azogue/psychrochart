@@ -30,7 +30,6 @@ PSYCHRO_CURVES_KEYS = [
 def _between_limits(x_data: np.array, y_data: np.array,
                     xmin: float, xmax: float,
                     ymin: float, ymax: float) -> bool:
-    # TODO validate between limits in data creation!
     data_xmin = min(x_data)
     data_xmax = max(x_data)
     data_ymin = min(y_data)
@@ -120,10 +119,10 @@ class PsychroCurve:
         ymin, ymax = ax.get_ylim()
         if not _between_limits(self.x_data, self.y_data,
                                xmin, xmax, ymin, ymax):
-            # TODO raise Exception / warning in data generation
-            print('{} Not between limits ([{}, {}, {}, {}]) -> x:{}, y:{}'
-                  .format(self._type_curve, xmin, xmax, ymin, ymax,
-                          self.x_data, self.y_data))
+            print('{} (label:{}) Not between limits ([{}, {}, {}, {}]) '
+                  '-> x:{}, y:{}'
+                  .format(self._type_curve, self._label,
+                          xmin, xmax, ymin, ymax, self.x_data, self.y_data))
             return ax
 
         if self._is_patch:
@@ -325,7 +324,7 @@ class PsychroChart:
         self.temp_step = 1.
         self.altitude_m = -1
         self.chart_params = {}
-        self.p_atm_kpa = -1
+        self.p_atm_kpa = PRESSURE_STD_ATM_KPA
         self.constant_dry_temp_data = None
         self.constant_humidity_data = None
         self.constant_rh_data = None
@@ -335,12 +334,24 @@ class PsychroChart:
         self.saturation = None
         self.zones = []
 
+        self._axes = None
+        self._legend = None
+        self._handlers_annotations = []
+
         self._make_chart_data(styles, zones_file)
 
     def __repr__(self) -> str:
         """String representation of the PsychroChart object."""
         return '<PsychroChart [{:g}->{:g} °C, {:g}->{:g} gr/kg_da]>'.format(
             self.dbt_min, self.dbt_max, self.w_min, self.w_max)
+
+    @property
+    def axes(self) -> Axes:
+        """Return the Axes object plotting the chart if necessary."""
+        if self._axes is None:
+            self.plot()
+        assert isinstance(self._axes, Axes)
+        return self._axes
 
     def _make_chart_data(self,
                          styles: Union[dict, str]=None,
@@ -354,10 +365,14 @@ class PsychroChart:
         self.figure_params = config['figure']
         self.dbt_min, self.dbt_max = config['limits']['range_temp_c']
         self.w_min, self.w_max = config['limits']['range_humidity_g_kg']
-        self.altitude_m = config['limits']['altitude_m']
         self.chart_params = config['chart_params']
+
         # Base pressure
-        self.p_atm_kpa = pressure_by_altitude(self.altitude_m)
+        if config['limits'].get('pressure_kpa') is not None:
+            self.p_atm_kpa = config['limits']['pressure_kpa']
+        elif config['limits'].get('altitude_m') is not None:
+            self.altitude_m = config['limits']['altitude_m']
+            self.p_atm_kpa = pressure_by_altitude(self.altitude_m)
 
         # Dry bulb constant lines (vertical):
         if self.chart_params["with_constant_dry_temp"]:
@@ -546,9 +561,7 @@ class PsychroChart:
                 [_make_zone(zone_conf, self.temp_step, self.p_atm_kpa)
                  for zone_conf in d_zones['zones']]))
 
-    def plot_points_dbt_rh(self, ax: Axes,
-                           points: Dict,
-                           connectors: list=None) -> Dict:
+    def plot_points_dbt_rh(self, points: Dict, connectors: list=None) -> Dict:
         """Append individual points to the plot."""
         points_plot = {}
         default_style = {'marker': 'o', 'markersize': 10,
@@ -574,22 +587,27 @@ class PsychroChart:
                 x_line = [x_start, x_end]
                 y_line = [y_start, y_end]
                 style = d_con.get('style', points_plot[d_con['start']][2])
-                ax.plot(x_line, y_line, dash_capstyle='round', **style)
-                ax.plot(x_line, y_line,
+                self._handlers_annotations.append(
+                    self.axes.plot(
+                        x_line, y_line, dash_capstyle='round', **style))
+                self._handlers_annotations.append(
+                    self.axes.plot(
+                        x_line, y_line,
                         color=list(style['color'][:3]) + [.15],
-                        lw=50, solid_capstyle='round')
+                        lw=50, solid_capstyle='round'))
 
         for point in points_plot.values():
-            ax.plot(point[0], point[1], **point[2])
+            self._handlers_annotations.append(
+                self.axes.plot(point[0], point[1], **point[2]))
 
         return points_plot
 
     def plot_vertical_dry_bulb_temp_line(
-            self, ax: Axes, temp: float,
+            self, temp: float,
             style: Optional[Dict]=None,
             label: Optional[AnyStr]=None,
             reverse: bool=False,
-            **label_params) -> Axes:
+            **label_params):
         # Vertical lines
         w_max = 1000 * humidity_ratio(
             saturation_pressure_water_vapor(temp), self.p_atm_kpa)
@@ -598,41 +616,39 @@ class PsychroChart:
         path_y = [w_max, self.w_min] if reverse else [self.w_min, w_max]
         curve = PsychroCurve(
             [temp, temp], path_y, style=style_curve)
-        curve.plot(ax)
+        curve.plot(self.axes)
         if label is not None:
-            curve.add_label(ax, label, **label_params)
+            curve.add_label(self.axes, label, **label_params)
 
-        return ax
-
-    @staticmethod
     def plot_legend(
-            ax: Axes, loc: str='upper left', markerscale: float=.9,
+            self, loc: str='upper left', markerscale: float=.9,
             frameon: bool=True, fancybox: bool=True,
             edgecolor: Union[str, Iterable]='darkgrey', fontsize: float=15.,
-            labelspacing: float=1.5, **params) -> plt.Axes:
+            labelspacing: float=1.5, **params):
         """Append a legend to the psychrochart plot."""
-        ax.legend(
+        self._legend = self.axes.legend(
             loc=loc, markerscale=markerscale, frameon=frameon,
             edgecolor=edgecolor, fontsize=fontsize, fancybox=fancybox,
             labelspacing=labelspacing, **params)
-        return ax
 
-    def plot(self) -> plt.Axes:
+    def plot(self):
         """Plot the psychrochart and return the matplotlib Axes instance."""
         # Prepare fig & axis
         fig_params = self.figure_params.copy()
         figsize = fig_params.pop('figsize', (16, 9))
+        position = fig_params.pop('position', [0.025, 0.075, 0.925, 0.875])
         fontsize = fig_params.pop('fontsize', 10)
         x_style = fig_params.pop('x_axis', {})
         x_style_labels = fig_params.pop('x_axis_labels', {})
+        x_style_ticks = fig_params.pop('x_axis_ticks', {})
         y_style = fig_params.pop('y_axis', {})
         y_style_labels = fig_params.pop('y_axis_labels', {})
+        y_style_ticks = fig_params.pop('y_axis_ticks', {})
         partial_axis = fig_params.pop('partial_axis', True)
 
         # Create figure and format axis
-        fig = plt.figure(figsize=figsize, dpi=150, facecolor=[1., 1., 1., 0.],
-                         edgecolor=[1., 1., 1., 0.], frameon=False)
-        ax = fig.gca(position=[0.025, 0.075, .925, .875])
+        fig = plt.figure(figsize=figsize, dpi=150, frameon=False)
+        ax = fig.gca(position=position)
         ax.yaxis.tick_right()
         ax.yaxis.set_label_position("right")
         plt.xlim([self.dbt_min, self.dbt_max])
@@ -661,6 +677,11 @@ class PsychroChart:
         else:
             plt.setp(ax.spines['left'], **y_style)
             plt.setp(ax.spines['top'], **x_style)
+
+        if x_style_ticks:
+            ax.tick_params(axis='x', **x_style_ticks)
+        if y_style_ticks:
+            ax.tick_params(axis='y', **y_style_ticks)
 
         if self.chart_params.get("with_constant_dry_temp", True):
             step_label = self.chart_params.get(
@@ -696,4 +717,16 @@ class PsychroChart:
             for zone in self.zones:
                 zone.plot(ax=ax)
 
+        # Set the Axes object
+        self._axes = ax
         return ax
+
+    def remove_annotations(self):
+        """Remove the annotations made in the chart to reuse it."""
+        for line in self._handlers_annotations:
+            line[0].remove()
+        self._handlers_annotations = []
+
+    def save(self, path_dest, **params):
+        """Writes the chart to disk."""
+        self.axes.get_figure().savefig(path_dest, **params)

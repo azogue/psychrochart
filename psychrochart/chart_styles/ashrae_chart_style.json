@@ -2,13 +2,16 @@
 	"figure": {
 		"figsize": [16, 9],
 		"title": "Psychrometric Chart (sea level)",
-		"x_label": "DRY-BULB TEMPERATURE, °C",
-		"y_label": "HUMIDITY RATIO w, g_w / kg_da",
+		"x_label": "DRY-BULB TEMPERATURE, $°C$",
+		"y_label": "HUMIDITY RATIO $w, g_w / kg_{da}$",
 		"x_axis": {"color": [0.0, 0.0, 0.0], "linewidth": 1.5, "linestyle": "-"},
 		"x_axis_labels": {"color": [0.0, 0.0, 0.0], "fontsize": 8},
+		"x_axis_ticks": {"direction": "out", "color": [0.0, 0.0, 0.0]},
 		"y_axis": {"color": [0.0, 0.0, 0.0], "linewidth": 1.5, "linestyle": "-"},
 		"y_axis_labels": {"color": [0.0, 0.0, 0.0], "fontsize": 8},
-		"partial_axis": false
+		"y_axis_ticks": {"direction": "out", "color": [0.0, 0.0, 0.0]},
+		"partial_axis": false,
+		"position": [0.025, 0.075, 0.925, 0.875]
 	},
 	"limits": {
 		"range_temp_c": [0, 50],
