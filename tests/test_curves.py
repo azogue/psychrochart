@@ -7,6 +7,7 @@ import json
 import os
 from unittest import TestCase
 
+from psychrochart.agg import PsychroChart
 from psychrochart.chart import PsychroCurve
 
 
@@ -81,8 +82,7 @@ class TestsPsychroCurves(TestCase):
         # plt.close()
 
     def test_data_psychrochart(self):
-        from psychrochart.chart import PsychroChart
-
+        """Check the string representation of objects."""
         obj_repr = "<PsychroChart [0->50 °C, 0->40 gr/kg_da]>"
         data_chart = PsychroChart()
         print(data_chart)

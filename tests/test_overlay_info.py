@@ -6,7 +6,8 @@ Tests plotting
 import os
 from unittest import TestCase
 
-from psychrochart.util import timeit
+from psychrochart.agg import PsychroChart
+from psychrochart.util import load_config, timeit
 
 
 basedir = os.path.dirname(os.path.abspath(__file__))
@@ -17,7 +18,6 @@ class TestsPsychroOverlay(TestCase):
 
     def test_custom_psychrochart(self):
         """Customize a chart with some additions"""
-        from psychrochart.chart import PsychroChart
 
         @timeit('test_custom_psychrochart')
         def _make_chart():
@@ -61,8 +61,7 @@ class TestsPsychroOverlay(TestCase):
                 '  TOO COLD ({}°C)'.format(t_min), ha='left',
                 loc=0., fontsize=14)
             chart.plot_vertical_dry_bulb_temp_line(
-                t_opt, {"color": [0.475, 0.612, 0.075],
-                            "lw": 2, "ls": ':'})
+                t_opt, {"color": [0.475, 0.612, 0.075], "lw": 2, "ls": ':'})
             chart.plot_vertical_dry_bulb_temp_line(
                 t_max, {"color": [1.0, 0.0, 0.247], "lw": 2, "ls": ':'},
                 'TOO HOT ({}°C)  '.format(t_max), ha='right', loc=1,
@@ -108,9 +107,6 @@ class TestsPsychroOverlay(TestCase):
 
     def test_custom_psychrochart_2(self):
         """Customize a chart with some additions from a default style."""
-        from psychrochart.chart import PsychroChart
-        from psychrochart.util import load_config
-
         # Load config
         config = load_config("minimal")
 

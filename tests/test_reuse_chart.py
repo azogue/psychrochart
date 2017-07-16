@@ -6,7 +6,7 @@ Tests plotting
 import os
 from unittest import TestCase
 
-from psychrochart.chart import PsychroChart
+from psychrochart.agg import PsychroChart
 from psychrochart.util import timeit
 
 

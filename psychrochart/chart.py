@@ -5,8 +5,8 @@ A python library to make psychrometric charts and overlay information in them.
 """
 import json
 from math import atan2, degrees
-from matplotlib.axes import Axes
 from matplotlib import patches
+from matplotlib.axes import Axes
 from matplotlib.path import Path
 import matplotlib.pyplot as plt
 import numpy as np

@@ -6,7 +6,7 @@ Tests plotting
 import os
 from unittest import TestCase
 
-from psychrochart.chart import PsychroChart
+from psychrochart.agg import PsychroChart
 
 
 basedir = os.path.dirname(os.path.abspath(__file__))

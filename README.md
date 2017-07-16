@@ -1,6 +1,6 @@
 # Psychrochart
 
-A python 3 library to make **psychrometric charts** and overlay information on them.
+A python 3 library to make **[psychrometric charts](https://en.wikipedia.org/wiki/Psychrometrics)** and overlay information on them.
 
 It implements a useful collection of psychrometric equations for moisture and humid air calculations, and the generation of beautiful and high customizable **psychrometric charts in SVG** with `matplotlib`.
 
@@ -20,8 +20,7 @@ pip install psychrochart
 
 - **SI** units (with temperatures in celsius for better readability).
 - Easy style customization with a **JSON template** (colors, line styles and line widths).
-- Psychrometric charts within a temperature range and humidity ratio ranges,
-  for any pressure\*, with:
+- Psychrometric charts within temperature and humidity ratio ranges, for any pressure\*, with:
     * **Saturation line**
     * **Constant RH lines**
     * **Constant enthalpy lines**
@@ -51,6 +50,7 @@ pip install psychrochart
 
 - v0.1.0:   Initial version.
 - v0.1.1:   Minor plotting fixes, set axis position, define P with `altitude_m` or `pressure_kpa`, reuse plot removing annotations (`chart.remove_annotations`). Axes as internal prop, lazy plotting, save to disk helper (`chart.save`).
+- v0.1.2:   Add `agg` module to set that `matplotlib` backend.
 
 ## Usage
 
@@ -121,7 +121,7 @@ chart_custom_2.plot()
 
 The custom configuration does not need to include all fields, but only the fields you want to change.
 
-To play with it and see the results, look at this **[notebook with usage examples](https://github.com/azogue/psychrochart/blob/master/notebooks/Usage%20example%20of%20psychrochart.ipynb)**
+To play with it and see the results, look at this **[notebook with usage examples](https://github.com/azogue/psychrochart/blob/master/notebooks/Usage%20example%20of%20psychrochart.ipynb)**.
 
 ## Tests
 

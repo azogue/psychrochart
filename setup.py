@@ -20,15 +20,14 @@ setup(
     version=version,
     description='A Python 3 library to make psychrometric charts and overlay '
                 'information on them.',
-    long_description=long_description,
+    long_description='\n' + long_description,
     keywords='psychrometrics, moist, humid air, climate control, matplotlib',
     author='Eugenio Panadero',
     author_email='eugenio.panadero@gmail.com',
     url='https://github.com/azogue/psychrochart',
     license='MIT',
     classifiers=[
-        'Development Status :: 3 - Alpha',
-        # 'Development Status :: 4 - Beta',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Education',
         'Intended Audience :: Developers',
         'Intended Audience :: Information Technology',
@@ -37,7 +36,6 @@ setup(
         'Topic :: Scientific/Engineering :: Physics',
         'Topic :: Scientific/Engineering :: Visualization',
         'License :: OSI Approved :: MIT License',
-        # 'Natural Language :: Spanish',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
@@ -46,6 +44,6 @@ setup(
     package_data={
         'psychrochart': ['chart_styles/*.json'],
     },
-    install_requires=['numpy', 'matplotlib'],
+    install_requires=['numpy>=1.13.1', 'matplotlib>=2.0.2'],
     tests_require=['pytest>=3.0.0'],
 )

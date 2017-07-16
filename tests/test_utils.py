@@ -51,7 +51,10 @@ class TestsCLI(TestCase):
 
     def test_cli_main(self):
         """Unit test for the CLI entry point."""
+        # noinspection PyUnresolvedReferences
+        import psychrochart.agg
         from psychrochart.__main__ import main
+
         main()
 
 
