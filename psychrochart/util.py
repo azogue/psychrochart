@@ -6,7 +6,7 @@ A python library to make psychrometric charts and overlay information in them.
 import json
 import os
 from time import time
-from typing import Callable, Union, Dict, Optional, Iterable
+from typing import Callable, Union, Dict, Optional, Iterable, List
 
 
 PATH_STYLES = os.path.join(
@@ -140,11 +140,20 @@ def iter_solver(initial_value: float, objective_value: float,
     return value_calc
 
 
-def mod_color(color: Iterable, modification: float):
+def mod_color(color: Iterable, modification: float) -> List[float]:
     """Modified Color with an alpha value or a darken/lighten percentage."""
     if abs(modification) < .999:  # is alpha level
-        color = list(color) + [modification]
+        color = list(color[:3]) + [modification]
     else:
         color = [max(0., min(1., c * (1 + modification / 100)))
                  for c in color]
     return color
+
+
+def f_range(start: float, end: float, step: float=1.) -> List[float]:
+    """Make list of floats like `numpy.arange`."""
+    out = []
+    while start < end:
+        out.append(start)
+        start += step
+    return out

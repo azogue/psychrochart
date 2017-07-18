@@ -161,3 +161,59 @@ class TestsPsychroOverlay(TestCase):
         path_svg = os.path.join(
             basedir, 'chart_overlay_test.svg')
         chart.save(path_svg)
+
+    def test_custom_psychrochart_3(self):
+        """Customize a chart with some additions from a default style."""
+        # Load config
+        config = load_config("interior")
+
+        # Chart creation
+        chart = PsychroChart(config)
+
+        # Zones:
+
+        # Plotting
+        chart.plot()
+
+        arrows = {'exterior': [(31.06, 32.9), (29.06, 31.9)],
+                  'exterior_estimated': [(36.7, 25.0), (34.7, 30.0)],
+                  'interior': [(29.42, 52.34), (31.42, 57.34)]}
+
+        arrows_plot = chart.plot_arrows_dbt_rh(arrows)
+        print('arrows in chart: %s' % arrows_plot)
+
+        # Legend
+        chart.plot_legend(markerscale=1., fontsize=11, labelspacing=1.3)
+
+        # Save to disk
+        path_svg = os.path.join(
+            basedir, 'test_chart_overlay_arrows_1.svg')
+        chart.save(path_svg)
+
+        chart.remove_annotations()
+        points_arrows = {
+            'exterior': {'label': 'Exterior',
+                         'style': {
+                             'color': [0.855, 0.004, 0.278, 0.8],
+                             'marker': 'X', 'markersize': 15},
+                         'xy': [(30.06, 34.9), (31.06, 35.9)]},
+            'exterior_estimated': {
+                'label': 'Estimated (Weather service)',
+                'style': {'color': [0.573, 0.106, 0.318, 0.5],
+                          'marker': 'x', 'markersize': 10},
+                'xy': [(32.7, 27.0), (31.7, 28.0)]},
+            'interior': {'label': 'Interior',
+                         'style': {
+                             'color': [0.592, 0.745, 0.051, 0.9],
+                             'marker': 'o', 'markersize': 30},
+                         'xy': [(29.92, 50.34), (28.92, 50.34)]}}
+
+        arrows_plot = chart.plot_arrows_dbt_rh(points_arrows)
+        print('arrows in chart 2: %s' % arrows_plot)
+
+        # Save to disk
+        path_svg = os.path.join(
+            basedir, 'test_chart_overlay_arrows_2.svg')
+        chart.save(path_svg)
+
+

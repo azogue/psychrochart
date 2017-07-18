@@ -30,7 +30,7 @@ pip install psychrochart
     * **Constant humidity ratio lines** (internal orthogonal grid, horizontal)
 - Plot legend for each family of lines
 - Specify labels for each family of lines
-- **Overlay points and zones**
+- **Overlay points, zones, arrows...**
 - **Export SVG files**
 - Tested against example tables from [http://www.engineeringtoolbox.com](http://www.engineeringtoolbox.com)
 - 100 % code coverage.
@@ -39,12 +39,9 @@ pip install psychrochart
 
 #### TODO list:
 - **Better Doc!**
-- Overlay directions
 - Overlay `pd.Dataframe` time indexed evolution objects
 - Zone overlay post plotting
 - contour plot overlay
-- **Vectorize** all calc functions.
-- Profiling and optimizations with `numba` or `cython` if needed.
 
 #### Changelog
 
@@ -53,6 +50,7 @@ pip install psychrochart
 - v0.1.2:   Add `agg` module to set that `matplotlib` backend.
 - v0.1.3:   Add custom params for plotting styles, option to exclude first and last tick (`constant_{humid/temp}_label_include_limits`).
 - v0.1.4:   Customize labels and its locations for families of psychrometric curves.
+- v0.1.5:   Add Arrows, compatibility with the Home Assistant component `psychrometrics`.
 
 ## Usage
 

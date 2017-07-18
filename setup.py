@@ -44,6 +44,6 @@ setup(
     package_data={
         'psychrochart': ['chart_styles/*.json'],
     },
-    install_requires=['numpy>=1.13.1', 'matplotlib>=2.0.2'],
+    install_requires=['matplotlib==2.0.2'],
     tests_require=['pytest>=3.0.0'],
 )

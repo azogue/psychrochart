@@ -9,6 +9,7 @@ from unittest import TestCase
 
 from psychrochart.agg import PsychroChart
 from psychrochart.chart import PsychroCurve
+from psychrochart.util import f_range
 
 
 basedir = os.path.dirname(os.path.abspath(__file__))
@@ -19,10 +20,8 @@ class TestsPsychroCurves(TestCase):
 
     def test_curve(self):
         """Test the PsychroCurve object."""
-        import numpy as np
-
-        x_data = np.arange(0, 50, 1)
-        y_data = np.arange(0, 50, 1)
+        x_data = f_range(0, 50, 1)
+        y_data = f_range(0, 50, 1)
         style = {"color": "k", "linewidth": 0.5, "linestyle": "-"}
 
         curve = PsychroCurve(x_data, y_data, style)
@@ -32,9 +31,9 @@ class TestsPsychroCurves(TestCase):
         curve_d = PsychroCurve(**d_curve)
 
         self.assertCountEqual(curve.x_data, curve_d.x_data)
-        self.assertListEqual(curve.x_data.tolist(), curve_d.x_data.tolist())
+        self.assertListEqual(curve.x_data, curve_d.x_data)
         self.assertCountEqual(curve.y_data, curve_d.y_data)
-        self.assertListEqual(curve.y_data.tolist(), curve_d.y_data.tolist())
+        self.assertListEqual(curve.y_data, curve_d.y_data)
         self.assertDictEqual(curve.style, curve_d.style)
         self.assertDictEqual(d_curve, curve_d.__dict__())
 
@@ -51,19 +50,17 @@ class TestsPsychroCurves(TestCase):
                          '<PsychroCurve 50 values (label: None)>')
 
         self.assertCountEqual(curve.x_data, curve_js.x_data)
-        self.assertListEqual(curve.x_data.tolist(), curve_js.x_data.tolist())
+        self.assertListEqual(curve.x_data, curve_js.x_data)
         self.assertCountEqual(curve.y_data, curve_js.y_data)
-        self.assertListEqual(curve.y_data.tolist(), curve_js.y_data.tolist())
+        self.assertListEqual(curve.y_data, curve_js.y_data)
         self.assertDictEqual(curve.style, curve_js.style)
         self.assertDictEqual(json.loads(json_curve),
                              json.loads(curve_js.to_json()))
 
     def test_plot_curve(self):
         """Test the plotting of PsychroCurve objects."""
-        import numpy as np
-
-        x_data = np.arange(0, 50, 1)
-        y_data = np.arange(0, 50, 1)
+        x_data = f_range(0, 50, 1)
+        y_data = f_range(0, 50, 1)
         style = {"color": "k", "linewidth": 0.5, "linestyle": "-"}
 
         curve = PsychroCurve(x_data, y_data, style)
@@ -111,7 +108,7 @@ class TestsPsychroCurves(TestCase):
 
         self.assertEqual(
             str(data_chart.saturation),
-            '<1 PsychroCurves (label: Saturation line)>')
+            '<1 PsychroCurves (label: None)>')
         self.assertEqual(
             str(data_chart.saturation[0]),
             '<PsychroCurve 51 values (label: None)>')
