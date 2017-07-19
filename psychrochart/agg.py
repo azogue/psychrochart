@@ -10,4 +10,4 @@ matplotlib.use('Agg')
 
 # noinspection PyPep8
 # noinspection PyUnresolvedReferences
-from psychrochart.chart import PsychroChart
+from psychrochart.chart import PsychroChart  # NOQA

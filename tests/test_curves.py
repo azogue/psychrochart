@@ -24,10 +24,13 @@ class TestsPsychroCurves(TestCase):
         y_data = f_range(0, 50, 1)
         style = {"color": "k", "linewidth": 0.5, "linestyle": "-"}
 
+        empty_curve = PsychroCurve()
+        self.assertDictEqual(empty_curve.to_dict(), {})
+
         curve = PsychroCurve(x_data, y_data, style)
 
         # Dict export and import:
-        d_curve = curve.__dict__()
+        d_curve = curve.to_dict()
         curve_d = PsychroCurve(**d_curve)
 
         self.assertCountEqual(curve.x_data, curve_d.x_data)
@@ -35,7 +38,7 @@ class TestsPsychroCurves(TestCase):
         self.assertCountEqual(curve.y_data, curve_d.y_data)
         self.assertListEqual(curve.y_data, curve_d.y_data)
         self.assertDictEqual(curve.style, curve_d.style)
-        self.assertDictEqual(d_curve, curve_d.__dict__())
+        self.assertDictEqual(d_curve, curve_d.to_dict())
 
         # JSON import export
         json_curve = curve.to_json()

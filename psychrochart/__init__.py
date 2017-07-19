@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-A python library to make psychrometric charts and overlay information in them.
+"""A library to make psychrometric charts and overlay information in them."""
 
-"""
-
-__version__ = '0.1.5'
+__version__ = '0.1.6'

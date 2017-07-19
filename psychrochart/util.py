@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-A python library to make psychrometric charts and overlay information in them.
-
-"""
+"""A library to make psychrometric charts and overlay information in them."""
 import json
 import os
 from time import time
-from typing import Callable, Union, Dict, Optional, Iterable, List
+from typing import Callable, Union, Dict, Optional, List, Tuple
 
 
 PATH_STYLES = os.path.join(
@@ -33,7 +30,7 @@ STYLES = {
 
 
 def timeit(msg_log: str) -> Callable:
-    """Wrapper to time a method call."""
+    """Wrap a method to print the execution time of a method call."""
     def real_deco(func) -> Callable:
         def wrapper(*args, **kwargs):
             tic = time()
@@ -44,7 +41,7 @@ def timeit(msg_log: str) -> Callable:
     return real_deco
 
 
-def _update_config(old_conf: Optional[Dict], new_conf: Dict,
+def _update_config(old_conf: Optional[Dict], new_conf: dict,
                    verbose: bool=False, recurs_idx: int=0) -> Dict:
     """Update a dict recursively."""
     assert(recurs_idx < 3)
@@ -52,7 +49,7 @@ def _update_config(old_conf: Optional[Dict], new_conf: Dict,
         return new_conf
     for key, value in old_conf.items():
         if key in new_conf:
-            if isinstance(value, dict):
+            if isinstance(value, dict) and isinstance(new_conf[key], dict):
                 new_value = _update_config(
                     old_conf[key], new_conf[key], verbose, recurs_idx + 1)
             else:
@@ -77,16 +74,18 @@ def _load_config(new_config: Optional[Union[Dict, str]]=None,
     else:
         config = None
     if new_config is not None:
-        if isinstance(new_config, str) and new_config.endswith('.json'):
-            with open(new_config) as f:
-                new_config = json.load(f)
-        elif isinstance(new_config, str) and new_config in STYLES:
-            with open(STYLES[new_config]) as f:
-                new_config = json.load(f)
+        if isinstance(new_config, str):
+            new_config_d = {}  # type: dict
+            if new_config.endswith('.json'):
+                with open(new_config) as f:
+                    new_config_d.update(json.load(f))
+            elif new_config in STYLES:
+                with open(STYLES[new_config]) as f:
+                    new_config_d.update(json.load(f))
+            config = _update_config(config, new_config_d, verbose=verbose)
         else:
             assert(isinstance(new_config, dict))
-            new_config = new_config
-        config = _update_config(config, new_config, verbose=verbose)
+            config = _update_config(config, new_config, verbose=verbose)
 
     return config
 
@@ -108,7 +107,7 @@ def load_zones(zones: Optional[Union[Dict, str]]=DEFAULT_ZONES_FILE,
 def iter_solver(initial_value: float, objective_value: float,
                 func_eval: Callable, initial_increment: float=4.,
                 num_iters_max: int=100, precision: float=0.01) -> float:
-    """Simple solver by iteration."""
+    """Solve by iteration."""
     error = 100 * precision
     decreasing = True
     increment = initial_increment
@@ -140,8 +139,8 @@ def iter_solver(initial_value: float, objective_value: float,
     return value_calc
 
 
-def mod_color(color: Iterable, modification: float) -> List[float]:
-    """Modified Color with an alpha value or a darken/lighten percentage."""
+def mod_color(color: Union[Tuple, List], modification: float) -> List[float]:
+    """Modify color with an alpha value or a darken/lighten percentage."""
     if abs(modification) < .999:  # is alpha level
         color = list(color[:3]) + [modification]
     else:

@@ -283,11 +283,11 @@ class TestsPsychrometrics(TestCase):
 
     def test_dew_point_temperature(self):
         """Dew point temperature testing."""
-        from numpy import arange
         from psychrochart.equations import (
             saturation_pressure_water_vapor, dew_point_temperature)
+        from psychrochart.util import f_range
 
-        temps = arange(-20, 60, 1)
+        temps = f_range(-20, 60, 1)
         for t in temps:
             p_sat = saturation_pressure_water_vapor(t)
             # w_sat = humidity_ratio(p_sat, p_atm_kpa=p_atm)
@@ -299,16 +299,16 @@ class TestsPsychrometrics(TestCase):
 
     def test_wet_bulb_temperature(self):
         """Wet bulb temperature from dry bulb temp and relative humidity."""
-        from numpy import arange
         from psychrochart.equations import (
             wet_bulb_temperature, relative_humidity_from_temps,
             PRESSURE_STD_ATM_KPA)
+        from psychrochart.util import f_range
 
         precision = 0.00001
         p_atm = PRESSURE_STD_ATM_KPA
 
-        for dry_temp_c in arange(-10, 60, 2.5):
-            for relative_humid in arange(0.05, 1.0001, 0.05):
+        for dry_temp_c in f_range(-10, 60, 2.5):
+            for relative_humid in f_range(0.05, 1.0001, 0.05):
                 wet_temp_c = wet_bulb_temperature(
                     dry_temp_c, relative_humid,
                     p_atm_kpa=p_atm, precision=precision)
@@ -321,8 +321,8 @@ class TestsPsychrometrics(TestCase):
         precision = 0.00001
         p_atm = PRESSURE_STD_ATM_KPA * .75
 
-        for dry_temp_c in arange(-5, 50, 5):
-            for relative_humid in arange(0.05, 1.0001, 0.1):
+        for dry_temp_c in f_range(-5, 50, 5):
+            for relative_humid in f_range(0.05, 1.0001, 0.1):
                 wet_temp_c = wet_bulb_temperature(
                     dry_temp_c, relative_humid,
                     p_atm_kpa=p_atm, precision=precision)

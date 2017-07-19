@@ -10,7 +10,8 @@ from psychrochart.agg import PsychroChart
 from psychrochart.util import load_config, timeit
 
 
-basedir = os.path.dirname(os.path.abspath(__file__))
+basedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'charts')
+os.makedirs(basedir, exist_ok=True)
 
 
 class TestsPsychroOverlay(TestCase):
@@ -139,6 +140,10 @@ class TestsPsychroOverlay(TestCase):
                         "points_x": [23, 28, 28, 24, 23],
                         "points_y": [1, 3, 4, 4, 2],
                         "label": "Custom"
+                    },
+                    {
+                        "zone_type": "not_recognized_type",
+                        "label": "Bad zone"
                     }
                 ]
         }

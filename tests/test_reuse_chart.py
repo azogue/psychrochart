@@ -10,7 +10,8 @@ from psychrochart.agg import PsychroChart
 from psychrochart.util import timeit
 
 
-basedir = os.path.dirname(os.path.abspath(__file__))
+basedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'charts')
+os.makedirs(basedir, exist_ok=True)
 
 
 @timeit('make_chart')

@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-A python library to make psychrometric charts and overlay information in them.
-
-"""
+"""A library to make psychrometric charts and overlay information in them."""
 from math import log, exp
 
 from psychrochart.util import iter_solver
@@ -77,7 +74,9 @@ def humidity_ratio_from_temps(
 def relative_humidity_from_temps(
         dry_bulb_temp_c: float, wet_bulb_temp_c: float,
         p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> float:
-    """Ratio of the mole fraction of water vapor x_w in a given moist
+    """Obtain the relative humidity from the dry and wet bulb temperatures.
+
+    Ratio of the mole fraction of water vapor x_w in a given moist
     air sample to the mole fraction xws in an air sample
     saturated at the same temperature and pressure.
 
@@ -109,7 +108,8 @@ def dry_temperature_for_specific_volume_of_moist_air(
         p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> float:
     """Solve the dry bulb temp from humidity ratio and specific volume.
 
-    ºC. Derived from eq. (28), 2009 ASHRAE Handbook—Fundamentals (SI)."""
+    ºC. Derived from eq. (28), 2009 ASHRAE Handbook—Fundamentals (SI).
+    """
     return (1741905.36576529 * p_atm_kpa * specific_vol
             / (803929. * w_kg_kga + 500000.) - DELTA_TEMP_C_TO_KELVIN)
 
@@ -168,7 +168,8 @@ def enthalpy_moist_air(
         p_atm_kpa: float=PRESSURE_STD_ATM_KPA) -> float:
     """Moist air specific enthalpy.
 
-    KJ / kg. Eqs. (32), (30), (31) 2009 ASHRAE Handbook—Fundamentals (SI)."""
+    KJ / kg. Eqs. (32), (30), (31) 2009 ASHRAE Handbook—Fundamentals (SI).
+    """
     w_kg_kga = humidity_ratio(p_vapor_kpa, p_atm_kpa)
 
     c_pa = 1.006  # kJ/(kg·ºC), sensible
@@ -187,7 +188,8 @@ def dry_temperature_for_enthalpy_of_moist_air(
         w_kg_kga: float, enthalpy: float) -> float:
     """Solve the dry bulb temp from humidity ratio and specific enthalpy.
 
-    ºC. Derived from eq. (32), 2009 ASHRAE Handbook—Fundamentals (SI)."""
+    ºC. Derived from eq. (32), 2009 ASHRAE Handbook—Fundamentals (SI).
+    """
     return 500. * (enthalpy - 2501.0 * w_kg_kga) / (930.0 * w_kg_kga + 503.0)
 
 

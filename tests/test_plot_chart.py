@@ -9,7 +9,8 @@ from unittest import TestCase
 from psychrochart.agg import PsychroChart
 
 
-basedir = os.path.dirname(os.path.abspath(__file__))
+basedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'charts')
+os.makedirs(basedir, exist_ok=True)
 
 
 class TestsPsychroPlot(TestCase):
@@ -54,7 +55,7 @@ class TestsPsychroPlot(TestCase):
                 "range_wet_temp": [-10, 30],
                 # "constant_wet_temp_labels": [5, 10, 15, 20],
                 # "with_constant_dry_temp": False,
-                # "with_constant_humidity": False,
+                "constant_humid_label_include_limits": False,
                 "with_zones": False
             }
         }

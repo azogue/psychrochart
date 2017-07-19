@@ -51,6 +51,7 @@ pip install psychrochart
 - v0.1.3:   Add custom params for plotting styles, option to exclude first and last tick (`constant_{humid/temp}_label_include_limits`).
 - v0.1.4:   Customize labels and its locations for families of psychrometric curves.
 - v0.1.5:   Add Arrows, compatibility with the Home Assistant component `psychrometrics`.
+- v0.1.6:   Some cleaning, better typing, flake8, added `tox.ini`.
 
 ## Usage
 
@@ -135,7 +136,7 @@ to generate the coverage reports.
 
 [MIT license](https://github.com/azogue/psychrochart/blob/master/LICENSE), so do with it as you like ;-)
 
-## Preconfigured styling examples
+## Included styling examples
 
 **Default style**:
 
