@@ -608,21 +608,23 @@ class PsychroChart:
 
         if connectors is not None:
             for i, d_con in enumerate(connectors):
-                x_start = points_plot[d_con['start']][0][0]
-                y_start = points_plot[d_con['start']][1][0]
-                x_end = points_plot[d_con['end']][0][0]
-                y_end = points_plot[d_con['end']][1][0]
-                x_line = [x_start, x_end]
-                y_line = [y_start, y_end]
-                style = d_con.get('style', points_plot[d_con['start']][2])
-                self._handlers_annotations.append(
-                    self.axes.plot(
-                        x_line, y_line, dash_capstyle='round', **style))
-                self._handlers_annotations.append(
-                    self.axes.plot(
-                        x_line, y_line,
-                        color=list(style['color'][:3]) + [.15],
-                        lw=50, solid_capstyle='round'))
+                if (d_con['start'] in points_plot and
+                            d_con['end'] in points_plot):
+                    x_start = points_plot[d_con['start']][0][0]
+                    y_start = points_plot[d_con['start']][1][0]
+                    x_end = points_plot[d_con['end']][0][0]
+                    y_end = points_plot[d_con['end']][1][0]
+                    x_line = [x_start, x_end]
+                    y_line = [y_start, y_end]
+                    style = d_con.get('style', points_plot[d_con['start']][2])
+                    self._handlers_annotations.append(
+                        self.axes.plot(
+                            x_line, y_line, dash_capstyle='round', **style))
+                    self._handlers_annotations.append(
+                        self.axes.plot(
+                            x_line, y_line,
+                            color=list(style['color'][:3]) + [.15],
+                            lw=50, solid_capstyle='round'))
 
         for point in points_plot.values():
             self._handlers_annotations.append(
