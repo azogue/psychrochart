@@ -22,6 +22,7 @@ class TestsPsychroPlot(TestCase):
             basedir, 'test_default_psychrochart.svg')
         chart = PsychroChart()
         chart.save(path_svg_default)
+        chart.close_fig()
 
     def test_custom_style_psychrochart(self):
         """Test the plot custom styling with dicts."""
@@ -66,6 +67,7 @@ class TestsPsychroPlot(TestCase):
         path_png = os.path.join(
             basedir, 'test_custom_psychrochart.png')
         chart.save(path_png, transparent=True)
+        chart.close_fig()
 
     def test_default_styles_psychrochart(self):
         """Test the plot custom styling with JSON files."""
@@ -75,6 +77,7 @@ class TestsPsychroPlot(TestCase):
         chart.plot()
         chart.save(path_svg_ashrae)
         chart.save(path_svg_ashrae.replace('svg', 'png'), transparent=True)
+        chart.close_fig()
 
         path_svg_2 = os.path.join(
             basedir, 'test_interior_psychrochart.svg')
@@ -83,6 +86,7 @@ class TestsPsychroPlot(TestCase):
         chart.plot_legend(
             markerscale=.7, frameon=False, fontsize=10, labelspacing=1.2)
         chart.save(path_svg_2)
+        chart.close_fig()
 
         path_svg_3 = os.path.join(
             basedir, 'test_minimal_psychrochart.svg')
@@ -90,3 +94,4 @@ class TestsPsychroPlot(TestCase):
         chart.plot()
         chart.plot_legend()
         chart.save(path_svg_3)
+        chart.close_fig()

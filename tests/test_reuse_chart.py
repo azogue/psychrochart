@@ -131,3 +131,14 @@ class TestsPsychroReuse(TestCase):
         """Customize a chart with some additions"""
         print('make_charts(with_reuse=False)')
         _make_charts(with_reuse=False)
+
+    def test_redraw_psychrochart(self):
+        """Test the workflow to redraw a chart."""
+        chart = _make_chart()
+        chart.plot_legend()
+        _add_points(chart, True, 'test_redraw_chart_1.svg')
+        chart.close_fig()
+
+        # chart.plot_legend()
+        _add_points(chart, False, 'test_redraw_chart_2.svg')
+        chart.close_fig()

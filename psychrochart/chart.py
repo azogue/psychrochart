@@ -609,7 +609,7 @@ class PsychroChart:
         if connectors is not None:
             for i, d_con in enumerate(connectors):
                 if (d_con['start'] in points_plot and
-                            d_con['end'] in points_plot):
+                        d_con['end'] in points_plot):
                     x_start = points_plot[d_con['start']][0][0]
                     y_start = points_plot[d_con['start']][1][0]
                     x_end = points_plot[d_con['end']][0][0]
@@ -798,9 +798,25 @@ class PsychroChart:
                 line.remove()
         self._handlers_annotations = []
 
+    def remove_legend(self) -> None:
+        """Remove the legend of the chart."""
+        if self._legend is not None:
+            self._legend.remove()
+            self._legend = None
+
     def save(self, path_dest: Any, **params: Any) -> None:
         """Write the chart to disk."""
         self.axes.get_figure().savefig(path_dest, **params)
+
+    def close_fig(self) -> None:
+        """Close the figure plot."""
+        if self._axes is not None:
+            fig = self._axes.get_figure()
+            self.remove_annotations()
+            self.remove_legend()
+            self._axes.remove()
+            self._axes = None
+            plt.close(fig)
 
     # def _print_err(self, *args: Any) -> None:
     #     if self._logger is not None:
