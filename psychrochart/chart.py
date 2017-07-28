@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """A library to make psychrometric charts and overlay information in them."""
+import gc
 import json
 from math import atan2, degrees
-from matplotlib import patches
+from matplotlib import patches, figure
 from matplotlib.axes import Axes
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.legend import Legend  # NOQA
 from matplotlib.path import Path, np
 import matplotlib.pyplot as plt
@@ -352,6 +354,8 @@ class PsychroChart:
         self.saturation = None  # type: PsychroCurves
         self.zones = []  # type: List
 
+        self._fig = None  # type: figure.Figure
+        self._canvas = None  # type: FigureCanvas
         self._axes = None  # type: Axes
         self._legend = None  # type: Legend
         self._handlers_annotations = []  # type: List
@@ -709,8 +713,9 @@ class PsychroChart:
         partial_axis = fig_params.pop('partial_axis', True)
 
         # Create figure and format axis
-        fig = plt.figure(figsize=figsize, dpi=150, frameon=False)
-        ax = fig.gca(position=position)
+        self._fig = figure.Figure(figsize=figsize, dpi=150, frameon=False)
+        self._canvas = FigureCanvas(self._fig)
+        ax = self._fig.gca(position=position)
         ax.yaxis.tick_right()
         ax.yaxis.set_label_position("right")
         plt.xlim([self.dbt_min, self.dbt_max])
@@ -806,17 +811,23 @@ class PsychroChart:
 
     def save(self, path_dest: Any, **params: Any) -> None:
         """Write the chart to disk."""
-        self.axes.get_figure().savefig(path_dest, **params)
+        if self._axes is None:
+            self.plot()
+        self._canvas.print_figure(path_dest, **params)
+        gc.collect()
 
     def close_fig(self) -> None:
         """Close the figure plot."""
         if self._axes is not None:
-            fig = self._axes.get_figure()
             self.remove_annotations()
             self.remove_legend()
             self._axes.remove()
             self._axes = None
-            plt.close(fig)
+            plt.close(self._fig)
+            plt.close()
+            self._fig = None
+            self._canvas = None
+            gc.collect()
 
     # def _print_err(self, *args: Any) -> None:
     #     if self._logger is not None:

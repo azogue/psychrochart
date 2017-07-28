@@ -53,6 +53,7 @@ pip install psychrochart
 - v0.1.5:   Add Arrows, compatibility with the Home Assistant component `psychrometrics`.
 - v0.1.6:   Some cleaning, better typing, flake8, added `tox.ini`.
 - v0.1.7:   Methods to clean the plot (`.close_fig()`) and to remove the legend (`.remove_legend()`).
+- v0.1.8:   Memleak with `savefig`.
 
 ## Usage
 
