@@ -8,7 +8,6 @@ from matplotlib.axes import Axes
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.legend import Legend  # NOQA
 from matplotlib.path import Path, np
-import matplotlib.pyplot as plt
 from typing import (
     Iterable, List, Callable, Union, Dict, Optional, AnyStr, Any, Tuple)
 
@@ -120,11 +119,8 @@ class PsychroCurve:
             text_style['rotation_mode'] = 'anchor'
         ax.annotate(label, (text_x, text_y), **text_style)
 
-    def plot(self, ax: Axes=None) -> Axes:
+    def plot(self, ax: Axes) -> Axes:
         """Plot the curve."""
-        if ax is None:
-            ax = plt.gca()
-
         xmin, xmax = ax.get_xlim()
         ymin, ymax = ax.get_ylim()
         if not _between_limits(self.x_data, self.y_data,
@@ -252,15 +248,15 @@ class PsychroCurves:
         return '<{} PsychroCurves (label: {})>'.format(
             self.size, self.family_label)
 
-    def plot(self, ax: Axes=None) -> Axes:
+    def plot(self, ax: Axes) -> Axes:
         """Plot the family curves."""
         [curve.plot(ax) for curve in self.curves]
 
         # Curves family labelling
         if self.curves and self.family_label is not None:
             style = self.curves[0].style or {}
-            plt.plot([-1], [-1], label=self.family_label,
-                     marker='D', markersize=10, **style)
+            ax.plot([-1], [-1], label=self.family_label,
+                    marker='D', markersize=10, **style)
 
         return ax
 
@@ -699,6 +695,23 @@ class PsychroChart:
 
     def plot(self) -> Axes:
         """Plot the psychrochart and return the matplotlib Axes instance."""
+        def _apply_spines_style(axes, style, location='right'):
+            for key in style:
+                if (key == 'color') or (key == 'c'):
+                    axes.spines[location].set_color(style[key])
+                elif (key == 'linewidth') or (key == 'lw'):
+                    axes.spines[location].set_linewidth(style[key])
+                elif (key == 'linestyle') or (key == 'ls'):
+                    axes.spines[location].set_linestyle(style[key])
+                else:
+                    try:
+                        getattr(axes.spines[location],
+                                'set_{}'.format(key))(style[key])
+                    except Exception as exc:
+                        self._print_err(
+                            "Error trying to apply spines attrs: %s. (%s)",
+                            exc, dir(axes.spines[location]))
+
         # Prepare fig & axis
         fig_params = self.figure_params.copy()
         figsize = fig_params.pop('figsize', (16, 9))
@@ -718,32 +731,32 @@ class PsychroChart:
         ax = self._fig.gca(position=position)
         ax.yaxis.tick_right()
         ax.yaxis.set_label_position("right")
-        plt.xlim([self.dbt_min, self.dbt_max])
-        plt.ylim([self.w_min, self.w_max])
-        plt.grid(False, which='major', axis='both')
-        plt.grid(False, which='minor', axis='both')
+        ax.set_xlim([self.dbt_min, self.dbt_max])
+        ax.set_ylim([self.w_min, self.w_max])
+        ax.grid(False, which='major', axis='both')
+        ax.grid(False, which='minor', axis='both')
 
         # Apply axis styles
         if fig_params['x_label'] is not None:
             style_axis = x_style_labels.copy()
             style_axis['fontsize'] *= 1.2
-            plt.xlabel(fig_params['x_label'], **style_axis)
+            ax.set_xlabel(fig_params['x_label'], **style_axis)
         if fig_params['y_label'] is not None:
             style_axis = y_style_labels.copy()
             style_axis['fontsize'] *= 1.2
-            plt.ylabel(fig_params['y_label'], **style_axis)
+            ax.set_ylabel(fig_params['y_label'], **style_axis)
         if fig_params['title'] is not None:
-            plt.title(fig_params['title'],
-                      fontsize=fontsize * 1.5, fontweight='bold')
+            ax.set_title(fig_params['title'],
+                         fontsize=fontsize * 1.5, fontweight='bold')
 
-        plt.setp(ax.spines['right'], **y_style)
-        plt.setp(ax.spines['bottom'], **x_style)
+        _apply_spines_style(ax, y_style, location='right')
+        _apply_spines_style(ax, x_style, location='bottom')
         if partial_axis:  # Hide left and top axis
             ax.spines['left'].set_visible(False)
             ax.spines['top'].set_visible(False)
         else:
-            plt.setp(ax.spines['left'], **y_style)
-            plt.setp(ax.spines['top'], **x_style)
+            _apply_spines_style(ax, y_style, location='left')
+            _apply_spines_style(ax, x_style, location='top')
 
         if x_style_ticks:
             ax.tick_params(axis='x', **x_style_ticks)
@@ -783,7 +796,7 @@ class PsychroChart:
             ax.set_yticks([])
 
         # Plot curves:
-        [getattr(self, curve_family).plot(ax=ax)
+        [getattr(self, curve_family).plot(ax)
          for curve_family in PSYCHRO_CURVES_KEYS
          if getattr(self, curve_family) is not None]
 
@@ -823,14 +836,13 @@ class PsychroChart:
             self.remove_legend()
             self._axes.remove()
             self._axes = None
-            plt.close(self._fig)
-            plt.close()
+            self._fig.clear()
             self._fig = None
             self._canvas = None
             gc.collect()
 
-    # def _print_err(self, *args: Any) -> None:
-    #     if self._logger is not None:
-    #         self._logger.error(*args)
-    #     else:
-    #         print(args[0] % args[1:])
+    def _print_err(self, *args: Any) -> None:
+        if self._logger is not None:
+            self._logger.error(*args)
+        else:
+            print(args[0] % args[1:])

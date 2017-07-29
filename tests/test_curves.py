@@ -62,6 +62,7 @@ class TestsPsychroCurves(TestCase):
 
     def test_plot_curve(self):
         """Test the plotting of PsychroCurve objects."""
+        import matplotlib.pyplot as plt
         x_data = f_range(0, 50, 1)
         y_data = f_range(0, 50, 1)
         style = {"color": "k", "linewidth": 0.5, "linestyle": "-"}
@@ -69,11 +70,12 @@ class TestsPsychroCurves(TestCase):
         curve = PsychroCurve(x_data, y_data, style)
 
         # Plotting
-        ax = curve.plot()
+        ax = plt.subplot()
+        ax = curve.plot(ax)
 
         # Vertical line
         vertical_curve = PsychroCurve([25, 25], [2, 48])
-        vertical_curve.plot()
+        vertical_curve.plot(ax)
 
         # Add label
         vertical_curve.add_label(ax, 'TEST', va='baseline', ha='center')
