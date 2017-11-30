@@ -12,7 +12,7 @@ from psychrochart import __version__ as version
 packages = find_packages(exclude=['docs', '*tests*', 'notebooks', 'htmlcov'])
 
 basedir = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(basedir, 'README.rst'), encoding='utf-8') as f:
+with open(os.path.join(basedir, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
