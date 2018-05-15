@@ -59,6 +59,7 @@ Changelog
 -  **v0.1.8**: Memleak with `savefig`.
 -  **v0.1.10**: Fix plot limits, do not use pyplot, axes are not optional.
 -  **v0.1.11**: Add optional `Axes` as argument for `PsychroChart.plot`.
+-  **v0.1.12**: Add empiric equation for wet bulb temperature (@ZhukovGreen contribution).
 
 Usage
 -----

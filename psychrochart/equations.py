@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """A library to make psychrometric charts and overlay information in them."""
-from math import log, exp, atan
+from math import log, exp, atan, sqrt
 
 from psychrochart.util import iter_solver
 
@@ -243,19 +243,21 @@ def wet_bulb_temperature(
 
 def wet_bulb_temperature_empiric(
         dry_temp_c: float, relative_humid: float) -> float:
-        """Epriric calculation of the wet bulb temperature.
-        
-        Ref to http://journals.ametsoc.org/doi/pdf/10.1175/JAMC-D-11-0143.1
-        """
-        return dry_temp_c * \
-               atan(0.151977 * (relative_humid * 100 + 8.313659)**0.5) + \
-               atan(dry_temp_c + relative_humid * 100) - \
-               atan(relative_humid * 100 - 1.676331) + \
-               0.00391838 * (relative_humid * 100)**1.5 * \
-               atan(0.023101 * relative_humid * 100) - \
-               4.686035
+    """Empiric calculation of the wet bulb temperature for P_atm.
 
+    Ref to (eq1) [http://journals.ametsoc.org/doi/pdf/10.1175/JAMC-D-11-0143.1]
+    """
+    rel_humid_p = relative_humid * 100
+    if -2.33 * dry_temp_c + 28.33 > rel_humid_p:  # From Fig 3. Tw Error > 1 ºC
+        print('WARNING: The empiric formulation for wetbulb temperature at '
+              'this point ({}, {}) is out of range. Expect a '
+              'considerable error.'.format(dry_temp_c, relative_humid))
 
+    return (dry_temp_c * atan(0.151977 * sqrt(rel_humid_p + 8.313659))
+            + atan(dry_temp_c + rel_humid_p)
+            - atan(rel_humid_p - 1.676331)
+            + 0.00391838 * (rel_humid_p ** 1.5) * atan(0.023101 * rel_humid_p)
+            - 4.686035)
 
 
 # def degree_of_saturation(w_kg_kga, wsat_kg_kga):

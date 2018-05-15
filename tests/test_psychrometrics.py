@@ -227,9 +227,9 @@ class TestsPsychrometrics(TestCase):
             # xmax = humidity_ratio(psat)
             vol_psat = specific_volume(t, psat, p_atm_kpa=press)
             vol_p0 = specific_volume(t, 0, p_atm_kpa=press)
-            print('DEB', t, dens_ref, vol_psat, vol_p0, 1/vol_psat, 1/vol_p0)
+            # print('DEB', t, dens_ref, vol_psat, vol_p0, 1/vol_psat, 1/vol_p0)
             dens_kg_m3 = 1 / vol_psat - 1 / vol_p0
-            print(dens_kg_m3)
+            # print(dens_kg_m3)
 
             self.assertAlmostEqual(psat, ps_ref / 1000, delta=27)
             # self.assertAlmostEqual(psat, ps_ref / 1000, delta=0.05)
@@ -333,18 +333,22 @@ class TestsPsychrometrics(TestCase):
                 self.assertAlmostEqual(relative_humid, rh_calc, delta=0.01)
 
     def test_wet_bulb_temperature_empiric(self):
-        """Empiric wet bulb temperature from dry bulb temp and relative humidity."""
+        """Empiric wet bulb temperature from dry bulb and relative humidity."""
         from psychrochart.equations import (
-            wet_bulb_temperature_empiric,
-            wet_bulb_temperature,
-            relative_humidity_from_temps,
-            PRESSURE_STD_ATM_KPA)
+            wet_bulb_temperature_empiric, wet_bulb_temperature)
         from psychrochart.util import f_range
 
-        for dry_temp_c in f_range(-10, 60, 2.5):
+        for dry_temp_c in f_range(-20, 50, 2.5):
             for relative_humid in f_range(0.05, 1.0001, 0.05):
-                wet_temp_c = wet_bulb_temperature_empiric(
-                    dry_temp_c, relative_humid)
-                wet_temp_c_ref = wet_bulb_temperature(
-                    dry_temp_c, relative_humid)
-                assert abs(wet_temp_c - wet_temp_c_ref) < 2.5
+                if -2.33 * dry_temp_c + 28.33 < relative_humid:
+                    wet_temp_c = wet_bulb_temperature_empiric(
+                        dry_temp_c, relative_humid)
+                    wet_temp_c_ref = wet_bulb_temperature(
+                        dry_temp_c, relative_humid)
+                    if abs(wet_temp_c - wet_temp_c_ref) > 1:
+                        print('DT: {:.2f}, HR: {:.2f} => WT: [Aprox: {:.2f}, '
+                              'Iter: {:.2f} -> ∆: {:.2f}]'.format(
+                                dry_temp_c, relative_humid, wet_temp_c,
+                                wet_temp_c_ref,
+                                abs(wet_temp_c - wet_temp_c_ref)))
+                    assert abs(wet_temp_c - wet_temp_c_ref) < 1.5
