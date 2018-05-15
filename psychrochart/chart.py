@@ -693,7 +693,7 @@ class PsychroChart:
             edgecolor=edgecolor, fontsize=fontsize, fancybox=fancybox,
             labelspacing=labelspacing, **params)
 
-    def plot(self) -> Axes:
+    def plot(self, ax: Optional[Axes]=None) -> Axes:
         """Plot the psychrochart and return the matplotlib Axes instance."""
         def _apply_spines_style(axes, style, location='right'):
             for key in style:
@@ -728,7 +728,8 @@ class PsychroChart:
         # Create figure and format axis
         self._fig = figure.Figure(figsize=figsize, dpi=150, frameon=False)
         self._canvas = FigureCanvas(self._fig)
-        ax = self._fig.gca(position=position)
+        if ax is None:
+            ax = self._fig.gca(position=position)
         ax.yaxis.tick_right()
         ax.yaxis.set_label_position("right")
         ax.set_xlim([self.dbt_min, self.dbt_max])

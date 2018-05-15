@@ -6,7 +6,7 @@ It implements a useful collection of psychrometric equations for moisture and hu
 
 Calculations are made by implementing experimental equations extracted from recognized sources, such as the _2009 ASHRAE Handbook—Fundamentals (SI)_.
 
-<img src="https://rawgit.com/azogue/psychrochart/master/tests/chart_overlay_style_minimal.svg" width="100%" height="100%">
+<img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/chart_overlay_style_minimal.svg" width="100%" height="100%">
 
 ## Install
 
@@ -55,6 +55,7 @@ pip install psychrochart
 - v0.1.7:   Methods to clean the plot (`.close_fig()`) and to remove the legend (`.remove_legend()`).
 - v0.1.8:   Memleak with `savefig`.
 - v0.1.10:  Fix plot limits, do not use pyplot, axes are not optional.
+- v0.1.11:  Add optional `Axes` as argument for `PsychroChart.plot`.
 
 ## Usage
 
@@ -65,6 +66,16 @@ from psychrochart.chart import PsychroChart
 chart_default = PsychroChart()
 axes = chart_default.plot()
 ```
+
+Called from a terminal (`python psychrochart`), it plots and shows the default chart using the default matplotlib backend, equivalent to this python script:
+```python
+from psychrochart.chart import PsychroChart
+import matplotlib.pyplot as plt
+
+PsychroChart().plot(ax=plt.gca())
+plt.show()
+```
+
 
 ### Chart customization
 
@@ -143,12 +154,12 @@ to generate the coverage reports.
 
 **Default style**:
 
-<img src="https://rawgit.com/azogue/psychrochart/master/tests/test_default_psychrochart.svg" width="100%" height="100%">
+<img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/test_default_psychrochart.svg" width="100%" height="100%">
 
 **ASHRAE Handbook black and white style**:
 
-<img src="https://rawgit.com/azogue/psychrochart/master/tests/test_ashrae_psychrochart.svg" width="100%" height="100%">
+<img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/test_ashrae_psychrochart.svg" width="100%" height="100%">
 
 **Minimal style**:
 
-<img src="https://rawgit.com/azogue/psychrochart/master/tests/test_minimal_psychrochart.svg" width="100%" height="100%">
+<img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/test_minimal_psychrochart.svg" width="100%" height="100%">
