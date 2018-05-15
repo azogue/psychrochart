@@ -39,11 +39,12 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
     packages=packages,
     package_data={
         'psychrochart': ['chart_styles/*.json'],
     },
-    install_requires=['matplotlib==2.0.2'],
+    install_requires=['matplotlib>=2.0.2'],
     tests_require=['pytest>=3.0.0'],
 )
