@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """A library to make psychrometric charts and overlay information in them."""
-from math import log, exp
+from math import log, exp, atan
 
 from psychrochart.util import iter_solver
 
@@ -239,6 +239,24 @@ def wet_bulb_temperature(
     if out > dry_temp_c:
         out = dry_temp_c
     return out
+
+
+def wet_bulb_temperature_empiric(
+        dry_temp_c: float, relative_humid: float) -> float:
+        """Epriric calculation of the wet bulb temperature.
+        
+        Ref to http://journals.ametsoc.org/doi/pdf/10.1175/JAMC-D-11-0143.1
+        """
+        return dry_temp_c * \
+               atan(0.151977 * (relative_humid * 100 + 8.313659)**0.5) + \
+               atan(dry_temp_c + relative_humid * 100) - \
+               atan(relative_humid * 100 - 1.676331) + \
+               0.00391838 * (relative_humid * 100)**1.5 * \
+               atan(0.023101 * relative_humid * 100) - \
+               4.686035
+
+
+
 
 # def degree_of_saturation(w_kg_kga, wsat_kg_kga):
 #     """Ratio of air humidity ratio to humidity ratio of saturated moist air.

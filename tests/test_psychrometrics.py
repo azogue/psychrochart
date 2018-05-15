@@ -331,3 +331,20 @@ class TestsPsychrometrics(TestCase):
                 # print('wet_temp_c(dbt, rh): {:.3f} ºC ({:.1f} ºC, {:.1f} %)'
                 #       .format(wet_temp_c, dry_temp_c, relative_humid * 100))
                 self.assertAlmostEqual(relative_humid, rh_calc, delta=0.01)
+
+    def test_wet_bulb_temperature_empiric(self):
+        """Empiric wet bulb temperature from dry bulb temp and relative humidity."""
+        from psychrochart.equations import (
+            wet_bulb_temperature_empiric,
+            wet_bulb_temperature,
+            relative_humidity_from_temps,
+            PRESSURE_STD_ATM_KPA)
+        from psychrochart.util import f_range
+
+        for dry_temp_c in f_range(-10, 60, 2.5):
+            for relative_humid in f_range(0.05, 1.0001, 0.05):
+                wet_temp_c = wet_bulb_temperature_empiric(
+                    dry_temp_c, relative_humid)
+                wet_temp_c_ref = wet_bulb_temperature(
+                    dry_temp_c, relative_humid)
+                assert abs(wet_temp_c - wet_temp_c_ref) < 2.5
