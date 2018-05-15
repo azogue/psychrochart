@@ -41,7 +41,7 @@ def timeit(msg_log: str) -> Callable:
     return real_deco
 
 
-def _update_config(old_conf: Optional[Dict], new_conf: dict,
+def _update_config(old_conf: dict, new_conf: dict,
                    verbose: bool=False, recurs_idx: int=0) -> Dict:
     """Update a dict recursively."""
     assert(recurs_idx < 3)
@@ -64,8 +64,8 @@ def _update_config(old_conf: Optional[Dict], new_conf: dict,
     return old_conf
 
 
-def _load_config(new_config: Optional[Union[Dict, str]]=None,
-                 default_config_file: Optional[str]=None,
+def _load_config(new_config: Union[Dict, str]=None,
+                 default_config_file: str=None,
                  verbose: bool=False) -> Dict:
     """Load plot parameters from a JSON file."""
     if default_config_file is not None:

@@ -8,8 +8,8 @@ from matplotlib.axes import Axes
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.legend import Legend  # NOQA
 from matplotlib.path import Path, np
-from typing import (
-    Iterable, List, Callable, Union, Dict, Optional, AnyStr, Any, Tuple)
+from typing import Iterable, List, Callable, Union, Dict, AnyStr, Any, Tuple
+from typing import Optional  # NOQA
 
 from psychrochart.equations import (
     PRESSURE_STD_ATM_KPA, pressure_by_altitude, humidity_ratio,
@@ -44,22 +44,22 @@ class PsychroCurve:
     """Object to store a psychrometric curve for plotting."""
 
     def __init__(self,
-                 x_data: Optional[List[float]]=None,
-                 y_data: Optional[List[float]]=None,
-                 style: Optional[Dict]=None,
-                 type_curve: Optional[str]=None,
-                 limits: Optional[Dict]=None,
-                 label: Optional[str]=None, label_loc: float=.75,
+                 x_data: List[float]=None,
+                 y_data: List[float]=None,
+                 style: dict=None,
+                 type_curve: str=None,
+                 limits: dict=None,
+                 label: str=None, label_loc: float=.75,
                  logger=None) -> None:
         """Create the Psychrocurve object."""
         self._logger = logger
-        self.x_data = x_data  # type: Optional[List[float]]
-        self.y_data = y_data  # type: Optional[List[float]]
+        self.x_data = x_data if x_data else []  # type: List[float]
+        self.y_data = y_data if y_data else []  # type: List[float]
         self.style = style or {}  # type: dict
         self._type_curve = type_curve
         self._label = label
-        self._label_loc = label_loc  # type: float
-        self._limits = limits  # type: dict
+        self._label_loc = label_loc
+        self._limits = limits
         self._is_patch = (style is not None
                           and 'facecolor' in style)  # type: bool
 
@@ -73,7 +73,7 @@ class PsychroCurve:
     def __repr__(self) -> str:
         """Object string representation."""
         name = 'PsychroZone' if self._is_patch else 'PsychroCurve'
-        if self:
+        if self and self.x_data:
             return '<{} {} values (label: {})>'.format(
                 name, len(self.x_data), self._label)
         else:
@@ -87,7 +87,7 @@ class PsychroCurve:
 
     def to_dict(self) -> Dict:
         """Return the curve as a dict."""
-        if self.x_data is None:
+        if not self.x_data or not self.y_data:
             return {}
         return {
             "x_data": self.x_data,
@@ -123,8 +123,8 @@ class PsychroCurve:
         """Plot the curve."""
         xmin, xmax = ax.get_xlim()
         ymin, ymax = ax.get_ylim()
-        if not _between_limits(self.x_data, self.y_data,
-                               xmin, xmax, ymin, ymax):
+        if not self.x_data or not self.y_data or not _between_limits(
+                self.x_data, self.y_data, xmin, xmax, ymin, ymax):
             self._print_err(
                 '{} (label:{}) Not between limits ([{}, {}, {}, {}]) '
                 '-> x:{}, y:{}'.format(
@@ -158,16 +158,17 @@ class PsychroCurve:
 
         return ax
 
-    def add_label(self, ax: Axes=None,
-                  text_label: Optional[str]=None,
-                  va: Optional[str]=None, ha: Optional[str]=None,
+    def add_label(self, ax: Axes,
+                  text_label: str=None,
+                  va: str=None, ha: str=None,
                   loc: float=None, **params) -> Axes:
         """Annotate the curve with its label."""
         num_samples = len(self.x_data)
         assert num_samples > 1
         text_style = {'va': 'bottom', 'ha': 'left', 'color': [0., 0., 0.]}
         loc_f = self._label_loc if loc is None else loc  # type: float
-        label = self._label if text_label is None else text_label  # type: str
+        label = ((self._label if self._label is not None else '')
+                 if text_label is None else text_label)  # type: str
 
         def _tilt_params(x_data, y_data, idx_0, idx_f):
             delta_x = x_data[idx_f] - self.x_data[idx_0]
@@ -225,7 +226,7 @@ class PsychroCurves:
 
     def __init__(self,
                  curves: List[PsychroCurve],
-                 family_label: Optional[str]=None) -> None:
+                 family_label: str=None) -> None:
         """Create the Psychrocurves array object."""
         self.curves = curves  # type: List[PsychroCurve]
         self.size = len(self.curves)  # type: int
@@ -287,8 +288,8 @@ def _make_zone_dbt_rh(
         t_min: float, t_max: float, increment: float,
         rh_min: float, rh_max: float,
         p_atm_kpa: float=PRESSURE_STD_ATM_KPA,
-        style: Optional[Dict]=None,
-        label: Optional[str]=None,
+        style: dict=None,
+        label: str=None,
         logger=None) -> PsychroCurve:
     """Generate points for zone between constant dry bulb temps and RH."""
     temps = f_range(t_min, t_max + increment, increment)
@@ -302,10 +303,17 @@ def _make_zone_dbt_rh(
                         logger=logger)
 
 
+def _valid_zone_type(zone_type: str) -> bool:
+    """Implemented zone types."""
+    if zone_type in ['dbt-rh', 'xy-points']:
+        return True
+    return False
+
+
 def _make_zone(
         zone_conf: Dict, increment: float,
         p_atm_kpa: float=PRESSURE_STD_ATM_KPA,
-        logger=None) -> Optional[PsychroCurve]:
+        logger=None) -> PsychroCurve:
     """Generate points for zone between constant dry bulb temps and RH."""
     if zone_conf['zone_type'] == 'dbt-rh':
         t_min, t_max = zone_conf['points_x']
@@ -313,15 +321,14 @@ def _make_zone(
         return _make_zone_dbt_rh(
             t_min, t_max, increment, rh_min, rh_max, p_atm_kpa,
             zone_conf['style'], label=zone_conf.get('label'), logger=logger)
-    elif zone_conf['zone_type'] == 'xy-points':
+    # elif zone_conf['zone_type'] == 'xy-points':
+    else:
         return PsychroCurve(
             zone_conf['points_x'], zone_conf['points_y'], zone_conf['style'],
             type_curve='custom path', label=zone_conf.get('label'),
             logger=logger)
     # elif zone_conf['zone_type'] == 'dbt-rh-points':
     # make conversion rh -> w
-    else:
-        return None
 
 
 class PsychroChart:
@@ -341,13 +348,13 @@ class PsychroChart:
         self.altitude_m = -1
         self.chart_params = {}  # type: dict
         self.p_atm_kpa = PRESSURE_STD_ATM_KPA
-        self.constant_dry_temp_data = None  # type: PsychroCurves
-        self.constant_humidity_data = None  # type: PsychroCurves
-        self.constant_rh_data = None  # type: PsychroCurves
-        self.constant_h_data = None  # type: PsychroCurves
-        self.constant_v_data = None  # type: PsychroCurves
-        self.constant_wbt_data = None  # type: PsychroCurves
-        self.saturation = None  # type: PsychroCurves
+        self.constant_dry_temp_data = None  # type: Optional[PsychroCurves]
+        self.constant_humidity_data = None  # type: Optional[PsychroCurves]
+        self.constant_rh_data = None  # type: Optional[PsychroCurves]
+        self.constant_h_data = None  # type: Optional[PsychroCurves]
+        self.constant_v_data = None  # type: Optional[PsychroCurves]
+        self.constant_wbt_data = None  # type: Optional[PsychroCurves]
+        self.saturation = None  # type: Optional[PsychroCurves]
         self.zones = []  # type: List
 
         self._fig = None  # type: figure.Figure
@@ -582,13 +589,12 @@ class PsychroChart:
         else:
             d_zones = load_zones(zones)
 
-        self.zones.append(
-            PsychroCurves(
-                list(filter(
-                    lambda x: x is not None,
-                    [_make_zone(zone_conf, self.temp_step, self.p_atm_kpa,
-                                logger=self._logger)
-                     for zone_conf in d_zones['zones']]))))
+        zones_ok = [_make_zone(
+            zone_conf, self.temp_step, self.p_atm_kpa, logger=self._logger)
+            for zone_conf in d_zones['zones']
+            if _valid_zone_type(zone_conf['zone_type'])]
+        if zones_ok:
+            self.zones.append(PsychroCurves(zones_ok))
 
     def plot_points_dbt_rh(self, points: Dict, connectors: list=None) -> Dict:
         """Append individual points to the plot."""
@@ -666,8 +672,8 @@ class PsychroChart:
 
     def plot_vertical_dry_bulb_temp_line(
             self, temp: float,
-            style: Optional[Dict]=None,
-            label: Optional[str]=None,
+            style: dict=None,
+            label: str=None,
             reverse: bool=False,
             **label_params) -> None:
         """Append a vertical line from w_min to w_sat."""
@@ -693,7 +699,7 @@ class PsychroChart:
             edgecolor=edgecolor, fontsize=fontsize, fancybox=fancybox,
             labelspacing=labelspacing, **params)
 
-    def plot(self, ax: Optional[Axes]=None) -> Axes:
+    def plot(self, ax: Axes=None) -> Axes:
         """Plot the psychrochart and return the matplotlib Axes instance."""
         def _apply_spines_style(axes, style, location='right'):
             for key in style:

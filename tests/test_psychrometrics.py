@@ -227,9 +227,9 @@ class TestsPsychrometrics(TestCase):
             # xmax = humidity_ratio(psat)
             vol_psat = specific_volume(t, psat, p_atm_kpa=press)
             vol_p0 = specific_volume(t, 0, p_atm_kpa=press)
-            # print('DEB', t, dens_ref, vol_psat, vol_p0, 1/vol_psat, 1/vol_p0)
+            print('DEB', t, dens_ref, vol_psat, vol_p0, 1/vol_psat, 1/vol_p0)
             dens_kg_m3 = 1 / vol_psat - 1 / vol_p0
-            # print(dens_kg_m3)
+            print(dens_kg_m3)
 
             self.assertAlmostEqual(psat, ps_ref / 1000, delta=27)
             # self.assertAlmostEqual(psat, ps_ref / 1000, delta=0.05)
