@@ -7,7 +7,9 @@ python:
 #  - 3.7
 
 install:
+  - pip3 install coverage
 #  - pip3 install psychrochart
   - python setup.py install
 script:
+  - py.test psychrochart
   - py.test --cov=psychrochart -v --cov-report html
