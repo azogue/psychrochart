@@ -4,12 +4,17 @@ language: python
 python:
   - 3.5
   - 3.6
-#  - 3.7
+  - 3.7
 
 install:
-  - pip3 install coverage
-#  - pip3 install psychrochart
-  - python setup.py install
+#  - pip install psychrochart
+  - pip install .
+  - pip install pytest coverage pytest-cov
+  - pip install coveralls
+
+# command to run tests, e.g. python setup.py test
 script:
-  - py.test psychrochart
-  - py.test --cov=psychrochart -v --cov-report html
+  - py.test tests --cov=psychrochart -v --cov-report html
+
+after_sucess:
+  coveralls
