@@ -1,0 +1,14 @@
+[report]
+omit =
+    */python?.?/*
+    */site-packages/nose/*
+    *__init__*
+
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    pragma: no cover
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if not test_mode:
+    os.mkdir

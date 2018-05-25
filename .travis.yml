@@ -9,12 +9,15 @@ python:
 install:
 #  - pip install psychrochart
   - pip install .
-  - pip install pytest coverage pytest-cov
-  - pip install coveralls
+  - pip install python-coveralls
+  - pip install coverage
+  - pip install nose
+#  - pip install pytest pytest-cov
 
 # command to run tests, e.g. python setup.py test
 script:
-  - py.test tests --cov=psychrochart -v --cov-report html
+#  - py.test tests --cov=psychrochart -v --cov-report html
+  - nosetests --with-coverage
 
 after_sucess:
-  coveralls
+  - coveralls
