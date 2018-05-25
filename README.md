@@ -1,4 +1,5 @@
-# Psychrochart <a href="https://travis-ci.org/azogue/psychrochart"><img src="https://travis-ci.org/azogue/psychrochart.svg?branch=master"></a> <a href="https://coveralls.io/r/z4r/psychrochart/"><img src="https://coveralls.io/repos/z4r/psychrochart/badge.png?branch=master"></a> <a href="https://pypi.python.org/azogue/psychrochart/"><img src="https://pypip.in/v/psychrochart/badge.svg"></a> <a href="https://pypi.python.org/azogue/psychrochart/"><img src="https://pypip.in/wheel/psychrochart/badge.svg" alt="Wheel Status"></a>
+# Psychrochart [![Travis Status](https://travis-ci.org/azogue/psychrochart.svg?branch=master)](https://travis-ci.org/azogue/psychrochart) [![Coverage Status](https://coveralls.io/repos/github/azogue/psychrochart/badge.svg?branch=master)](https://coveralls.io/github/azogue/psychrochart?branch=master) [![PyPi](https://pypip.in/v/psychrochart/badge.svg)](https://pypi.python.org/azogue/psychrochart/) [![Wheel](https://pypip.in/wheel/psychrochart/badge.svg)](https://pypi.python.org/azogue/psychrochart/)
+
 
 A python 3 library to make **[psychrometric charts](https://en.wikipedia.org/wiki/Psychrometrics)** and overlay information on them.
 
