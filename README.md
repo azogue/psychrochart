@@ -58,7 +58,7 @@ pip install psychrochart
 - v0.1.10:  Fix plot limits, do not use pyplot, axes are not optional.
 - v0.1.11:  Add optional `Axes` as argument for `PsychroChart.plot`.
 - v0.1.12:  Add empiric equation for wet bulb temperature (@ZhukovGreen contribution).
-- v0.1.13:  Add convex hull option for overlayed points.
+- v0.1.13:  Add convex hull option for overlay points.
 
 ## Usage
 
