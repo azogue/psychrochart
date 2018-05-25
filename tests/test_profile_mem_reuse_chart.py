@@ -95,7 +95,8 @@ def _add_points(chart, with_connectors=True, path_save=None):
                        'style': {'color': [0.855, 0.145, 0.114, 0.8],
                                  "linewidth": 2, "linestyle": ":"}}]
 
-        points_plot = chart.plot_points_dbt_rh(points, connectors)
+        points_plot = chart.plot_points_dbt_rh(points, connectors,
+                                               plot_convex_hull=True)
     else:
         points = {'exterior': (31.06, 32.9),
                   'exterior_estimated': (36.7, 25.0),
