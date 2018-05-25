@@ -156,7 +156,7 @@ class TestsPsychroOverlay(TestCase):
                   'exterior_estimated': (36.7, 25.0),
                   'interior': (29.42, 52.34)}
 
-        points_plot = chart.plot_points_dbt_rh(points)
+        points_plot = chart.plot_points_dbt_rh(points, plot_convex_hull=True)
         print('Points in chart: %s' % points_plot)
 
         # Legend

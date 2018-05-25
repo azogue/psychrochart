@@ -3,6 +3,7 @@
 import gc
 import json
 from math import atan2, degrees
+
 from matplotlib import patches, figure
 from matplotlib.axes import Axes
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -10,6 +11,7 @@ from matplotlib.legend import Legend  # NOQA
 from matplotlib.path import Path, np
 from typing import Iterable, List, Callable, Union, Dict, AnyStr, Any, Tuple
 from typing import Optional  # NOQA
+from scipy.spatial import ConvexHull
 
 from psychrochart.equations import (
     PRESSURE_STD_ATM_KPA, pressure_by_altitude, humidity_ratio,
@@ -19,7 +21,6 @@ from psychrochart.equations import (
     dry_temperature_for_specific_volume_of_moist_air)
 from psychrochart.util import (
     load_config, load_zones, iter_solver, mod_color, f_range)
-
 
 PSYCHRO_CURVES_KEYS = [
     'constant_dry_temp_data', 'constant_humidity_data',
@@ -80,8 +81,8 @@ class PsychroCurve:
             return '<Empty {} (label: {})>'.format(name, self._label)
 
     def _print_err(self, *args):
-        if self._logger is not None:
-            self._logger.error(*args)
+        if self._logger is not None:  # pragma: no cover
+            self._logger.error(*args)  # pragma: no cover
         else:
             print(args[0] % args[1:])
 
@@ -596,7 +597,8 @@ class PsychroChart:
         if zones_ok:
             self.zones.append(PsychroCurves(zones_ok))
 
-    def plot_points_dbt_rh(self, points: Dict, connectors: list=None) -> Dict:
+    def plot_points_dbt_rh(self, points: Dict, connectors: list=None,
+                           plot_convex_hull: bool=False) -> Dict:
         """Append individual points to the plot."""
         points_plot = {}
         default_style = {'marker': 'o', 'markersize': 10,
@@ -635,6 +637,17 @@ class PsychroChart:
         for point in points_plot.values():
             self._handlers_annotations.append(
                 self.axes.plot(point[0], point[1], **point[2]))
+
+        if plot_convex_hull and points_plot:
+            # print('points_plot:', points_plot)
+            points = np.array([(point[0][0], point[1][0])
+                               for point in points_plot.values()])
+            # print('points:', points)
+            hull = ConvexHull(points)
+            for simplex in hull.simplices:
+                self._handlers_annotations.append(
+                    self.axes.plot(points[simplex, 0],
+                                   points[simplex, 1], 'k-'))
 
         return points_plot
 
@@ -709,7 +722,7 @@ class PsychroChart:
                     axes.spines[location].set_linewidth(style[key])
                 elif (key == 'linestyle') or (key == 'ls'):
                     axes.spines[location].set_linestyle(style[key])
-                else:
+                else:  # pragma: no cover
                     try:
                         getattr(axes.spines[location],
                                 'set_{}'.format(key))(style[key])
@@ -849,7 +862,7 @@ class PsychroChart:
             gc.collect()
 
     def _print_err(self, *args: Any) -> None:
-        if self._logger is not None:
-            self._logger.error(*args)
-        else:
-            print(args[0] % args[1:])
+        if self._logger is not None:  # pragma: no cover
+            self._logger.error(*args)  # pragma: no cover
+        else:  # pragma: no cover
+            print(args[0] % args[1:])  # pragma: no cover

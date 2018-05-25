@@ -1,0 +1,13 @@
+os: linux
+sudo: false
+language: python
+python:
+  - 3.5
+  - 3.6
+#  - 3.7
+
+install:
+#  - pip3 install psychrochart
+  - python setup.py install
+script:
+  - py.test --cov=psychrochart -v --cov-report html

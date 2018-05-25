@@ -340,11 +340,11 @@ class TestsPsychrometrics(TestCase):
 
         for dry_temp_c in f_range(-20, 50, 2.5):
             for relative_humid in f_range(0.05, 1.0001, 0.05):
+                wet_temp_c_ref = wet_bulb_temperature(
+                    dry_temp_c, relative_humid)
+                wet_temp_c = wet_bulb_temperature_empiric(
+                    dry_temp_c, relative_humid)
                 if -2.33 * dry_temp_c + 28.33 < relative_humid:
-                    wet_temp_c = wet_bulb_temperature_empiric(
-                        dry_temp_c, relative_humid)
-                    wet_temp_c_ref = wet_bulb_temperature(
-                        dry_temp_c, relative_humid)
                     if abs(wet_temp_c - wet_temp_c_ref) > 1:
                         print('DT: {:.2f}, HR: {:.2f} => WT: [Aprox: {:.2f}, '
                               'Iter: {:.2f} -> ∆: {:.2f}]'.format(
@@ -352,3 +352,8 @@ class TestsPsychrometrics(TestCase):
                                 wet_temp_c_ref,
                                 abs(wet_temp_c - wet_temp_c_ref)))
                     assert abs(wet_temp_c - wet_temp_c_ref) < 1.5
+                else:
+                    print('Difference between methods: {:.2f} vs ref={:.2f}'
+                          .format(wet_temp_c, wet_temp_c_ref))
+                    # out of range
+                    assert abs(wet_temp_c - wet_temp_c_ref) > 0.
