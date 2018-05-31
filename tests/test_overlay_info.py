@@ -156,7 +156,15 @@ class TestsPsychroOverlay(TestCase):
                   'exterior_estimated': (36.7, 25.0),
                   'interior': (29.42, 52.34)}
 
-        points_plot = chart.plot_points_dbt_rh(points, plot_convex_hull=True)
+        convex_groups = [
+            (['exterior', 'exterior_estimated', 'interior'],
+             {},
+             {}
+             ),
+        ]
+
+        points_plot = chart.plot_points_dbt_rh(
+            points, convex_groups=convex_groups)
         print('Points in chart: %s' % points_plot)
 
         # Legend
@@ -221,4 +229,49 @@ class TestsPsychroOverlay(TestCase):
             basedir, 'test_chart_overlay_arrows_2.svg')
         chart.save(path_svg)
 
+    def test_custom_psychrochart_4(self):
+        """Customize a chart with group of points."""
+        # Load config
+        config = load_config("minimal")
 
+        # Customization
+        config['limits']['pressure_kpa'] = 90.5
+
+        # Chart creation
+        chart = PsychroChart(config)
+        self.assertEqual(90.5, chart.p_atm_kpa)
+
+        # Plotting
+        chart.plot()
+
+        points = {'exterior': (31.06, 32.9),
+                  'exterior_estimated': (36.7, 25.0),
+                  'interior': (29.42, 52.34)}
+
+        convex_groups_bad = [
+            (['exterior', 'interior'],
+             {},
+             {}
+             ),
+        ]
+        convex_groups_ok = [
+            (['exterior', 'exterior_estimated', 'interior'],
+             {},
+             {}
+             ),
+        ]
+
+        points_plot = chart.plot_points_dbt_rh(
+            points, convex_groups=convex_groups_bad)
+        print('Points in chart: %s' % points_plot)
+
+        chart.plot_points_dbt_rh(
+            points, convex_groups=convex_groups_ok)
+
+        # Legend
+        chart.plot_legend(markerscale=1., fontsize=11, labelspacing=1.3)
+
+        # Save to disk
+        path_svg = os.path.join(
+            basedir, 'chart_overlay_test_convexhull.svg')
+        chart.save(path_svg)

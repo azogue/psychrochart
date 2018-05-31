@@ -40,9 +40,8 @@ pip install psychrochart
 
 #### TODO list:
 - **Better Doc!**
+- **_Bokeh_** interactive psychrochart
 - Overlay `pd.Dataframe` time indexed evolution objects
-- Zone overlay post plotting
-- contour plot overlay
 
 #### Changelog
 
@@ -59,6 +58,7 @@ pip install psychrochart
 - v0.1.11:  Add optional `Axes` as argument for `PsychroChart.plot`.
 - v0.1.12:  Add empiric equation for wet bulb temperature (@ZhukovGreen contribution).
 - v0.1.13:  Add convex hull option for overlay points.
+- v0.2.0:  Hide output in verbose mode, better convex hull zones syntax, stable.
 
 ## Usage
 

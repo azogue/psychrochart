@@ -51,9 +51,11 @@ class PsychroCurve:
                  type_curve: str=None,
                  limits: dict=None,
                  label: str=None, label_loc: float=.75,
-                 logger=None) -> None:
+                 logger=None,
+                 verbose: bool=False) -> None:
         """Create the Psychrocurve object."""
         self._logger = logger
+        self._verbose = verbose
         self.x_data = x_data if x_data else []  # type: List[float]
         self.y_data = y_data if y_data else []  # type: List[float]
         self.style = style or {}  # type: dict
@@ -83,8 +85,8 @@ class PsychroCurve:
     def _print_err(self, *args):
         if self._logger is not None:  # pragma: no cover
             self._logger.error(*args)  # pragma: no cover
-        else:
-            print(args[0] % args[1:])
+        elif self._verbose:  # pragma: no cover
+            print(args[0] % args[1:])  # pragma: no cover
 
     def to_dict(self) -> Dict:
         """Return the curve as a dict."""
@@ -338,9 +340,11 @@ class PsychroChart:
     def __init__(self,
                  styles: Union[dict, str]=None,
                  zones_file: Union[dict, str]=None,
-                 logger: Any=None) -> None:
+                 logger: Any=None,
+                 verbose: bool=False) -> None:
         """Create the PsychroChart object."""
         self._logger = logger
+        self._verbose = verbose
         self.d_config = {}  # type: dict
         self.figure_params = {}  # type: dict
         self.dbt_min = self.dbt_max = -100
@@ -597,9 +601,69 @@ class PsychroChart:
         if zones_ok:
             self.zones.append(PsychroCurves(zones_ok))
 
-    def plot_points_dbt_rh(self, points: Dict, connectors: list=None,
-                           plot_convex_hull: bool=False) -> Dict:
-        """Append individual points to the plot."""
+    def plot_points_dbt_rh(self,
+                           points: Dict,
+                           connectors: list=None,
+                           convex_groups: list=None) -> Dict:
+        """Append individual points, connectors and groups to the plot.
+
+        - The syntax to add points is:
+        ```
+        points = {
+            'point_1_name': {
+                'label': 'label_for_legend',
+                'style': {'color': [0.855, 0.004, 0.278, 0.8],
+                          'marker': 'X', 'markersize': 15},
+                'xy': (31.06, 32.9)},
+            'point_2_name': {
+                'label': 'label_for_legend',
+                'style': {'color': [0.573, 0.106, 0.318, 0.5],
+                          'marker': 'x',
+                          'markersize': 10},
+                'xy': (29.42, 52.34)},
+                # ...
+        }
+        # Or, with default style:
+        points = {
+            'point_1_name': (31.06, 32.9),
+            'point_2_name': (29.42, 52.34),
+            # ...
+        }
+        ```
+
+        - The syntax to add connectors between pairs of given points is:
+        ```
+        connectors = [
+            {'start': 'point_1_name',
+             'end': 'point_2_name',
+             'style': {'color': [0.573, 0.106, 0.318, 0.7],
+                       "linewidth": 2, "linestyle": "-."}},
+            {'start': 'point_2_name',
+             'end': 'point_3_name',
+             'style': {'color': [0.855, 0.145, 0.114, 0.8],
+                       "linewidth": 2, "linestyle": ":"}},
+            # ...
+        ]
+        ```
+
+        - The syntax to add groups of given points (with more than 3 points)
+         to plot a styled convex hull area is:
+        ```
+        interior_zones = [
+            # Zone 1:
+            ([point_1_name, point_2_name, point_3_name, ...],  # list of points
+             {"color": 'darkgreen', "lw": 0, ...},             # line style
+             {"color": 'darkgreen', "lw": 0, ...}),            # filling style
+
+            # Zone 2:
+            ([point_7_name, point_8_name, point_9_name, ...],  # list of points
+             {"color": 'darkorange', "lw": 0, ...},            # line style
+             {"color": 'darkorange', "lw": 0, ...}),           # filling style
+
+            # ...
+        ]
+        ```
+        """
         points_plot = {}
         default_style = {'marker': 'o', 'markersize': 10,
                          'color': [1, .8, 0.1, .8], 'linewidth': 0}
@@ -638,16 +702,28 @@ class PsychroChart:
             self._handlers_annotations.append(
                 self.axes.plot(point[0], point[1], **point[2]))
 
-        if plot_convex_hull and points_plot:
-            # print('points_plot:', points_plot)
-            points = np.array([(point[0][0], point[1][0])
-                               for point in points_plot.values()])
-            # print('points:', points)
-            hull = ConvexHull(points)
-            for simplex in hull.simplices:
+        if (convex_groups and points_plot and
+                (isinstance(convex_groups[0], list) or
+                 isinstance(convex_groups[0], tuple))
+                and len(convex_groups[0]) == 3):
+            for convex_hull_zone, style_line, style_fill in convex_groups:
+                int_points = np.array(
+                    [(point[0][0], point[1][0])
+                     for name, point in points_plot.items()
+                     if name in convex_hull_zone])
+
+                if len(int_points) < 3:
+                    continue
+
+                hull = ConvexHull(int_points)
+                # noinspection PyUnresolvedReferences
+                for simplex in hull.simplices:
+                    self._handlers_annotations.append(
+                        self.axes.plot(int_points[simplex, 0],
+                                       int_points[simplex, 1], **style_line))
                 self._handlers_annotations.append(
-                    self.axes.plot(points[simplex, 0],
-                                   points[simplex, 1], 'k-'))
+                    self.axes.fill(int_points[hull.vertices, 0],
+                                   int_points[hull.vertices, 1], **style_fill))
 
         return points_plot
 
@@ -864,5 +940,5 @@ class PsychroChart:
     def _print_err(self, *args: Any) -> None:
         if self._logger is not None:  # pragma: no cover
             self._logger.error(*args)  # pragma: no cover
-        else:  # pragma: no cover
+        elif self._verbose:  # pragma: no cover
             print(args[0] % args[1:])  # pragma: no cover
