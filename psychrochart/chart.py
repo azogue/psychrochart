@@ -11,7 +11,11 @@ from matplotlib.legend import Legend  # NOQA
 from matplotlib.path import Path, np
 from typing import Iterable, List, Callable, Union, Dict, AnyStr, Any, Tuple
 from typing import Optional  # NOQA
-from scipy.spatial import ConvexHull
+try:
+    # noinspection PyPackageRequirements
+    from scipy.spatial import ConvexHull
+except ImportError:  # pragma: no cover
+    ConvexHull = None
 
 from psychrochart.equations import (
     PRESSURE_STD_ATM_KPA, pressure_by_altitude, humidity_ratio,
@@ -702,7 +706,8 @@ class PsychroChart:
             self._handlers_annotations.append(
                 self.axes.plot(point[0], point[1], **point[2]))
 
-        if (convex_groups and points_plot and
+        if (ConvexHull is not None
+                and convex_groups and points_plot and
                 (isinstance(convex_groups[0], list) or
                  isinstance(convex_groups[0], tuple))
                 and len(convex_groups[0]) == 3):

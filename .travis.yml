@@ -4,7 +4,6 @@ language: python
 python:
   - "3.5"
   - "3.6"
-#  - "3.7-dev"
 
 install:
 #  - pip install psychrochart
@@ -14,6 +13,8 @@ install:
   - pip install coveralls
 
 script:
+  - py.test -v --cov psychrochart --cov-report term-missing
+  - pip install scipy
   - py.test -v --cov psychrochart --cov-report term-missing
 after_sucess:
   - coveralls

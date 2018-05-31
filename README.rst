@@ -61,6 +61,7 @@ Changelog
 -  **v0.1.11**: Add optional `Axes` as argument for `PsychroChart.plot`.
 -  **v0.1.12**: Add empiric equation for wet bulb temperature (@ZhukovGreen contribution).
 -  **v0.2.0**: Hide output in verbose mode, better convex hull zones syntax, stable.
+-  **v0.2.1**: Make `scipy` an optional requirement (it's only used for the ConvexHull zone).
 
 Usage
 -----
