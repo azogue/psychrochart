@@ -6,6 +6,7 @@ from time import time
 from typing import Callable, Union, Dict, Optional, List, Tuple
 
 
+NUM_ITERS_MAX = 100
 PATH_STYLES = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'chart_styles')
 
@@ -27,6 +28,8 @@ STYLES = {
     "interior": INTERIOR_CHART_CONFIG_FILE,
     "minimal": MINIMAL_CHART_CONFIG_FILE,
 }
+
+TESTING_MODE = os.getenv('TESTING') is not None
 
 
 def timeit(msg_log: str) -> Callable:
@@ -104,9 +107,12 @@ def load_zones(zones: Optional[Union[Dict, str]]=DEFAULT_ZONES_FILE,
     return _load_config(zones, verbose=verbose)
 
 
-def iter_solver(initial_value: float, objective_value: float,
-                func_eval: Callable, initial_increment: float=4.,
-                num_iters_max: int=100, precision: float=0.01) -> float:
+def iter_solver(initial_value: float,
+                objective_value: float,
+                func_eval: Callable,
+                initial_increment: float=4.,
+                num_iters_max: int=NUM_ITERS_MAX,
+                precision: float=0.01) -> Tuple[float, int]:
     """Solve by iteration."""
     error = 100 * precision
     decreasing = True
@@ -130,13 +136,60 @@ def iter_solver(initial_value: float, objective_value: float,
             value_calc += increment
         num_iter += 1
 
-        if num_iter >= num_iters_max:
+        if num_iter == num_iters_max:
             raise AssertionError(
-                'NO CONVERGENCE ERROR AFTER {} ITERATIONS! '
+                'No convergence error after {} iterations! '
                 'Last value: {}, ∆: {}. Objective: {}, iter_value: {}'
                 .format(num_iter, value_calc, increment,
                         objective_value, iteration_value))
-    return value_calc
+    return value_calc, num_iter
+
+
+def solve_curves_with_iteration(
+        family_name,
+        objective_values: List[float],
+        func_init: Callable,
+        func_eval: Callable,
+        logger=print):
+    """Run the iteration solver for a list of objective values
+    for the three types of curves solved with this method."""
+    # family:= checking precision | initial_increment | precision
+    families = {'DEW POINT': (0.0001, 0.1, 0.00000001),
+                'ENTHALPHY': (0.001, 50, 0.000005),
+                'CONSTANT VOLUME': (0.0005, 1., 0.0000005)}
+    if family_name not in families.keys():  # pragma: no cover
+        raise AssertionError("Need a valid family of curves: {}".format(
+            families.keys()))
+
+    precision_comp, initial_increment, precision = families[family_name]
+    calc_points = []
+    for objective in objective_values:
+        try:
+            calc_p, num_iter = iter_solver(
+                func_init(objective), objective,
+                func_eval=func_eval,
+                initial_increment=initial_increment,
+                num_iters_max=NUM_ITERS_MAX,
+                precision=precision)
+        except AssertionError as exc:  # pragma: no cover
+            logger("{} CONVERGENCE ERROR: {}".format(family_name, exc))
+            if TESTING_MODE:
+                raise exc
+            else:
+                return calc_points
+
+        if (TESTING_MODE
+                and (abs(objective - func_eval(calc_p))
+                     > precision_comp)):  # pragma: no cover
+            msg = "{} BAD RESULT[#{}] (E={:.5f}): " \
+                  "objective: {:.5f}, calc_p: {:.5f}, " \
+                  "EVAL: {:.5f}".format(
+                    family_name, num_iter, abs(objective - func_eval(calc_p)),
+                    objective, calc_p, func_eval(calc_p))
+            logger(msg)
+            raise AssertionError(msg)
+        calc_points.append(calc_p)
+    return calc_points
 
 
 def mod_color(color: Union[Tuple, List], modification: float) -> List[float]:

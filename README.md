@@ -146,7 +146,7 @@ To play with it and see the results, look at this **[notebook with usage example
 
 To run the tests, clone the repository and run:
 ```bash
-py.test --cov=psychrochart -v --cov-report html
+export TESTING=1; py.test tests/ --cov=psychrochart -v --cov-report html
 ```
 to generate the coverage reports.
 

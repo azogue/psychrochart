@@ -228,7 +228,7 @@ def wet_bulb_temperature(
     applying eqs. (23) and (35) or (37)
     2009 ASHRAE Handbook—Fundamentals (SI).
     """
-    out = iter_solver(
+    out, _ = iter_solver(
         dry_temp_c - 10, relative_humid,
         lambda x: relative_humidity_from_temps(
             dry_temp_c, x, p_atm_kpa=p_atm_kpa),

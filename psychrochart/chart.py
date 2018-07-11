@@ -24,7 +24,7 @@ from psychrochart.equations import (
     dry_temperature_for_enthalpy_of_moist_air, relative_humidity_from_temps,
     dry_temperature_for_specific_volume_of_moist_air)
 from psychrochart.util import (
-    load_config, load_zones, iter_solver, mod_color, f_range)
+    load_config, load_zones, mod_color, f_range, solve_curves_with_iteration)
 
 PSYCHRO_CURVES_KEYS = [
     'constant_dry_temp_data', 'constant_humidity_data',
@@ -429,18 +429,14 @@ class PsychroChart:
             step = self.chart_params["constant_humid_step"]
             style = config['constant_humidity']
             ws_hl = f_range(self.w_min + step, self.w_max + step / 10, step)
-            dew_points = [
-                iter_solver(
-                    dew_point_temperature(
+            dew_points = solve_curves_with_iteration(
+                'DEW POINT', [x / 1000 for x in ws_hl],
+                lambda x: dew_point_temperature(
                         water_vapor_pressure(
-                            w / 1000, p_atm_kpa=self.p_atm_kpa)),
-                    w / 1000.,
-                    lambda x: humidity_ratio(
-                        saturation_pressure_water_vapor(x),
-                        p_atm_kpa=self.p_atm_kpa),
-                    initial_increment=0.25, num_iters_max=100,
-                    precision=0.00001)
-                for w in ws_hl]
+                            x, p_atm_kpa=self.p_atm_kpa)),
+                lambda x: humidity_ratio(
+                    saturation_pressure_water_vapor(x),
+                    p_atm_kpa=self.p_atm_kpa))
 
             self.constant_humidity_data = PsychroCurves(
                 [PsychroCurve([t_dp, self.dbt_max], [w, w], style,
@@ -482,17 +478,14 @@ class PsychroChart:
                 dry_temperature_for_enthalpy_of_moist_air(
                     self.w_min / 1000, h)
                 for h in enthalpy_values]
-            sat_points = [
-                iter_solver(
-                    dry_temperature_for_enthalpy_of_moist_air(
-                        self.w_min / 1000 + 0.1, h),
-                    h,
-                    lambda x: enthalpy_moist_air(
-                        x, saturation_pressure_water_vapor(x),
-                        p_atm_kpa=self.p_atm_kpa),
-                    initial_increment=15, num_iters_max=100,
-                    precision=0.0005)
-                for h in enthalpy_values]
+
+            sat_points = solve_curves_with_iteration(
+                'ENTHALPHY', enthalpy_values,
+                lambda x: dry_temperature_for_enthalpy_of_moist_air(
+                    self.w_min / 1000 + 0.1, x),
+                lambda x: enthalpy_moist_air(
+                    x, saturation_pressure_water_vapor(x),
+                    p_atm_kpa=self.p_atm_kpa))
 
             self.constant_h_data = PsychroCurves(
                 [PsychroCurve(
@@ -519,17 +512,13 @@ class PsychroChart:
                 dry_temperature_for_specific_volume_of_moist_air(
                     0, specific_vol, p_atm_kpa=self.p_atm_kpa)
                 for specific_vol in vol_values]
-            sat_points = [
-                iter_solver(
-                    t_max - 5,
-                    specific_vol,
-                    lambda x: specific_volume(
-                        x, saturation_pressure_water_vapor(x),
-                        p_atm_kpa=self.p_atm_kpa),
-                    initial_increment=2, num_iters_max=100,
-                    precision=0.00005)
-                for t_max, specific_vol in
-                zip(temps_max_constant_v, vol_values)]
+            sat_points = solve_curves_with_iteration(
+                'CONSTANT VOLUME', vol_values,
+                lambda x: dry_temperature_for_specific_volume_of_moist_air(
+                    0, x, p_atm_kpa=self.p_atm_kpa),
+                lambda x: specific_volume(
+                    x, saturation_pressure_water_vapor(x),
+                    p_atm_kpa=self.p_atm_kpa))
 
             self.constant_v_data = PsychroCurves(
                 [PsychroCurve(
@@ -832,8 +821,8 @@ class PsychroChart:
             ax = self._fig.gca(position=position)
         ax.yaxis.tick_right()
         ax.yaxis.set_label_position("right")
-        ax.set_xlim([self.dbt_min, self.dbt_max])
-        ax.set_ylim([self.w_min, self.w_max])
+        ax.set_xlim(self.dbt_min, self.dbt_max)
+        ax.set_ylim(self.w_min, self.w_max)
         ax.grid(False, which='major', axis='both')
         ax.grid(False, which='minor', axis='both')
 
