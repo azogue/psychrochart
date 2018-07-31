@@ -690,11 +690,35 @@ class PsychroChart:
                             x_line, y_line,
                             color=list(style['color'][:3]) + [.15],
                             lw=50, solid_capstyle='round'))
+        
+        # MODIFICATION - JW
+        # Create lists for x and y coords
+        x = []; y=[]
 
         for point in points_plot.values():
-            self._handlers_annotations.append(
-                self.axes.plot(point[0], point[1], **point[2]))
+            # Added this for some debug
+            # count += 1
+            # if count % 1000 == 0:
+            #     print('{} points out of {} complete'.format(count, len(points_plot.values())))
 
+            #Generate the x, y list for the scatter plot
+            x.append(point[0])
+            y.append(point[1])  
+            # self._handlers_annotations.append(
+            #     self.axes.plot(point[0], point[1], **point[2]))
+
+        # Use scatter instead of plt
+        self._handlers_annotations.append(
+                self.axes.scatter(x, y))
+
+        # ORIGINAL CODE
+        # for point in points_plot.values():
+        #     self._handlers_annotations.append(
+        #         self.axes.plot(point[0], point[1], **point[2]))
+        # END OF ORIGINAL CODE
+        
+        # END OF MODIFICATION
+        
         if (ConvexHull is not None
                 and convex_groups and points_plot and
                 (isinstance(convex_groups[0], list) or
