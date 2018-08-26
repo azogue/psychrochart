@@ -284,9 +284,15 @@ def _gen_list_curves_range_temps(
 
 
 def curve_constant_humidity_ratio(
-        dry_temps: List[float], rh_percentage: float=100.,
+        dry_temps: Iterable[float],
+        rh_percentage: Union[float, Iterable[float]]=100.,
         p_atm_kpa: float=PRESSURE_STD_ATM_KPA, mode_sat=1) -> List[float]:
     """Generate a curve (numpy array) of constant humidity ratio."""
+    if isinstance(rh_percentage, Iterable):
+        return [1000 * humidity_ratio(
+            saturation_pressure_water_vapor(t, mode=mode_sat)
+            * rh / 100., p_atm_kpa)
+                for t, rh in zip(dry_temps, rh_percentage)]
     return [1000 * humidity_ratio(
         saturation_pressure_water_vapor(t, mode=mode_sat)
         * rh_percentage / 100., p_atm_kpa)
@@ -599,8 +605,15 @@ class PsychroChart:
     def plot_points_dbt_rh(self,
                            points: Dict,
                            connectors: list=None,
-                           convex_groups: list=None) -> Dict:
+                           convex_groups: list=None,
+                           scatter_style: dict=None) -> Dict:
         """Append individual points, connectors and groups to the plot.
+
+        * Pass a specific style dict to do a scatter plot:
+            `scatter_style={'s': 5, 'alpha': .1, 'color': 'darkorange'}`
+
+        * if you are plotting series of points, pass them as numpy arrays:
+            `points={'points_series_name': (temp_array, humid_array)}`
 
         - The syntax to add points is:
         ```
@@ -618,7 +631,7 @@ class PsychroChart:
                 'xy': (29.42, 52.34)},
                 # ...
         }
-        # Or, with default style:
+        # Or, using the default style:
         points = {
             'point_1_name': (31.06, 32.9),
             'point_2_name': (29.42, 52.34),
@@ -659,9 +672,13 @@ class PsychroChart:
         ]
         ```
         """
-        points_plot = {}
+        use_scatter, points_plot = False, {}
         default_style = {'marker': 'o', 'markersize': 10,
                          'color': [1, .8, 0.1, .8], 'linewidth': 0}
+        if scatter_style is not None:
+            default_style = scatter_style
+            use_scatter = True
+
         for key, point in points.items():
             plot_params = default_style.copy()
             if isinstance(point, dict):
@@ -669,9 +686,15 @@ class PsychroChart:
                 plot_params['label'] = point.get('label')
                 point = point['xy']
             temp = point[0]
-            w_g_ka = curve_constant_humidity_ratio(
-                [temp], rh_percentage=point[1], p_atm_kpa=self.p_atm_kpa)[0]
-            points_plot[key] = [temp], [w_g_ka], plot_params
+            if isinstance(temp, Iterable):
+                w_g_ka = curve_constant_humidity_ratio(
+                    temp, rh_percentage=point[1], p_atm_kpa=self.p_atm_kpa)
+                points_plot[key] = temp, w_g_ka, plot_params
+            else:
+                w_g_ka = curve_constant_humidity_ratio(
+                    [temp], rh_percentage=point[1],
+                    p_atm_kpa=self.p_atm_kpa)[0]
+                points_plot[key] = [temp], [w_g_ka], plot_params
 
         if connectors is not None:
             for i, d_con in enumerate(connectors):
@@ -694,8 +717,9 @@ class PsychroChart:
                             lw=50, solid_capstyle='round'))
 
         for point in points_plot.values():
+            func_append = self.axes.scatter if use_scatter else self.axes.plot
             self._handlers_annotations.append(
-                self.axes.plot(point[0], point[1], **point[2]))
+                func_append(point[0], point[1], **point[2]))
 
         if (ConvexHull is not None
                 and convex_groups and points_plot and

@@ -5,6 +5,7 @@ Tests plotting
 """
 import os
 from unittest import TestCase
+import numpy as np
 
 from psychrochart.agg import PsychroChart
 from psychrochart.util import load_config, timeit
@@ -275,3 +276,81 @@ class TestsPsychroOverlay(TestCase):
         path_svg = os.path.join(
             basedir, 'chart_overlay_test_convexhull.svg')
         chart.save(path_svg)
+
+    def test_overlay_a_lot_of_points_1(self):
+        """Customize a chart with group of points."""
+        # Load config
+        config = load_config("minimal")
+
+        # Customization
+        config['limits']['pressure_kpa'] = 90.5
+
+        # Chart creation
+        chart = PsychroChart(config)
+        self.assertEqual(90.5, chart.p_atm_kpa)
+
+        # Plotting
+        chart.plot()
+
+        # Create a lot of points
+        num_samples = 50000
+        # num_samples = 5000
+        theta = np.linspace(0, 2 * np.pi, num_samples)
+        r = np.random.rand(num_samples)
+        x, y = 7 * r * np.cos(theta) + 25, 20 * r * np.sin(theta) + 50
+
+        points = {'test_series_1': (x, y)}
+        scatter_style = {'s': 5, 'alpha': .1,
+                         'color': 'darkorange', 'marker': '+'}
+
+        # chart.plot_points_dbt_rh(points)
+        chart.plot_points_dbt_rh(points, scatter_style=scatter_style)
+
+        # Save to disk
+        path_png = os.path.join(
+            basedir, 'chart_overlay_test_lot_of_points_1.png')
+        chart.save(path_png)
+
+    def test_overlay_a_lot_of_points_2(self):
+        """Customize a chart with two cloud of points."""
+        # Load config
+        config = load_config("minimal")
+
+        # Customization
+        config['limits']['pressure_kpa'] = 90.5
+
+        # Chart creation
+        chart = PsychroChart(config)
+        self.assertEqual(90.5, chart.p_atm_kpa)
+
+        # Plotting
+        chart.plot()
+
+        # Create a lot of points
+        num_samples = 100000
+        theta = np.linspace(0, 2 * np.pi, num_samples)
+        r = np.random.rand(num_samples)
+        x, y = 7 * r * np.cos(theta) + 25, 20 * r * np.sin(theta) + 50
+
+        scatter_style_1 = {'s': 20, 'alpha': .02,
+                           'color': 'darkblue', 'marker': 'o'}
+        scatter_style_2 = {'s': 10, 'alpha': .04,
+                           'color': 'darkorange', 'marker': '+'}
+        x2, y2 = x + 5, y - 20
+
+        points = {
+            'test_original': {
+                'label': 'Original',
+                'style': scatter_style_1,
+                'xy': (x, y)},
+            'test_displaced': {
+                'label': 'Displaced',
+                'xy': (x2, y2)}
+        }
+        chart.plot_points_dbt_rh(points, scatter_style=scatter_style_2)
+        chart.plot_legend(markerscale=1., fontsize=11, labelspacing=1.3)
+
+        # Save to disk
+        path_png = os.path.join(
+            basedir, 'chart_overlay_test_lot_of_points.png')
+        chart.save(path_png)
