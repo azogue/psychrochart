@@ -62,6 +62,8 @@ Changelog
 -  **v0.1.12**: Add empiric equation for wet bulb temperature (@ZhukovGreen contribution).
 -  **v0.2.0**: Hide output in verbose mode, better convex hull zones syntax, stable.
 -  **v0.2.1**: Make `scipy` an optional requirement (it's only used for the ConvexHull zone).
+-  **v0.2.2**: Fix initial conditions for iteration solvers.
+-  **v0.2.3**:  Handle ConvexHull exception, overlay of series of points.
 
 Usage
 -----
