@@ -60,6 +60,8 @@ pip install psychrochart
 - v0.1.13:  Add convex hull option for overlay points.
 - v0.2.0:  Hide output in verbose mode, better convex hull zones syntax, stable.
 - v0.2.1:  Make `scipy` an optional requirement (it's only used for the ConvexHull zone).
+- v0.2.2: Fix initial conditions for iteration solvers
+- v0.2.3:  Handle ConvexHull exception.
 
 ## Usage
 
@@ -146,7 +148,8 @@ To play with it and see the results, look at this **[notebook with usage example
 
 To run the tests, clone the repository and run:
 ```bash
-export TESTING=1; py.test tests/ --cov=psychrochart -v --cov-report html
+export TESTING=1; py.test tests/ --cov=psychrochart -v --cov-report html; coverage report -m; export TESTING=;
+echo ${TESTING}
 ```
 to generate the coverage reports.
 

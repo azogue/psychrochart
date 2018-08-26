@@ -14,6 +14,8 @@ from typing import Optional  # NOQA
 try:
     # noinspection PyPackageRequirements
     from scipy.spatial import ConvexHull
+    # noinspection PyPackageRequirements
+    from scipy.spatial.qhull import QhullError
 except ImportError:  # pragma: no cover
     ConvexHull = None
 
@@ -709,7 +711,12 @@ class PsychroChart:
                 if len(int_points) < 3:
                     continue
 
-                hull = ConvexHull(int_points)
+                try:
+                    hull = ConvexHull(int_points)
+                except QhullError:  # pragma: no cover
+                    self._print_err('QhullError with points: %s', int_points)
+                    continue
+
                 # noinspection PyUnresolvedReferences
                 for simplex in hull.simplices:
                     self._handlers_annotations.append(
