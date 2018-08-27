@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """A library to make psychrometric charts and overlay information in them."""
+from typing import Any
 from math import log, exp, atan, sqrt
 
 from psychrochart.util import iter_solver
@@ -120,7 +121,9 @@ def density_water_vapor(p_vapor_kpa: float, dry_bulb_temp_c: float) -> float:
             / (dry_bulb_temp_c + DELTA_TEMP_C_TO_KELVIN))
 
 
-def saturation_pressure_water_vapor(dry_temp_c: float, mode=3) -> float:
+def saturation_pressure_water_vapor(dry_temp_c: float,
+                                    mode: int=1,
+                                    logger: Any=None) -> float:
     """Saturation pressure of water vapor (kPa) from dry temperature.
 
     3 approximations:
@@ -128,6 +131,15 @@ def saturation_pressure_water_vapor(dry_temp_c: float, mode=3) -> float:
       - mode 2: Simpler, values for T > 0 / T < 0, but same speed as 1
       - mode 3: More simpler, near 2x vs mode 1.
     """
+    def _handle_error(exception):  # pragma: no cover
+        msg = 'OverflowError: {} with T={:.2f} °C, mode={}. ' \
+              'Changing to ASHRAE eqs'.format(exception, dry_temp_c, mode)
+        if logger is not None:
+            logger.error(msg)  # pragma: no cover
+        else:
+            print(msg)
+        return saturation_pressure_water_vapor(dry_temp_c, mode=1)
+
     if mode == 1:  # 2009 ASHRAE Handbook—Fundamentals (SI)
         abs_temp = dry_temp_c + DELTA_TEMP_C_TO_KELVIN
         if dry_temp_c > 0:  # Eq (6) 2009 ASHRAE Handbook—Fundamentals (SI)
@@ -157,10 +169,16 @@ def saturation_pressure_water_vapor(dry_temp_c: float, mode=3) -> float:
             return 610.5 * exp(
                 17.269 * dry_temp_c / (237.3 + dry_temp_c)) / 1000.
         else:
-            return 610.5 * exp(
-                21.875 * dry_temp_c / (265.5 + dry_temp_c)) / 1000.
+            try:
+                return 610.5 * exp(
+                    21.875 * dry_temp_c / (265.5 + dry_temp_c)) / 1000.
+            except OverflowError as exc:  # pragma: no cover
+                return _handle_error(exc)
     else:  # mode = 3
-        return 19314560 * 10. ** (-1779.75 / (237.3 + dry_temp_c))
+        try:
+            return 19314560 * 10. ** (-1779.75 / (237.3 + dry_temp_c))
+        except OverflowError as exc:  # pragma: no cover
+            return _handle_error(exc)
 
 
 def enthalpy_moist_air(

@@ -64,6 +64,7 @@ Changelog
 -  **v0.2.1**: Make `scipy` an optional requirement (it's only used for the ConvexHull zone).
 -  **v0.2.2**: Fix initial conditions for iteration solvers.
 -  **v0.2.3**:  Handle ConvexHull exception, overlay of series of points.
+-  **v0.2.4**:  Set ASHRAE formulation for `saturation_pressure_water_vapor` as default. Minimal adjustments to iteration solvers for enthalpy and specific volume.
 
 Usage
 -----

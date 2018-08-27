@@ -155,8 +155,8 @@ def solve_curves_with_iteration(
     for the three types of curves solved with this method."""
     # family:= checking precision | initial_increment | precision
     families = {'DEW POINT': (0.0001, 0.1, 0.00000001),
-                'ENTHALPHY': (0.001, 50, 0.000005),
-                'CONSTANT VOLUME': (0.0005, 1., 0.0000005)}
+                'ENTHALPHY': (0.005, 25, 0.000002),
+                'CONSTANT VOLUME': (0.0025, 0.75, 0.00000025)}
     if family_name not in families.keys():  # pragma: no cover
         raise AssertionError("Need a valid family of curves: {}".format(
             families.keys()))
