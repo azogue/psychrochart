@@ -63,6 +63,7 @@ pip install psychrochart
 - v0.2.2:   Fix initial conditions for iteration solvers
 - v0.2.3:   Handle ConvexHull exception, overlay of series of points.
 - v0.2.4:   Set ASHRAE formulation for `saturation_pressure_water_vapor` as default. Minimal adjustments to iteration solvers for enthalpy and specific volume.
+- v0.2.5:   Fix coefficient in ASHRAE formulation for `dew_point_temperature`.
 
 ## Usage
 
