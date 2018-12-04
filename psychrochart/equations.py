@@ -225,7 +225,7 @@ def dew_point_temperature(p_w_kpa: float) -> float:
     c14 = 6.54
     c15 = 14.526
     c16 = .7389
-    c17 = .009486
+    c17 = .09486
     c18 = .4569
     dew_point = (c14 + c15 * alpha + c16 * alpha ** 2 + c17 * alpha ** 3
                  + c18 * p_w_kpa ** .1984)
