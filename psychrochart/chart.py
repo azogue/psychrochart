@@ -707,9 +707,10 @@ class PsychroChart:
                     x_line = [x_start, x_end]
                     y_line = [y_start, y_end]
                     style = d_con.get('style', points_plot[d_con['start']][2])
+                    line_label = d_con.get('label')
                     self._handlers_annotations.append(
                         self.axes.plot(
-                            x_line, y_line, dash_capstyle='round', **style))
+                            x_line, y_line, label = line_label,dash_capstyle='round', **style))
                     self._handlers_annotations.append(
                         self.axes.plot(
                             x_line, y_line,
