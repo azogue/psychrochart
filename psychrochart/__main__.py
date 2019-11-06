@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """A library to make psychrometric charts and overlay information in them."""
-from psychrochart.chart import PsychroChart
 import matplotlib.pyplot as plt
+
+from psychrochart.chart import PsychroChart
 
 
 def main():
@@ -9,6 +10,6 @@ def main():
     PsychroChart().plot(ax=plt.gca())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
     plt.show()

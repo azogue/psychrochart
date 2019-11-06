@@ -7,9 +7,8 @@ import json
 import os
 from unittest import TestCase
 
-
 basedir = os.path.dirname(os.path.abspath(__file__))
-PATH_CONFIG_UPDATE = os.path.join(basedir, 'test_chart_config_update.json')
+PATH_CONFIG_UPDATE = os.path.join(basedir, "test_chart_config_update.json")
 
 
 class TestsPsychroUtils(TestCase):
@@ -29,20 +28,17 @@ class TestsPsychroUtils(TestCase):
         self.assertEqual(config_2, config_3)
 
         # Test update config:
-        config_custom = load_config(styles=PATH_CONFIG_UPDATE,
-                                    verbose=True)
+        config_custom = load_config(styles=PATH_CONFIG_UPDATE, verbose=True)
         self.assertNotEqual(default_config, config_custom)
-        self.assertIn('constant_h', config_custom)
-        self.assertIn('constant_v', config_custom)
-        self.assertNotIn('test_fake_param', config_custom)
+        self.assertIn("constant_h", config_custom)
+        self.assertIn("constant_v", config_custom)
+        self.assertNotIn("test_fake_param", config_custom)
 
         # Test config styles:
-        default_config_s = load_config(
-            styles="default", verbose=True)
+        default_config_s = load_config(styles="default", verbose=True)
         self.assertEqual(default_config, default_config_s)
 
-        ashrae_config_s = load_config(
-            styles="ashrae", verbose=True)
+        ashrae_config_s = load_config(styles="ashrae", verbose=True)
         self.assertNotEqual(default_config, ashrae_config_s)
 
 
@@ -52,7 +48,7 @@ class TestsCLI(TestCase):
     def test_cli_main(self):
         """Unit test for the CLI entry point."""
         # noinspection PyUnresolvedReferences
-        import psychrochart.agg
+        import psychrochart.agg  # noqa F401
         from psychrochart.__main__ import main
 
         main()
@@ -66,8 +62,10 @@ class TestsColorUtils(TestCase):
         from psychrochart.util import mod_color
 
         def _to_8bit_color(color):
-            return tuple([int(round(255 * c)) if i < 3 else c
-                          for i, c in enumerate(color)])
+            return tuple(
+                int(round(255 * c)) if i < 3 else c
+                for i, c in enumerate(color)
+            )
 
         color_base = [0.475, 0.612, 0.075]
         self.assertEqual(_to_8bit_color(color_base), (121, 156, 19))
@@ -78,5 +76,5 @@ class TestsColorUtils(TestCase):
         color_dark_40 = mod_color(color_base, -40)
         self.assertEqual(_to_8bit_color(color_dark_40), (73, 94, 11))
 
-        color_alpha_08 = mod_color(color_base, .8)
+        color_alpha_08 = mod_color(color_base, 0.8)
         self.assertEqual(_to_8bit_color(color_alpha_08), (121, 156, 19, 0.8))
