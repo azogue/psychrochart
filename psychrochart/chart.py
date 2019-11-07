@@ -11,7 +11,6 @@ from typing import (
     Iterable,
     List,
     Optional,
-    Sequence,
     Tuple,
     Union,
 )
@@ -347,12 +346,12 @@ def _gen_list_curves_range_temps(
 
 
 def _curve_constant_humidity_ratio(
-    dry_temps: Sequence[float],
-    rh_percentage: Union[float, Sequence[float]],
+    dry_temps: List[float],
+    rh_percentage: Union[float, List[float]],
     p_atm_kpa: float,
 ) -> List[float]:
     """Generate a curve (numpy array) of constant humidity ratio."""
-    if isinstance(rh_percentage, Sequence):
+    if isinstance(rh_percentage, list):
         return [
             1000.0
             * humidity_ratio(
@@ -551,7 +550,7 @@ class PsychroChart:
                 "DEW POINT",
                 [x / 1000.0 for x in ws_hl],
                 lambda x: dew_point_temperature(
-                    self.dbt_max, water_vapor_pressure(x, self.p_atm_kpa)
+                    water_vapor_pressure(x, self.p_atm_kpa)
                 ),
                 lambda x: humidity_ratio(
                     saturation_pressure_water_vapor(x),
@@ -624,7 +623,7 @@ class PsychroChart:
                 "ENTHALPHY",
                 enthalpy_values,
                 lambda x: dry_temperature_for_enthalpy_of_moist_air(
-                    self.w_min / 1000.0, x
+                    self.w_min / 1000 + 0.1, x
                 ),
                 lambda x: enthalpy_moist_air(
                     x,
@@ -884,7 +883,7 @@ class PsychroChart:
         ```
         """
         use_scatter = False
-        points_plot: Dict[str, Tuple[Sequence, Sequence, dict]] = {}
+        points_plot: Dict[str, Tuple[List[float], List[float], dict]] = {}
         default_style = {
             "marker": "o",
             "markersize": 10,
@@ -902,14 +901,14 @@ class PsychroChart:
                 plot_params["label"] = point.get("label")
                 point = point["xy"]
             temp = point[0]
-            if isinstance(temp, Sequence):
+            if isinstance(temp, list):
                 w_g_ka = _curve_constant_humidity_ratio(
                     temp, point[1], self.p_atm_kpa
                 )
                 points_plot[key] = temp, w_g_ka, plot_params
             else:
                 w_g_ka = _curve_constant_humidity_ratio(
-                    [temp], point[1], self.p_atm_kpa
+                    [temp], rh_percentage=point[1], p_atm_kpa=self.p_atm_kpa
                 )
                 points_plot[key] = [temp], w_g_ka, plot_params
 
