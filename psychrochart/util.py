@@ -153,7 +153,7 @@ def iter_solver(
             value_calc += increment
         num_iter += 1
 
-        if num_iter == num_iters_max:
+        if num_iter == num_iters_max:  # pragma: no cover
             raise AssertionError(
                 f"No convergence error after {num_iter} iterations! "
                 f"Last value: {value_calc}, ∆: {increment}. "
@@ -191,7 +191,6 @@ def solve_curves_with_iteration(
                 objective,
                 func_eval=func_eval,
                 initial_increment=initial_increment,
-                num_iters_max=NUM_ITERS_MAX,
                 precision=precision,
             )
         except AssertionError as exc:  # pragma: no cover
