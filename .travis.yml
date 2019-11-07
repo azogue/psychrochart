@@ -10,14 +10,10 @@ stages:
   - lint
   - test
 
-cache:
-  pip: true
-  directories:
-    - "$HOME/.cache/pre-commit"
-
 jobs:
   include:
     - stage: lint
+      python: 3.8
       install:
         - pip install pre-commit
         - pre-commit install-hooks
@@ -25,10 +21,10 @@ jobs:
         - pre-commit run --all-files
     - stage: test
       install:
-        - pip install --upgrade pip
         - pip install poetry
         - poetry install -v
       script:
         - poetry run pytest
-      after_sucess:
-        - poetry run coveralls
+
+after_sucess:
+  - poetry run coveralls
