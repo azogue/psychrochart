@@ -6,14 +6,13 @@ python:
   - "3.6"
   - "3.7"
 
+before_install:
+  - pip install poetry
+
 install:
-#  - pip install psychrochart
-  - pip install .
-  - pip install coverage==4.5.3
-  - pip install pytest==4.4.1 pytest-cov==2.6.1
-  - pip install coveralls==1.7.0
+  - poetry install
 
 script:
-  - py.test -v --cov psychrochart --cov-report term-missing
+  - poetry run pytest
 after_sucess:
-  - coveralls
+  - poetry run coveralls
