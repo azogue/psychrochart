@@ -50,7 +50,7 @@ def timeit(msg_log: str) -> Callable:
 
 
 def _update_config(
-    old_conf: dict, new_conf: dict, verbose: bool = False, recurs_idx: int = 0
+    old_conf: dict, new_conf: dict, recurs_idx: int = 0
 ) -> Dict:
     """Update a dict recursively."""
     assert recurs_idx < 3
@@ -60,12 +60,10 @@ def _update_config(
         if key in new_conf:
             if isinstance(value, dict) and isinstance(new_conf[key], dict):
                 new_value = _update_config(
-                    old_conf[key], new_conf[key], verbose, recurs_idx + 1
+                    old_conf[key], new_conf[key], recurs_idx + 1
                 )
             else:
                 new_value = new_conf[key]
-                if verbose and new_value != value:
-                    print(f"Update {key}: from {value} to {new_value}")
             old_conf[key] = new_value
     if recurs_idx > 0:
         old_conf.update(
@@ -78,13 +76,11 @@ def _update_config(
 
 
 def _load_config(
-    new_config: Union[Dict, str] = None,
-    default_config_file: str = None,
-    verbose: bool = False,
+    new_config: Union[Dict, str] = None, default_config_file: str = None,
 ) -> Dict:
     """Load plot parameters from a JSON file."""
     if default_config_file is not None:
-        with open(default_config_file, "r", encoding="utf-8") as f:
+        with open(default_config_file, encoding="utf-8") as f:
             config = json.load(f)
     else:
         config = None
@@ -92,34 +88,27 @@ def _load_config(
         if isinstance(new_config, str):
             new_config_d = {}  # type: dict
             if new_config.endswith(".json"):
-                with open(new_config, "r", encoding="utf-8") as f:
+                with open(new_config, encoding="utf-8") as f:
                     new_config_d.update(json.load(f))
             elif new_config in STYLES:
-                with open(STYLES[new_config], "r", encoding="utf-8") as f:
+                with open(STYLES[new_config], encoding="utf-8") as f:
                     new_config_d.update(json.load(f))
-            config = _update_config(config, new_config_d, verbose=verbose)
+            config = _update_config(config, new_config_d)
         else:
             assert isinstance(new_config, dict)
-            config = _update_config(config, new_config, verbose=verbose)
+            config = _update_config(config, new_config)
 
     return config
 
 
-def load_config(
-    styles: Optional[Union[Dict, str]] = None, verbose: bool = False
-) -> Dict:
+def load_config(styles: Optional[Union[Dict, str]] = None) -> Dict:
     """Load the plot params for the psychrometric chart."""
-    return _load_config(
-        styles, default_config_file=DEFAULT_CHART_CONFIG_FILE, verbose=verbose
-    )
+    return _load_config(styles, default_config_file=DEFAULT_CHART_CONFIG_FILE)
 
 
-def load_zones(
-    zones: Optional[Union[Dict, str]] = DEFAULT_ZONES_FILE,
-    verbose: bool = False,
-) -> Dict:
+def load_zones(zones: Optional[Union[Dict, str]] = DEFAULT_ZONES_FILE) -> Dict:
     """Load a zones JSON file to overlay in the psychrometric chart."""
-    return _load_config(zones, verbose=verbose)
+    return _load_config(zones)
 
 
 def iter_solver(

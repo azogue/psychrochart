@@ -28,17 +28,17 @@ class TestsPsychroUtils(TestCase):
         self.assertEqual(config_2, config_3)
 
         # Test update config:
-        config_custom = load_config(styles=PATH_CONFIG_UPDATE, verbose=True)
+        config_custom = load_config(styles=PATH_CONFIG_UPDATE)
         self.assertNotEqual(default_config, config_custom)
         self.assertIn("constant_h", config_custom)
         self.assertIn("constant_v", config_custom)
         self.assertNotIn("test_fake_param", config_custom)
 
         # Test config styles:
-        default_config_s = load_config(styles="default", verbose=True)
+        default_config_s = load_config(styles="default")
         self.assertEqual(default_config, default_config_s)
 
-        ashrae_config_s = load_config(styles="ashrae", verbose=True)
+        ashrae_config_s = load_config(styles="ashrae")
         self.assertNotEqual(default_config, ashrae_config_s)
 
 

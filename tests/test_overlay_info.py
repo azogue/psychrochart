@@ -131,9 +131,7 @@ class TestsPsychroOverlay(TestCase):
                     },
                 },
             ]
-
-            points_plot = chart.plot_points_dbt_rh(points, connectors)
-            print("Points in chart: %s" % points_plot)
+            chart.plot_points_dbt_rh(points, connectors)
 
             # Legend
             chart.plot_legend(
@@ -197,11 +195,7 @@ class TestsPsychroOverlay(TestCase):
         convex_groups = [
             (["exterior", "exterior_estimated", "interior"], {}, {}),
         ]
-
-        points_plot = chart.plot_points_dbt_rh(
-            points, convex_groups=convex_groups
-        )
-        print("Points in chart: %s" % points_plot)
+        chart.plot_points_dbt_rh(points, convex_groups=convex_groups)
 
         # Legend
         chart.plot_legend(markerscale=1.0, fontsize=11, labelspacing=1.3)
@@ -228,9 +222,7 @@ class TestsPsychroOverlay(TestCase):
             "exterior_estimated": [(36.7, 25.0), (34.7, 30.0)],
             "interior": [(29.42, 52.34), (31.42, 57.34)],
         }
-
-        arrows_plot = chart.plot_arrows_dbt_rh(arrows)
-        print("arrows in chart: %s" % arrows_plot)
+        chart.plot_arrows_dbt_rh(arrows)
 
         # Legend
         chart.plot_legend(markerscale=1.0, fontsize=11, labelspacing=1.3)
@@ -269,9 +261,7 @@ class TestsPsychroOverlay(TestCase):
                 "xy": [(29.92, 50.34), (28.92, 50.34)],
             },
         }
-
-        arrows_plot = chart.plot_arrows_dbt_rh(points_arrows)
-        print("arrows in chart 2: %s" % arrows_plot)
+        chart.plot_arrows_dbt_rh(points_arrows)
 
         # Save to disk
         path_svg = os.path.join(basedir, "test_chart_overlay_arrows_2.svg")
@@ -301,15 +291,10 @@ class TestsPsychroOverlay(TestCase):
         convex_groups_bad = [
             (["exterior", "interior"], {}, {}),
         ]
+        chart.plot_points_dbt_rh(points, convex_groups=convex_groups_bad)
         convex_groups_ok = [
             (["exterior", "exterior_estimated", "interior"], {}, {}),
         ]
-
-        points_plot = chart.plot_points_dbt_rh(
-            points, convex_groups=convex_groups_bad
-        )
-        print("Points in chart: %s" % points_plot)
-
         chart.plot_points_dbt_rh(points, convex_groups=convex_groups_ok)
 
         # Legend

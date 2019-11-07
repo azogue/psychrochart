@@ -86,7 +86,6 @@ class TestsPsychroCurves(TestCase):
         """Check the string representation of objects."""
         obj_repr = "<PsychroChart [0->50 °C, 0->40 gr/kg_da]>"
         data_chart = PsychroChart()
-        print(data_chart)
         self.assertEqual(str(data_chart), obj_repr)
 
         # noinspection PyUnresolvedReferences

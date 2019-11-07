@@ -139,8 +139,7 @@ def _add_points(chart, with_connectors=True, path_save=None):
                 {"color": "darkgreen", "lw": 0, "alpha": 0.3},
             ),
         ]
-
-        points_plot = chart.plot_points_dbt_rh(
+        chart.plot_points_dbt_rh(
             points, connectors, convex_groups=convex_groups
         )
     else:
@@ -149,8 +148,7 @@ def _add_points(chart, with_connectors=True, path_save=None):
             "exterior_estimated": (36.7, 25.0),
             "interior": (29.42, 52.34),
         }
-        points_plot = chart.plot_points_dbt_rh(points)
-    print("Points in chart: %s" % points_plot)
+        chart.plot_points_dbt_rh(points)
     # Save to disk
     if path_save is not None:
         path_svg = os.path.join(basedir, path_save)
@@ -183,12 +181,10 @@ class TestsPsychroReuseMem(TestCase):
 
     def test_reuse_psychrochart(self):
         """Customize a chart with some additions"""
-        print("make_charts(with_reuse=True)")
         _make_charts(with_reuse=True)
 
     def test_no_reuse_psychrochart(self):
         """Customize a chart with some additions"""
-        print("make_charts(with_reuse=False)")
         _make_charts(with_reuse=False)
 
     def test_redraw_psychrochart(self):

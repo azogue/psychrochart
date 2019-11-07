@@ -230,39 +230,6 @@ class TestsPsychrometrics(TestCase):
         # self.assertEqual(round(h_a, 2), 25.15)
         # self.assertEqual(round(h_v, 1), 0.93 + 50.77)
 
-    def test_density_at_saturation(self):
-        """Density of saturated humid air from dry bulb temperature."""
-        # TODO finish test specific_volume
-
-        # vol_m3_kg = specific_volume(
-        #     dry_temp_c, p_sat, p_atm_kpa=PRESSURE_STD_ATM_KPA)
-        # print(dry_temp_c, p_sat, p_sat_ref, vol_m3_kg, 1/vol_m3_kg, d_ref)
-        # self.assertAlmostEqual(1 / vol_m3_kg, d_ref, delta=1)
-
-        from psychrochart.equations import (
-            PRESSURE_STD_ATM_KPA,
-            saturation_pressure_water_vapor,
-            specific_volume,
-        )
-
-        press = PRESSURE_STD_ATM_KPA
-        for t, (ps_ref, dens_ref) in TEMP_PRESS_PA_DENS_G_KG.items():
-            # dens_ref_kg_m3 = dens_ref / 1000.
-
-            psat = saturation_pressure_water_vapor(t, mode=1)
-            # xmax = humidity_ratio(psat)
-            vol_psat = specific_volume(t, psat, p_atm_kpa=press)
-            vol_p0 = specific_volume(t, 0, p_atm_kpa=press)
-            print(
-                "DEB", t, dens_ref, vol_psat, vol_p0, 1 / vol_psat, 1 / vol_p0
-            )
-            dens_kg_m3 = 1 / vol_psat - 1 / vol_p0
-            print(dens_kg_m3)
-
-            self.assertAlmostEqual(psat, ps_ref / 1000, delta=27)
-            # self.assertAlmostEqual(psat, ps_ref / 1000, delta=0.05)
-            # self.assertAlmostEqual(xmax, xmax_ref, delta=0.0005)
-
     def test_press_sat_abs_error(self):
         """Saturation pressure in kPa from dry bulb temperature. Sum error."""
         from psychrochart.equations import saturation_pressure_water_vapor

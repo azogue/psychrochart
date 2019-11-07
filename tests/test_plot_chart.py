@@ -219,7 +219,6 @@ class TestsPsychroPlot(TestCase):
         chart.close_fig()
 
         for p in f_range(90.0, 105.0):
-            print(f"Trying with P: {p} kPa:")
             custom_style["limits"]["pressure_kpa"] = p
             PsychroChart(custom_style, logger=logging, verbose=True)
 
@@ -376,7 +375,6 @@ class TestsPsychroPlot(TestCase):
         chart.close_fig()
 
         for p in f_range(90.0, 105.0, 1.0):
-            print(f"Trying with P: {p} kPa:")
             custom_style["limits"]["pressure_kpa"] = p
             PsychroChart(custom_style, logger=logging, verbose=True)
 
