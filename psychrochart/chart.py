@@ -346,12 +346,12 @@ def _gen_list_curves_range_temps(
 
 
 def _curve_constant_humidity_ratio(
-    dry_temps: List[float],
-    rh_percentage: Union[float, List[float]],
+    dry_temps: Iterable[float],
+    rh_percentage: Union[float, Iterable[float]],
     p_atm_kpa: float,
 ) -> List[float]:
     """Generate a curve (numpy array) of constant humidity ratio."""
-    if isinstance(rh_percentage, list):
+    if isinstance(rh_percentage, Iterable):
         return [
             1000.0
             * humidity_ratio(
@@ -901,11 +901,11 @@ class PsychroChart:
                 plot_params["label"] = point.get("label")
                 point = point["xy"]
             temp = point[0]
-            if isinstance(temp, list):
+            if isinstance(temp, Iterable):
                 w_g_ka = _curve_constant_humidity_ratio(
                     temp, point[1], self.p_atm_kpa
                 )
-                points_plot[key] = temp, w_g_ka, plot_params
+                points_plot[key] = list(temp), w_g_ka, plot_params
             else:
                 w_g_ka = _curve_constant_humidity_ratio(
                     [temp], rh_percentage=point[1], p_atm_kpa=self.p_atm_kpa
