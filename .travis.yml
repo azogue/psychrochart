@@ -2,29 +2,36 @@ dist: xenial   # required for Python >= 3.7
 os: linux
 sudo: false
 language: python
-python:
-  - "3.6"
-  - "3.7"
-
-stages:
-  - lint
-  - test
-
-jobs:
-  include:
-    - stage: lint
-      python: 3.8
-      install:
-        - pip install pre-commit
-        - pre-commit install-hooks
-      script:
-        - pre-commit run --all-files
-    - stage: test
-      install:
-        - pip install poetry
-        - poetry install -v
-      script:
-        - poetry run pytest
-
+cache:
+  pip: true
+  directories:
+    - $HOME/.cache/pre-commit
+env:
+  - TEST_CMD="poetry run pytest"
+install:
+  - pip install pre-commit
+  - pre-commit install-hooks
+  - pip install poetry
+  - poetry install -v
+script:
+  - $TEST_CMD
 after_sucess:
   - poetry run coveralls
+
+matrix:
+  allow_failures:
+    - python: pypy3
+    - python: 3.8
+  include:
+    - name: "lint"
+      python: 3.7
+      env:
+        - TEST_CMD="pre-commit run --all-files"
+    - name: "3.6"
+      python: 3.6
+    - name: "3.7"
+      python: 3.7
+    - name: "3.8"
+      python: 3.8
+    - name: "pypy3"
+      python: pypy3
