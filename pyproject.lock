@@ -358,9 +358,9 @@ more-itertools = "*"
 python = "<3.8"
 
 [metadata]
-content-hash = "94b13fc9c7ccf96119eef5037ca7e3ccb66570b1e2a794da134235f19def5fd6"
+content-hash = "ea612fb8e33c3de64d742efd6d9f001b6e131c99e82148b998a3c2ecbb95267d"
 platform = "*"
-python-versions = "^3.7"
+python-versions = "^3.6"
 
 [metadata.hashes]
 atomicwrites = ["03472c30eb2c5d1ba9227e4c2ca66ab8287fbfbbda3888aa93dc2e28fc6811b4", "75a9445bac02d8d058d5e1fe689654ba5a6556a1dfd8ce6ec55a0ed79866cfa6"]
