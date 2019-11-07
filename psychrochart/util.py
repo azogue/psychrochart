@@ -168,7 +168,7 @@ def solve_curves_with_iteration(
     func_init: Callable,
     func_eval: Callable,
     logger=print,
-):
+) -> List[float]:
     """Run the iteration solver for a list of objective values
     for the three types of curves solved with this method."""
     # family:= checking precision | initial_increment | precision
@@ -183,7 +183,7 @@ def solve_curves_with_iteration(
         )
 
     precision_comp, initial_increment, precision = families[family_name]
-    calc_points = []
+    calc_points: List[float] = []
     for objective in objective_values:
         try:
             calc_p, num_iter = iter_solver(
