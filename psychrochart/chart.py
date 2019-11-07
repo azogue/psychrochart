@@ -16,6 +16,7 @@ from typing import (
 )
 
 import numpy as np
+import psychrolib
 from matplotlib import figure, patches
 from matplotlib.axes import Axes
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -31,7 +32,6 @@ from psychrochart.equations import (
     enthalpy_moist_air,
     humidity_ratio,
     pressure_by_altitude,
-    PRESSURE_STD_ATM_KPA,
     relative_humidity_from_temps,
     saturation_pressure_water_vapor,
     specific_volume,
@@ -446,6 +446,7 @@ class PsychroChart:
         zones_file: Union[dict, str] = None,
         logger: Any = None,
         verbose: bool = False,
+        use_unit_system_si: bool = True,
     ) -> None:
         """Create the PsychroChart object."""
         self._logger = logger
@@ -457,7 +458,17 @@ class PsychroChart:
         self.temp_step = 1.0
         self.altitude_m = -1
         self.chart_params: dict = {}
-        self.p_atm_kpa = PRESSURE_STD_ATM_KPA
+
+        # Set unit system for psychrolib and get standard pressure
+        self.unit_system_si = use_unit_system_si
+        if use_unit_system_si:
+            psychrolib.SetUnitSystem(psychrolib.SI)
+        else:
+            # TODO customize axis labels, etc for imperial units
+            # TODO implement tests for imperial units
+            psychrolib.SetUnitSystem(psychrolib.IP)
+        self.p_atm_kpa = psychrolib.GetStandardAtmPressure(0.0) / 1000.0
+
         self.constant_dry_temp_data: Optional[PsychroCurves] = None
         self.constant_humidity_data: Optional[PsychroCurves] = None
         self.constant_rh_data: Optional[PsychroCurves] = None
@@ -550,7 +561,7 @@ class PsychroChart:
                 "DEW POINT",
                 [x / 1000.0 for x in ws_hl],
                 lambda x: dew_point_temperature(
-                    water_vapor_pressure(x, self.p_atm_kpa)
+                    self.dbt_max, water_vapor_pressure(x, self.p_atm_kpa)
                 ),
                 lambda x: humidity_ratio(
                     saturation_pressure_water_vapor(x),
@@ -615,7 +626,9 @@ class PsychroChart:
             label_loc = self.chart_params.get("constant_h_labels_loc", 1.0)
             style = config["constant_h"]
             temps_max_constant_h = [
-                dry_temperature_for_enthalpy_of_moist_air(self.w_min / 1000, h)
+                dry_temperature_for_enthalpy_of_moist_air(
+                    h, self.w_min / 1000.0
+                )
                 for h in enthalpy_values
             ]
 
@@ -623,7 +636,7 @@ class PsychroChart:
                 "ENTHALPHY",
                 enthalpy_values,
                 lambda x: dry_temperature_for_enthalpy_of_moist_air(
-                    self.w_min / 1000 + 0.1, x
+                    x, self.w_min / 1000.0
                 ),
                 lambda x: enthalpy_moist_air(
                     x,
@@ -736,31 +749,56 @@ class PsychroChart:
                 for wbt in wbt_values
             ]
 
-            self.constant_wbt_data = PsychroCurves(
-                [
-                    PsychroCurve(
-                        [wbt, self.dbt_max],
-                        [
-                            1000 * w_max,
-                            1000
-                            * humidity_ratio(
-                                saturation_pressure_water_vapor(self.dbt_max)
-                                * relative_humidity_from_temps(
-                                    self.dbt_max, wbt, p_atm_kpa=self.p_atm_kpa
-                                ),
-                                p_atm_kpa=self.p_atm_kpa,
-                            ),
-                        ],
-                        style,
-                        type_curve="constant_wbt_data",
-                        label_loc=label_loc,
-                        label=(
-                            f"{wbt:g} °C" if wbt in wbt_label_values else None
+            curves = []
+            for wbt, w_max in zip(wbt_values, w_max_constant_wbt):
+
+                def _get_dry_temp_for_constant_wet_temp(
+                    dbt, wbt, p_atm,
+                ):
+                    return 1000.0 * humidity_ratio(
+                        saturation_pressure_water_vapor(dbt)
+                        * relative_humidity_from_temps(
+                            dbt, wbt, p_atm_kpa=p_atm
                         ),
-                        logger=self._logger,
+                        p_atm_kpa=p_atm,
                     )
-                    for wbt, w_max in zip(wbt_values, w_max_constant_wbt)
-                ],
+
+                points_t = [wbt, self.dbt_max]
+                points_w = [
+                    1000.0 * w_max,
+                    _get_dry_temp_for_constant_wet_temp(
+                        points_t[1], wbt, self.p_atm_kpa,
+                    ),
+                ]
+                while points_w[1] <= 0.01:
+                    points_t[1] -= 0.5 * (points_t[1] - wbt)
+                    points_w[1] = _get_dry_temp_for_constant_wet_temp(
+                        points_t[1], wbt, self.p_atm_kpa,
+                    )
+
+                    if points_w[1] > 0.01:
+                        # extend curve to the bottom axis
+                        slope = (points_t[1] - points_t[0]) / (
+                            points_w[1] - points_w[0]
+                        )
+                        new_dbt = wbt - slope * points_w[0]
+                        points_t[1] = new_dbt
+                        points_w[1] = 0.0
+                        break
+
+                c = PsychroCurve(
+                    points_t,
+                    points_w,
+                    style,
+                    type_curve="constant_wbt_data",
+                    label_loc=label_loc,
+                    label=(f"{wbt:g} °C" if wbt in wbt_label_values else None),
+                    logger=self._logger,
+                )
+                curves.append(c)
+
+            self.constant_wbt_data = PsychroCurves(
+                curves,
                 family_label=self.chart_params["constant_wet_temp_label"],
             )
 

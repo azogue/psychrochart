@@ -111,7 +111,7 @@ def load_zones(zones: Optional[Union[Dict, str]] = DEFAULT_ZONES_FILE) -> Dict:
     return _load_config(zones)
 
 
-def iter_solver(
+def _iter_solver(
     initial_value: float,
     objective_value: float,
     func_eval: Callable,
@@ -175,7 +175,7 @@ def solve_curves_with_iteration(
     calc_points: List[float] = []
     for objective in objective_values:
         try:
-            calc_p, num_iter = iter_solver(
+            calc_p, num_iter = _iter_solver(
                 func_init(objective),
                 objective,
                 func_eval=func_eval,
