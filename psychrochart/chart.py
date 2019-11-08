@@ -65,7 +65,7 @@ class PsychroChart:
             # TODO customize axis labels, etc for imperial units
             # TODO implement tests for imperial units
             SetUnitSystem(IP)
-        self.p_atm_kpa = GetStandardAtmPressure(0.0) / 1000.0
+        self.pressure = GetStandardAtmPressure(0.0)
 
         self.constant_dry_temp_data: Optional[PsychroCurves] = None
         self.constant_humidity_data: Optional[PsychroCurves] = None
@@ -117,17 +117,17 @@ class PsychroChart:
 
         # Base pressure
         if config["limits"].get("pressure_kpa") is not None:
-            self.p_atm_kpa = config["limits"]["pressure_kpa"]
+            self.pressure = config["limits"]["pressure_kpa"] * 1000.0  # to Pa
         elif config["limits"].get("altitude_m") is not None:
             self.altitude_m = config["limits"]["altitude_m"]
-            self.p_atm_kpa = GetStandardAtmPressure(self.altitude_m) / 1000.0
+            self.pressure = GetStandardAtmPressure(self.altitude_m)
 
         # Dry bulb constant lines (vertical):
         if self.chart_params["with_constant_dry_temp"]:
             step = self.chart_params["constant_temp_step"]
             self.constant_dry_temp_data = make_constant_dry_bulb_v_lines(
                 self.w_min,
-                self.p_atm_kpa,
+                self.pressure,
                 temps_vl=f_range(self.dbt_min, self.dbt_max, step),
                 style=config["constant_dry_temp"],
                 family_label=self.chart_params["constant_temp_label"],
@@ -138,7 +138,7 @@ class PsychroChart:
             step = self.chart_params["constant_humid_step"]
             self.constant_humidity_data = make_constant_humidity_ratio_h_lines(
                 self.dbt_max,
-                self.p_atm_kpa,
+                self.pressure,
                 ws_hl=f_range(self.w_min + step, self.w_max + step / 10, step),
                 style=config["constant_humidity"],
                 family_label=self.chart_params["constant_humid_label"],
@@ -150,7 +150,7 @@ class PsychroChart:
                 self.dbt_min,
                 self.dbt_max,
                 self.temp_step,
-                self.p_atm_kpa,
+                self.pressure,
                 rh_perc_values=self.chart_params["constant_rh_curves"],
                 rh_label_values=self.chart_params.get(
                     "constant_rh_labels", []
@@ -168,7 +168,7 @@ class PsychroChart:
             start, end = self.chart_params["range_h"]
             self.constant_h_data = make_constant_enthalpy_lines(
                 self.w_min,
-                self.p_atm_kpa,
+                self.pressure,
                 enthalpy_values=f_range(start, end, step),
                 h_label_values=self.chart_params.get("constant_h_labels", []),
                 style=config["constant_h"],
@@ -181,7 +181,7 @@ class PsychroChart:
             step = self.chart_params["constant_v_step"]
             start, end = self.chart_params["range_vol_m3_kg"]
             self.constant_v_data = make_constant_specific_volume_lines(
-                self.p_atm_kpa,
+                self.pressure,
                 vol_values=f_range(start, end, step),
                 v_label_values=self.chart_params.get("constant_v_labels", []),
                 style=config["constant_v"],
@@ -195,7 +195,7 @@ class PsychroChart:
             start, end = self.chart_params["range_wet_temp"]
             self.constant_wbt_data = make_constant_wet_bulb_temperature_lines(
                 self.dbt_max,
-                self.p_atm_kpa,
+                self.pressure,
                 wbt_values=f_range(start, end, step),
                 wbt_label_values=self.chart_params.get(
                     "constant_wet_temp_labels", []
@@ -212,7 +212,7 @@ class PsychroChart:
             self.dbt_min,
             self.dbt_max,
             self.temp_step,
-            self.p_atm_kpa,
+            self.pressure,
             style=config["saturation"],
         )
 
@@ -229,7 +229,7 @@ class PsychroChart:
             d_zones = load_zones(zones)
 
         zones_ok = [
-            make_zone_curve(zone_conf, self.temp_step, self.p_atm_kpa)
+            make_zone_curve(zone_conf, self.temp_step, self.pressure)
             for zone_conf in d_zones["zones"]
             if zone_conf["zone_type"] in ("dbt-rh", "xy-points")
         ]
@@ -327,16 +327,11 @@ class PsychroChart:
                 plot_params["label"] = point.get("label")
                 point = point["xy"]
             temp = point[0]
-            if isinstance(temp, Iterable):
-                w_g_ka = gen_points_in_constant_relative_humidity(
-                    temp, point[1], self.p_atm_kpa
-                )
-                points_plot[key] = list(temp), w_g_ka, plot_params
-            else:
-                w_g_ka = gen_points_in_constant_relative_humidity(
-                    [temp], rh_percentage=point[1], p_atm_kpa=self.p_atm_kpa
-                )
-                points_plot[key] = [temp], w_g_ka, plot_params
+            temperatures = temp if isinstance(temp, Iterable) else [temp]
+            w_g_ka = gen_points_in_constant_relative_humidity(
+                temperatures, point[1], self.pressure
+            )
+            points_plot[key] = [temp], w_g_ka, plot_params
 
         if connectors is not None:
             for d_con in connectors:
@@ -445,10 +440,10 @@ class PsychroChart:
             temp1 = point1[0]
             temp2 = point2[0]
             w_g_ka1 = gen_points_in_constant_relative_humidity(
-                [temp1], point1[1], self.p_atm_kpa
+                [temp1], point1[1], self.pressure
             )[0]
             w_g_ka2 = gen_points_in_constant_relative_humidity(
-                [temp2], point2[1], self.p_atm_kpa
+                [temp2], point2[1], self.pressure
             )[0]
 
             self._handlers_annotations.append(
@@ -477,7 +472,7 @@ class PsychroChart:
         curve = make_constant_dry_bulb_v_line(
             self.w_min,
             temp,
-            self.p_atm_kpa,
+            self.pressure,
             style=style_curve,
             reverse=reverse,
         )
