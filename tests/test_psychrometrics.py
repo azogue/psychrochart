@@ -5,14 +5,17 @@ Test Cases for psychrometric equations
 """
 from unittest import TestCase
 
-from psychrochart.equations import (
+from psychrolib import (
+    GetStandardAtmPressure,
+    GetTWetBulbFromRelHum,
+)
+
+from psychrochart.chartdata import (
     dew_point_temperature,
     enthalpy_moist_air,
     humidity_ratio,
-    pressure_by_altitude,
     relative_humidity_from_temps,
     saturation_pressure_water_vapor,
-    wet_bulb_temperature,
 )
 from psychrochart.util import f_range
 
@@ -137,7 +140,7 @@ class TestsPsychrometrics(TestCase):
     def test_press_by_altitude(self):
         """Pressure in kPa from altitude in meters."""
         errors = [
-            pressure_by_altitude(alt) - ALTITUDE_M_PRESSURE_KPA[alt]
+            GetStandardAtmPressure(alt) / 1000.0 - ALTITUDE_M_PRESSURE_KPA[alt]
             for alt in ALTITUDE_M_PRESSURE_KPA
         ]
         self._error_compare(
@@ -149,7 +152,7 @@ class TestsPsychrometrics(TestCase):
 
         [
             self._error_compare(
-                pressure_by_altitude(alt),
+                GetStandardAtmPressure(alt) / 1000.0,
                 ALTITUDE_M_PRESSURE_KPA[alt],
                 10 * self.pressure_error,
                 "Pressure for altitude error> {0} kPa: alt={1} m, est={2}",
@@ -241,8 +244,8 @@ class TestsPsychrometrics(TestCase):
 
         for dry_temp_c in f_range(-10, 60, 2.5):
             for relative_humid in f_range(0.05, 1.0001, 0.05):
-                wet_temp_c = wet_bulb_temperature(
-                    dry_temp_c, relative_humid, p_atm_kpa=p_atm,
+                wet_temp_c = GetTWetBulbFromRelHum(
+                    dry_temp_c, min(relative_humid, 1.0), p_atm * 1000.0,
                 )
                 rh_calc = relative_humidity_from_temps(
                     dry_temp_c, wet_temp_c, p_atm_kpa=p_atm
@@ -253,8 +256,8 @@ class TestsPsychrometrics(TestCase):
 
         for dry_temp_c in f_range(-5, 50, 5):
             for relative_humid in f_range(0.05, 1.0001, 0.1):
-                wet_temp_c = wet_bulb_temperature(
-                    dry_temp_c, relative_humid, p_atm_kpa=p_atm,
+                wet_temp_c = GetTWetBulbFromRelHum(
+                    dry_temp_c, min(relative_humid, 1.0), p_atm * 1000.0,
                 )
                 rh_calc = relative_humidity_from_temps(
                     dry_temp_c, wet_temp_c, p_atm_kpa=p_atm

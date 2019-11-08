@@ -1,49 +1,32 @@
 # -*- coding: utf-8 -*-
 """A library to make psychrometric charts and overlay information in them."""
 import gc
-import json
-from math import atan2, degrees
-from typing import (
-    Any,
-    AnyStr,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    Optional,
-    Tuple,
-    Union,
-)
+import logging
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import numpy as np
-import psychrolib
-from matplotlib import figure, patches
+from matplotlib import figure
 from matplotlib.axes import Axes
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.legend import Legend
-from matplotlib.path import Path
+from psychrolib import GetStandardAtmPressure, IP, SetUnitSystem, SI
 from scipy.spatial import ConvexHull
 from scipy.spatial.qhull import QhullError
 
-from psychrochart.equations import (
-    dew_point_temperature,
-    dry_temperature_for_enthalpy_of_moist_air,
-    dry_temperature_for_specific_volume_of_moist_air,
-    enthalpy_moist_air,
-    humidity_ratio,
-    pressure_by_altitude,
-    relative_humidity_from_temps,
-    saturation_pressure_water_vapor,
-    specific_volume,
-    water_vapor_pressure,
+from .chartdata import (
+    gen_points_in_constant_relative_humidity,
+    make_constant_dry_bulb_v_line,
+    make_constant_dry_bulb_v_lines,
+    make_constant_enthalpy_lines,
+    make_constant_humidity_ratio_h_lines,
+    make_constant_relative_humidity_lines,
+    make_constant_specific_volume_lines,
+    make_constant_wet_bulb_temperature_lines,
+    make_saturation_line,
+    make_zone_curve,
 )
-from psychrochart.util import (
-    f_range,
-    load_config,
-    load_zones,
-    mod_color,
-    solve_curves_with_iteration,
-)
+from .psychrocurves import PsychroCurves
+from .util import f_range, load_config, load_zones, mod_color
 
 PSYCHRO_CURVES_KEYS = [
     "constant_dry_temp_data",
@@ -56,387 +39,6 @@ PSYCHRO_CURVES_KEYS = [
 ]
 
 
-def _between_limits(
-    x_data: List[float],
-    y_data: List[float],
-    xmin: float,
-    xmax: float,
-    ymin: float,
-    ymax: float,
-) -> bool:
-    data_xmin = min(x_data)
-    data_xmax = max(x_data)
-    data_ymin = min(y_data)
-    data_ymax = max(y_data)
-    if (
-        (data_ymax < ymin)
-        or (data_xmax < xmin)
-        or (data_ymin > ymax)
-        or (data_xmin > xmax)
-    ):
-        return False
-    return True
-
-
-class PsychroCurve:
-    """Object to store a psychrometric curve for plotting."""
-
-    def __init__(
-        self,
-        x_data: List[float] = None,
-        y_data: List[float] = None,
-        style: dict = None,
-        type_curve: str = None,
-        limits: dict = None,
-        label: str = None,
-        label_loc: float = 0.75,
-        logger=None,
-        verbose: bool = False,
-    ) -> None:
-        """Create the Psychrocurve object."""
-        self._logger = logger
-        self._verbose = verbose
-        self.x_data: List[float] = x_data if x_data else []
-        self.y_data: List[float] = y_data if y_data else []
-        self.style: dict = style or {}
-        self._type_curve = type_curve
-        self._label = label
-        self._label_loc = label_loc
-        self._limits = limits
-        self._is_patch: bool = (style is not None and "facecolor" in style)
-
-    def __bool__(self) -> bool:
-        """Return the valid existence of the curve."""
-        if (
-            self.x_data is not None
-            and len(self.x_data) > 1
-            and self.y_data is not None
-            and len(self.y_data) > 1
-        ):
-            return True
-        return False
-
-    def __repr__(self) -> str:
-        """Object string representation."""
-        name = "PsychroZone" if self._is_patch else "PsychroCurve"
-        if self and self.x_data:
-            return f"<{name} {len(self.x_data)} values (label: {self._label})>"
-        else:
-            return f"<Empty {name} (label: {self._label})>"
-
-    def _print_err(self, *args):
-        if self._logger is not None:  # pragma: no cover
-            self._logger.error(*args)  # pragma: no cover
-        elif self._verbose:  # pragma: no cover
-            print(args[0] % args[1:])  # pragma: no cover
-
-    def to_dict(self) -> Dict:
-        """Return the curve as a dict."""
-        if not self.x_data or not self.y_data:
-            return {}
-        return {
-            "x_data": self.x_data,
-            "y_data": self.y_data,
-            "style": self.style,
-            "label": self._label,
-        }
-
-    def to_json(self) -> str:
-        """Return the curve as a JSON string."""
-        return json.dumps(self.to_dict())
-
-    def from_json(self, json_str: AnyStr):
-        """Load a curve from a JSON string."""
-        data = json.loads(json_str)
-        self.x_data = data["x_data"]
-        self.y_data = data["y_data"]
-        self.style = data.get("style")
-        self._label = data.get("label")
-        return self
-
-    @staticmethod
-    def _annotate_label(
-        ax: Axes,
-        label: AnyStr,
-        text_x: float,
-        text_y: float,
-        rotation: float,
-        text_style: Dict,
-    ):
-        if abs(rotation) > 0:
-            text_loc = np.array((text_x, text_y))
-            text_style["rotation"] = ax.transData.transform_angles(
-                np.array((rotation,)), text_loc.reshape((1, 2))
-            )[0]
-            text_style["rotation_mode"] = "anchor"
-        ax.annotate(label, (text_x, text_y), **text_style)
-
-    def plot(self, ax: Axes) -> Axes:
-        """Plot the curve."""
-        xmin, xmax = ax.get_xlim()
-        ymin, ymax = ax.get_ylim()
-        if (
-            not self.x_data
-            or not self.y_data
-            or not _between_limits(
-                self.x_data, self.y_data, xmin, xmax, ymin, ymax
-            )
-        ):
-            self._print_err(
-                f"{self._type_curve} (label:{self._label}) Not between limits "
-                f"([{xmin}, {xmax}, {ymin}, {ymax}]) "
-                f"-> x:{self.x_data}, y:{self.y_data}"
-            )
-            return ax
-
-        if self._is_patch and self.y_data is not None:
-            assert len(self.y_data) > 2
-            verts = list(zip(self.x_data, self.y_data))
-            codes = (
-                [Path.MOVETO]
-                + [Path.LINETO] * (len(self.y_data) - 2)
-                + [Path.CLOSEPOLY]
-            )
-            path = Path(verts, codes)
-            patch = patches.PathPatch(path, **self.style)
-            ax.add_patch(patch)
-
-            if self._label is not None:
-                bbox_p = path.get_extents()
-                text_x = 0.5 * (bbox_p.x0 + bbox_p.x1)
-                text_y = 0.5 * (bbox_p.y0 + bbox_p.y1)
-                style = {
-                    "ha": "center",
-                    "va": "center",
-                    "backgroundcolor": [1, 1, 1, 0.4],
-                }
-                if "edgecolor" in self.style:
-                    style["color"] = mod_color(self.style["edgecolor"], -25)
-                self._annotate_label(ax, self._label, text_x, text_y, 0, style)
-        else:
-            ax.plot(self.x_data, self.y_data, **self.style)
-            if self._label is not None:
-                self.add_label(ax)
-
-        return ax
-
-    def add_label(
-        self,
-        ax: Axes,
-        text_label: str = None,
-        va: str = None,
-        ha: str = None,
-        loc: float = None,
-        **params,
-    ) -> Axes:
-        """Annotate the curve with its label."""
-        num_samples = len(self.x_data)
-        assert num_samples > 1
-        text_style = {"va": "bottom", "ha": "left", "color": [0.0, 0.0, 0.0]}
-        loc_f: float = self._label_loc if loc is None else loc
-        label: str = (
-            (self._label if self._label is not None else "")
-            if text_label is None
-            else text_label
-        )
-
-        def _tilt_params(x_data, y_data, idx_0, idx_f):
-            delta_x = x_data[idx_f] - self.x_data[idx_0]
-            delta_y = y_data[idx_f] - self.y_data[idx_0]
-            rotation_deg = degrees(atan2(delta_y, delta_x))
-            if delta_x == 0:
-                tilt_curve = 1e12
-            else:
-                tilt_curve = delta_y / delta_x
-            return rotation_deg, tilt_curve
-
-        if num_samples == 2:
-            xmin, xmax = ax.get_xlim()
-            rotation, tilt = _tilt_params(self.x_data, self.y_data, 0, 1)
-            if abs(rotation) == 90:
-                text_x = self.x_data[0]
-                text_y = self.y_data[0] + loc_f * (
-                    self.y_data[1] - self.y_data[0]
-                )
-            elif loc_f == 1.0:
-                if self.x_data[1] > xmax:
-                    text_x = xmax
-                    text_y = self.y_data[0] + tilt * (xmax - self.x_data[0])
-                else:
-                    text_x, text_y = self.x_data[1], self.y_data[1]
-                label += "    "
-                text_style["ha"] = "right"
-            else:
-                text_x = self.x_data[0] + loc_f * (xmax - xmin)
-                if text_x < xmin:
-                    text_x = xmin + loc_f * (xmax - xmin)
-                text_y = self.y_data[0] + tilt * (text_x - self.x_data[0])
-        else:
-            idx = min(num_samples - 2, int(num_samples * loc_f))
-            rotation, tilt = _tilt_params(
-                self.x_data, self.y_data, idx, idx + 1
-            )
-            text_x, text_y = self.x_data[idx], self.y_data[idx]
-            text_style["ha"] = "center"
-
-        if "color" in self.style:
-            text_style["color"] = mod_color(self.style["color"], -25)
-        if ha is not None:
-            text_style["ha"] = ha
-        if va is not None:
-            text_style["va"] = va
-        if params:
-            text_style.update(params)
-
-        self._annotate_label(ax, label, text_x, text_y, rotation, text_style)
-
-        return ax
-
-
-class PsychroCurves:
-    """Object to store a list of psychrometric curves for plotting."""
-
-    def __init__(
-        self, curves: List[PsychroCurve], family_label: str = None
-    ) -> None:
-        """Create the Psychrocurves array object."""
-        self.curves: List[PsychroCurve] = curves
-        self.size: int = len(self.curves)
-        self.family_label: Optional[str] = family_label
-
-    def __getitem__(self, item) -> PsychroCurve:
-        """Get item from the PsychroCurve list."""
-        return self.curves[item]
-
-    def __repr__(self) -> str:
-        """Object string representation."""
-        return f"<{self.size} PsychroCurves (label: {self.family_label})>"
-
-    def plot(self, ax: Axes) -> Axes:
-        """Plot the family curves."""
-        [curve.plot(ax) for curve in self.curves]
-
-        # Curves family labelling
-        if self.curves and self.family_label is not None:
-            style = self.curves[0].style or {}
-            ax.plot(
-                [-1],
-                [-1],
-                label=self.family_label,
-                marker="D",
-                markersize=10,
-                **style,
-            )
-
-        return ax
-
-
-def _gen_list_curves_range_temps(
-    func_curve: Callable,
-    dbt_min: float,
-    dbt_max: float,
-    increment: float,
-    curves_values: list,
-    p_atm_kpa: float,
-) -> Tuple[List[float], List[List[float]]]:
-    """Generate a curve from a range of temperatures."""
-    temps = f_range(dbt_min, dbt_max + increment, increment)
-    curves = [func_curve(temps, value, p_atm_kpa) for value in curves_values]
-    return temps, curves
-
-
-def _curve_constant_humidity_ratio(
-    dry_temps: Iterable[float],
-    rh_percentage: Union[float, Iterable[float]],
-    p_atm_kpa: float,
-) -> List[float]:
-    """Generate a curve (numpy array) of constant humidity ratio."""
-    if isinstance(rh_percentage, Iterable):
-        return [
-            1000.0
-            * humidity_ratio(
-                saturation_pressure_water_vapor(t) * rh / 100.0, p_atm_kpa,
-            )
-            for t, rh in zip(dry_temps, rh_percentage)
-        ]
-    return [
-        1000.0
-        * humidity_ratio(
-            saturation_pressure_water_vapor(t) * rh_percentage / 100.0,
-            p_atm_kpa,
-        )
-        for t in dry_temps
-    ]
-
-
-def _make_zone_dbt_rh(
-    t_min: float,
-    t_max: float,
-    increment: float,
-    rh_min: float,
-    rh_max: float,
-    p_atm_kpa: float,
-    style: dict = None,
-    label: str = None,
-    logger=None,
-) -> PsychroCurve:
-    """Generate points for zone between constant dry bulb temps and RH."""
-    temps = f_range(t_min, t_max + increment, increment)
-    curve_rh_up = _curve_constant_humidity_ratio(temps, rh_max, p_atm_kpa)
-    curve_rh_down = _curve_constant_humidity_ratio(temps, rh_min, p_atm_kpa)
-    abs_humid: List[float] = (
-        curve_rh_up + curve_rh_down[::-1] + [curve_rh_up[0]]
-    )
-    temps_zone: List[float] = temps + temps[::-1] + [temps[0]]
-    return PsychroCurve(
-        temps_zone,
-        abs_humid,
-        style,
-        type_curve="constant_rh_data",
-        label=label,
-        logger=logger,
-    )
-
-
-def _valid_zone_type(zone_type: str) -> bool:
-    """Implemented zone types."""
-    if zone_type in ("dbt-rh", "xy-points"):
-        return True
-    return False
-
-
-def _make_zone(
-    zone_conf: Dict, increment: float, p_atm_kpa: float, logger=None,
-) -> PsychroCurve:
-    """Generate points for zone between constant dry bulb temps and RH."""
-    if zone_conf["zone_type"] == "dbt-rh":
-        t_min, t_max = zone_conf["points_x"]
-        rh_min, rh_max = zone_conf["points_y"]
-        return _make_zone_dbt_rh(
-            t_min,
-            t_max,
-            increment,
-            rh_min,
-            rh_max,
-            p_atm_kpa,
-            zone_conf["style"],
-            label=zone_conf.get("label"),
-            logger=logger,
-        )
-    # elif zone_conf['zone_type'] == 'xy-points':
-    else:
-        return PsychroCurve(
-            zone_conf["points_x"],
-            zone_conf["points_y"],
-            zone_conf["style"],
-            type_curve="custom path",
-            label=zone_conf.get("label"),
-            logger=logger,
-        )
-    # elif zone_conf['zone_type'] == 'dbt-rh-points':
-    # make conversion rh -> w
-
-
 class PsychroChart:
     """Psychrometric chart object handler."""
 
@@ -444,13 +46,9 @@ class PsychroChart:
         self,
         styles: Union[dict, str] = None,
         zones_file: Union[dict, str] = None,
-        logger: Any = None,
-        verbose: bool = False,
         use_unit_system_si: bool = True,
     ) -> None:
         """Create the PsychroChart object."""
-        self._logger = logger
-        self._verbose = verbose
         self.d_config: dict = {}
         self.figure_params: dict = {}
         self.dbt_min = self.dbt_max = -100
@@ -462,12 +60,12 @@ class PsychroChart:
         # Set unit system for psychrolib and get standard pressure
         self.unit_system_si = use_unit_system_si
         if use_unit_system_si:
-            psychrolib.SetUnitSystem(psychrolib.SI)
+            SetUnitSystem(SI)
         else:
             # TODO customize axis labels, etc for imperial units
             # TODO implement tests for imperial units
-            psychrolib.SetUnitSystem(psychrolib.IP)
-        self.p_atm_kpa = psychrolib.GetStandardAtmPressure(0.0) / 1000.0
+            SetUnitSystem(IP)
+        self.p_atm_kpa = GetStandardAtmPressure(0.0) / 1000.0
 
         self.constant_dry_temp_data: Optional[PsychroCurves] = None
         self.constant_humidity_data: Optional[PsychroCurves] = None
@@ -522,98 +120,45 @@ class PsychroChart:
             self.p_atm_kpa = config["limits"]["pressure_kpa"]
         elif config["limits"].get("altitude_m") is not None:
             self.altitude_m = config["limits"]["altitude_m"]
-            self.p_atm_kpa = pressure_by_altitude(self.altitude_m)
+            self.p_atm_kpa = GetStandardAtmPressure(self.altitude_m) / 1000.0
 
         # Dry bulb constant lines (vertical):
         if self.chart_params["with_constant_dry_temp"]:
             step = self.chart_params["constant_temp_step"]
-            style = config["constant_dry_temp"]
-            temps_vl = f_range(self.dbt_min, self.dbt_max, step)
-            heights = [
-                1000.0
-                * humidity_ratio(
-                    saturation_pressure_water_vapor(t),
-                    p_atm_kpa=self.p_atm_kpa,
-                )
-                for t in temps_vl
-            ]
-
-            self.constant_dry_temp_data = PsychroCurves(
-                [
-                    PsychroCurve(
-                        [t, t],
-                        [self.w_min, h],
-                        style,
-                        type_curve="constant_dry_temp_data",
-                        logger=self._logger,
-                    )
-                    for t, h in zip(temps_vl, heights)
-                ],
+            self.constant_dry_temp_data = make_constant_dry_bulb_v_lines(
+                self.w_min,
+                self.p_atm_kpa,
+                temps_vl=f_range(self.dbt_min, self.dbt_max, step),
+                style=config["constant_dry_temp"],
                 family_label=self.chart_params["constant_temp_label"],
             )
 
         # Absolute humidity constant lines (horizontal):
         if self.chart_params["with_constant_humidity"]:
             step = self.chart_params["constant_humid_step"]
-            style = config["constant_humidity"]
-            ws_hl = f_range(self.w_min + step, self.w_max + step / 10, step)
-            dew_points = solve_curves_with_iteration(
-                "DEW POINT",
-                [x / 1000.0 for x in ws_hl],
-                lambda x: dew_point_temperature(
-                    self.dbt_max, water_vapor_pressure(x, self.p_atm_kpa)
-                ),
-                lambda x: humidity_ratio(
-                    saturation_pressure_water_vapor(x),
-                    p_atm_kpa=self.p_atm_kpa,
-                ),
-            )
-            self.constant_humidity_data = PsychroCurves(
-                [
-                    PsychroCurve(
-                        [t_dp, self.dbt_max],
-                        [w, w],
-                        style,
-                        type_curve="constant_humidity_data",
-                        logger=self._logger,
-                    )
-                    for w, t_dp in zip(ws_hl, dew_points)
-                ],
+            self.constant_humidity_data = make_constant_humidity_ratio_h_lines(
+                self.dbt_max,
+                self.p_atm_kpa,
+                ws_hl=f_range(self.w_min + step, self.w_max + step / 10, step),
+                style=config["constant_humidity"],
                 family_label=self.chart_params["constant_humid_label"],
             )
 
         # Constant relative humidity curves:
         if self.chart_params["with_constant_rh"]:
-            rh_perc_values = self.chart_params["constant_rh_curves"]
-            rh_label_values = self.chart_params.get("constant_rh_labels", [])
-            label_loc = self.chart_params.get("constant_rh_labels_loc", 0.85)
-            style = config["constant_rh"]
-            temps_ct_rh, curves_ct_rh = _gen_list_curves_range_temps(
-                _curve_constant_humidity_ratio,
+            self.constant_rh_data = make_constant_relative_humidity_lines(
                 self.dbt_min,
                 self.dbt_max,
                 self.temp_step,
-                rh_perc_values,
-                p_atm_kpa=self.p_atm_kpa,
-            )
-
-            self.constant_rh_data = PsychroCurves(
-                [
-                    PsychroCurve(
-                        temps_ct_rh,
-                        curve_ct_rh,
-                        style,
-                        type_curve="constant_rh_data",
-                        label_loc=label_loc,
-                        label=(
-                            f"RH {rh:g} %"
-                            if round(rh, 1) in rh_label_values
-                            else None
-                        ),
-                        logger=self._logger,
-                    )
-                    for rh, curve_ct_rh in zip(rh_perc_values, curves_ct_rh)
-                ],
+                self.p_atm_kpa,
+                rh_perc_values=self.chart_params["constant_rh_curves"],
+                rh_label_values=self.chart_params.get(
+                    "constant_rh_labels", []
+                ),
+                style=config["constant_rh"],
+                label_loc=self.chart_params.get(
+                    "constant_rh_labels_loc", 0.85
+                ),
                 family_label=self.chart_params["constant_rh_label"],
             )
 
@@ -621,56 +166,13 @@ class PsychroChart:
         if self.chart_params["with_constant_h"]:
             step = self.chart_params["constant_h_step"]
             start, end = self.chart_params["range_h"]
-            enthalpy_values = f_range(start, end, step)
-            h_label_values = self.chart_params.get("constant_h_labels", [])
-            label_loc = self.chart_params.get("constant_h_labels_loc", 1.0)
-            style = config["constant_h"]
-            temps_max_constant_h = [
-                dry_temperature_for_enthalpy_of_moist_air(
-                    h, self.w_min / 1000.0
-                )
-                for h in enthalpy_values
-            ]
-
-            sat_points = solve_curves_with_iteration(
-                "ENTHALPHY",
-                enthalpy_values,
-                lambda x: dry_temperature_for_enthalpy_of_moist_air(
-                    x, self.w_min / 1000.0
-                ),
-                lambda x: enthalpy_moist_air(
-                    x,
-                    saturation_pressure_water_vapor(x),
-                    p_atm_kpa=self.p_atm_kpa,
-                ),
-            )
-
-            self.constant_h_data = PsychroCurves(
-                [
-                    PsychroCurve(
-                        [t_sat, t_max],
-                        [
-                            1000.0
-                            * humidity_ratio(
-                                saturation_pressure_water_vapor(t_sat),
-                                self.p_atm_kpa,
-                            ),
-                            self.w_min,
-                        ],
-                        style,
-                        type_curve="constant_h_data",
-                        label_loc=label_loc,
-                        label=(
-                            f"{h:g} kJ/kg_da"
-                            if round(h, 3) in h_label_values
-                            else None
-                        ),
-                        logger=self._logger,
-                    )
-                    for t_sat, t_max, h in zip(
-                        sat_points, temps_max_constant_h, enthalpy_values
-                    )
-                ],
+            self.constant_h_data = make_constant_enthalpy_lines(
+                self.w_min,
+                self.p_atm_kpa,
+                enthalpy_values=f_range(start, end, step),
+                h_label_values=self.chart_params.get("constant_h_labels", []),
+                style=config["constant_h"],
+                label_loc=self.chart_params.get("constant_h_labels_loc", 1.0),
                 family_label=self.chart_params["constant_h_label"],
             )
 
@@ -678,55 +180,12 @@ class PsychroChart:
         if self.chart_params["with_constant_v"]:
             step = self.chart_params["constant_v_step"]
             start, end = self.chart_params["range_vol_m3_kg"]
-            vol_values = f_range(start, end, step)
-            vol_label_values = self.chart_params.get("constant_v_labels", [])
-            label_loc = self.chart_params.get("constant_v_labels_loc", 1.0)
-            style = config["constant_v"]
-            temps_max_constant_v = [
-                dry_temperature_for_specific_volume_of_moist_air(
-                    0, specific_vol, p_atm_kpa=self.p_atm_kpa
-                )
-                for specific_vol in vol_values
-            ]
-            sat_points = solve_curves_with_iteration(
-                "CONSTANT VOLUME",
-                vol_values,
-                lambda x: dry_temperature_for_specific_volume_of_moist_air(
-                    0, x, p_atm_kpa=self.p_atm_kpa
-                ),
-                lambda x: specific_volume(
-                    x,
-                    saturation_pressure_water_vapor(x),
-                    p_atm_kpa=self.p_atm_kpa,
-                ),
-            )
-
-            self.constant_v_data = PsychroCurves(
-                [
-                    PsychroCurve(
-                        [t_sat, t_max],
-                        [
-                            1000.0
-                            * humidity_ratio(
-                                saturation_pressure_water_vapor(t_sat),
-                                self.p_atm_kpa,
-                            ),
-                            0.0,
-                        ],
-                        style,
-                        type_curve="constant_v_data",
-                        label_loc=label_loc,
-                        label=(
-                            f"{vol:g} m3/kg_da"
-                            if round(vol, 3) in vol_label_values
-                            else None
-                        ),
-                        logger=self._logger,
-                    )
-                    for t_sat, t_max, vol in zip(
-                        sat_points, temps_max_constant_v, vol_values
-                    )
-                ],
+            self.constant_v_data = make_constant_specific_volume_lines(
+                self.p_atm_kpa,
+                vol_values=f_range(start, end, step),
+                v_label_values=self.chart_params.get("constant_v_labels", []),
+                style=config["constant_v"],
+                label_loc=self.chart_params.get("constant_v_labels_loc", 1.0),
                 family_label=self.chart_params["constant_v_label"],
             )
 
@@ -734,97 +193,28 @@ class PsychroChart:
         if self.chart_params["with_constant_wet_temp"]:
             step = self.chart_params["constant_wet_temp_step"]
             start, end = self.chart_params["range_wet_temp"]
-            wbt_values = f_range(start, end, step)
-            wbt_label_values = self.chart_params.get(
-                "constant_wet_temp_labels", []
-            )
-            label_loc = self.chart_params.get(
-                "constant_wet_temp_labels_loc", 0.05
-            )
-            style = config["constant_wet_temp"]
-            w_max_constant_wbt = [
-                humidity_ratio(
-                    saturation_pressure_water_vapor(wbt), self.p_atm_kpa
-                )
-                for wbt in wbt_values
-            ]
-
-            curves = []
-            for wbt, w_max in zip(wbt_values, w_max_constant_wbt):
-
-                def _get_dry_temp_for_constant_wet_temp(
-                    dbt, wbt, p_atm,
-                ):
-                    return 1000.0 * humidity_ratio(
-                        saturation_pressure_water_vapor(dbt)
-                        * relative_humidity_from_temps(
-                            dbt, wbt, p_atm_kpa=p_atm
-                        ),
-                        p_atm_kpa=p_atm,
-                    )
-
-                points_t = [wbt, self.dbt_max]
-                points_w = [
-                    1000.0 * w_max,
-                    _get_dry_temp_for_constant_wet_temp(
-                        points_t[1], wbt, self.p_atm_kpa,
-                    ),
-                ]
-                while points_w[1] <= 0.01:
-                    points_t[1] -= 0.5 * (points_t[1] - wbt)
-                    points_w[1] = _get_dry_temp_for_constant_wet_temp(
-                        points_t[1], wbt, self.p_atm_kpa,
-                    )
-
-                    if points_w[1] > 0.01:
-                        # extend curve to the bottom axis
-                        slope = (points_t[1] - points_t[0]) / (
-                            points_w[1] - points_w[0]
-                        )
-                        new_dbt = wbt - slope * points_w[0]
-                        points_t[1] = new_dbt
-                        points_w[1] = 0.0
-                        break
-
-                c = PsychroCurve(
-                    points_t,
-                    points_w,
-                    style,
-                    type_curve="constant_wbt_data",
-                    label_loc=label_loc,
-                    label=(f"{wbt:g} °C" if wbt in wbt_label_values else None),
-                    logger=self._logger,
-                )
-                curves.append(c)
-
-            self.constant_wbt_data = PsychroCurves(
-                curves,
+            self.constant_wbt_data = make_constant_wet_bulb_temperature_lines(
+                self.dbt_max,
+                self.p_atm_kpa,
+                wbt_values=f_range(start, end, step),
+                wbt_label_values=self.chart_params.get(
+                    "constant_wet_temp_labels", []
+                ),
+                style=config["constant_wet_temp"],
+                label_loc=self.chart_params.get(
+                    "constant_wet_temp_labels_loc", 0.05
+                ),
                 family_label=self.chart_params["constant_wet_temp_label"],
             )
 
-        # Saturation line:
-        if True:
-            sat_style = config["saturation"]
-            temps_sat_line, w_sat_line = _gen_list_curves_range_temps(
-                _curve_constant_humidity_ratio,
-                self.dbt_min,
-                self.dbt_max,
-                self.temp_step,
-                [100],
-                p_atm_kpa=self.p_atm_kpa,
-            )
-
-            self.saturation = PsychroCurves(
-                [
-                    PsychroCurve(
-                        temps_sat_line,
-                        w_sat_line[0],
-                        sat_style,
-                        type_curve="saturation",
-                        logger=self._logger,
-                    )
-                ]
-            )
+        # Saturation line (always):
+        self.saturation = make_saturation_line(
+            self.dbt_min,
+            self.dbt_max,
+            self.temp_step,
+            self.p_atm_kpa,
+            style=config["saturation"],
+        )
 
         # Zones
         if self.chart_params["with_zones"] or zones_file is not None:
@@ -839,11 +229,9 @@ class PsychroChart:
             d_zones = load_zones(zones)
 
         zones_ok = [
-            _make_zone(
-                zone_conf, self.temp_step, self.p_atm_kpa, logger=self._logger
-            )
+            make_zone_curve(zone_conf, self.temp_step, self.p_atm_kpa)
             for zone_conf in d_zones["zones"]
-            if _valid_zone_type(zone_conf["zone_type"])
+            if zone_conf["zone_type"] in ("dbt-rh", "xy-points")
         ]
         if zones_ok:
             self.zones.append(PsychroCurves(zones_ok))
@@ -940,12 +328,12 @@ class PsychroChart:
                 point = point["xy"]
             temp = point[0]
             if isinstance(temp, Iterable):
-                w_g_ka = _curve_constant_humidity_ratio(
+                w_g_ka = gen_points_in_constant_relative_humidity(
                     temp, point[1], self.p_atm_kpa
                 )
                 points_plot[key] = list(temp), w_g_ka, plot_params
             else:
-                w_g_ka = _curve_constant_humidity_ratio(
+                w_g_ka = gen_points_in_constant_relative_humidity(
                     [temp], rh_percentage=point[1], p_atm_kpa=self.p_atm_kpa
                 )
                 points_plot[key] = [temp], w_g_ka, plot_params
@@ -1014,7 +402,7 @@ class PsychroChart:
                 try:
                     hull = ConvexHull(int_points)
                 except QhullError:  # pragma: no cover
-                    self._print_err("QhullError with points: %s", int_points)
+                    logging.error(f"QhullError with points: {int_points}")
                     continue
 
                 # noinspection PyUnresolvedReferences
@@ -1056,10 +444,10 @@ class PsychroChart:
                 point1, point2 = pair_point
             temp1 = point1[0]
             temp2 = point2[0]
-            w_g_ka1 = _curve_constant_humidity_ratio(
+            w_g_ka1 = gen_points_in_constant_relative_humidity(
                 [temp1], point1[1], self.p_atm_kpa
             )[0]
-            w_g_ka2 = _curve_constant_humidity_ratio(
+            w_g_ka2 = gen_points_in_constant_relative_humidity(
                 [temp2], point2[1], self.p_atm_kpa
             )[0]
 
@@ -1085,14 +473,13 @@ class PsychroChart:
         **label_params,
     ) -> None:
         """Append a vertical line from w_min to w_sat."""
-        w_max = 1000.0 * humidity_ratio(
-            saturation_pressure_water_vapor(temp), self.p_atm_kpa
-        )
-
         style_curve = style or self.d_config.get("constant_dry_temp")
-        path_y = [w_max, self.w_min] if reverse else [self.w_min, w_max]
-        curve = PsychroCurve(
-            [temp, temp], path_y, style=style_curve, logger=self._logger
+        curve = make_constant_dry_bulb_v_line(
+            self.w_min,
+            temp,
+            self.p_atm_kpa,
+            style=style_curve,
+            reverse=reverse,
         )
         curve.plot(self.axes)
         if label is not None:
@@ -1202,10 +589,9 @@ class PsychroChart:
                             style[key]
                         )
                     except Exception as exc:
-                        self._print_err(
-                            "Error trying to apply spines attrs: %s. (%s)",
-                            exc,
-                            dir(axes.spines[location]),
+                        logging.error(
+                            f"Error trying to apply spines attrs: {exc}. "
+                            f"({dir(axes.spines[location])})"
                         )
 
         # Get parameters to style axes
@@ -1305,9 +691,3 @@ class PsychroChart:
             self._fig = None
             self._canvas = None
             gc.collect()
-
-    def _print_err(self, *args: Any) -> None:
-        if self._logger is not None:  # pragma: no cover
-            self._logger.error(*args)  # pragma: no cover
-        elif self._verbose:  # pragma: no cover
-            print(args[0] % args[1:])  # pragma: no cover

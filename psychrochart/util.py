@@ -3,7 +3,7 @@
 import json
 import os
 from time import time
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, Dict, Iterable, List, Optional, Tuple, Union
 
 
 NUM_ITERS_MAX = 100
@@ -153,7 +153,7 @@ def _iter_solver(
 
 def solve_curves_with_iteration(
     family_name,
-    objective_values: List[float],
+    objective_values: Iterable[float],
     func_init: Callable,
     func_eval: Callable,
     logger=print,
