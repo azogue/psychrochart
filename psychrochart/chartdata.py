@@ -10,19 +10,46 @@ from psychrolib import (
     GetSatVapPres,
     GetTDewPointFromVapPres,
     GetTDryBulbFromEnthalpyAndHumRatio,
-    GetUnitSystem,
     GetVapPresFromHumRatio,
-    SetUnitSystem,
-    SI,
+    isIP,
 )
 
 from .psychrocurves import PsychroCurve, PsychroCurves
 from .psychrolib_extra import GetTDryBulbFromMoistAirVolume
 from .util import f_range, solve_curves_with_iteration
 
-# Set SI unit system by default
-if GetUnitSystem() is None:
-    SetUnitSystem(SI)
+
+def _factor_out_w() -> float:
+    """
+    Conversion factor from internal units to plot units for humidity ratio.
+
+    In SI, w is internally in kg(w)/kg(da), but for plots we use g(w)/kg(da).
+    """
+    return 7000.0 if isIP() else 1000.0
+
+
+def _factor_out_h() -> float:
+    """
+    Conversion factor from internal units to plot units for enthalpy.
+
+    In SI, h is internally in J/kg, but for plots we use kJ/kg.
+    """
+    return 1.0 if isIP() else 1000.0
+
+
+def _make_enthalpy_label(enthalpy: float) -> str:
+    unit = "$Btu/lb_{da}$" if isIP() else "$kJ/kg_{da}$"
+    return f"{enthalpy:g} {unit}"
+
+
+def _make_temp_label(temperature: float) -> str:
+    unit = "°F" if isIP() else "°C"
+    return f"{temperature:g} {unit}"
+
+
+def _make_vol_label(specific_vol: float) -> str:
+    unit = "$ft³/lb_{da}$" if isIP() else "$m³/kg_{da}$"
+    return f"{specific_vol:g} {unit}"
 
 
 def _gen_list_curves_range_temps(
@@ -47,12 +74,12 @@ def gen_points_in_constant_relative_humidity(
     """Generate a curve (numpy array) of constant humidity ratio."""
     if isinstance(rh_percentage, Iterable):
         return [
-            1000.0
+            _factor_out_w()
             * GetHumRatioFromVapPres(GetSatVapPres(t) * rh / 100.0, pressure)
             for t, rh in zip(dry_temps, rh_percentage)
         ]
     return [
-        1000.0
+        _factor_out_w()
         * GetHumRatioFromVapPres(
             GetSatVapPres(t) * rh_percentage / 100.0, pressure,
         )
@@ -107,7 +134,9 @@ def make_constant_dry_bulb_v_line(
     reverse: bool = False,
 ) -> PsychroCurve:
     """TODO doc for # Dry bulb constant line (vertical):"""
-    w_max = 1000.0 * GetHumRatioFromVapPres(GetSatVapPres(temp), pressure)
+    w_max = _factor_out_w() * GetHumRatioFromVapPres(
+        GetSatVapPres(temp), pressure
+    )
     if reverse:
         path_y = [w_max, w_humidity_ratio_min]
     else:
@@ -148,7 +177,7 @@ def make_constant_humidity_ratio_h_lines(
     """TODO doc for # Absolute humidity constant lines (horizontal):"""
     dew_points = solve_curves_with_iteration(
         "DEW POINT",
-        [x / 1000.0 for x in ws_hl],
+        [x / _factor_out_w() for x in ws_hl],
         lambda x: GetTDewPointFromVapPres(
             dbt_max, GetVapPresFromHumRatio(x, pressure)
         ),
@@ -205,7 +234,7 @@ def make_constant_enthalpy_lines(
     """TODO doc for # Constant enthalpy lines:"""
     temps_max_constant_h = [
         GetTDryBulbFromEnthalpyAndHumRatio(
-            h * 1000.0, w_humidity_ratio_min / 1000.0
+            h * _factor_out_h(), w_humidity_ratio_min / _factor_out_w()
         )
         for h in enthalpy_values
     ]
@@ -214,12 +243,12 @@ def make_constant_enthalpy_lines(
         "ENTHALPHY",
         enthalpy_values,
         lambda x: GetTDryBulbFromEnthalpyAndHumRatio(
-            x * 1000.0, w_humidity_ratio_min / 1000.0
+            x * _factor_out_h(), w_humidity_ratio_min / _factor_out_w()
         ),
         lambda x: GetMoistAirEnthalpy(
             x, GetHumRatioFromVapPres(GetSatVapPres(x), pressure),
         )
-        / 1000.0,
+        / _factor_out_h(),
     )
 
     return PsychroCurves(
@@ -227,7 +256,7 @@ def make_constant_enthalpy_lines(
             PsychroCurve(
                 [t_sat, t_max],
                 [
-                    1000.0
+                    _factor_out_w()
                     * GetHumRatioFromVapPres(GetSatVapPres(t_sat), pressure),
                     w_humidity_ratio_min,
                 ],
@@ -235,7 +264,7 @@ def make_constant_enthalpy_lines(
                 type_curve="constant_h_data",
                 label_loc=label_loc,
                 label=(
-                    f"{h:g} kJ/kg_da"
+                    _make_enthalpy_label(h)
                     if round(h, 3) in h_label_values
                     else None
                 ),
@@ -275,7 +304,7 @@ def make_constant_specific_volume_lines(
             PsychroCurve(
                 [t_sat, t_max],
                 [
-                    1000.0
+                    _factor_out_w()
                     * GetHumRatioFromVapPres(GetSatVapPres(t_sat), pressure),
                     0.0,
                 ],
@@ -283,7 +312,7 @@ def make_constant_specific_volume_lines(
                 type_curve="constant_v_data",
                 label_loc=label_loc,
                 label=(
-                    f"{vol:g} m3/kg_da"
+                    _make_vol_label(vol)
                     if round(vol, 3) in v_label_values
                     else None
                 ),
@@ -311,8 +340,8 @@ def make_constant_wet_bulb_temperature_lines(
         for wbt in wbt_values
     ]
 
-    def _get_dry_temp_for_constant_wet_temp(dbt, wbt, p_atm):
-        return 1000.0 * GetHumRatioFromVapPres(
+    def _hum_ratio_for_constant_wet_temp_at_dry_temp(dbt, wbt, p_atm):
+        return _factor_out_w() * GetHumRatioFromVapPres(
             GetSatVapPres(dbt) * GetRelHumFromTWetBulb(dbt, wbt, p_atm), p_atm
         )
 
@@ -320,12 +349,14 @@ def make_constant_wet_bulb_temperature_lines(
     for wbt, w_max in zip(wbt_values, w_max_constant_wbt):
         pair_t = [wbt, dry_bulb_temp_max]
         pair_w = [
-            1000.0 * w_max,
-            _get_dry_temp_for_constant_wet_temp(pair_t[1], wbt, pressure),
+            _factor_out_w() * w_max,
+            _hum_ratio_for_constant_wet_temp_at_dry_temp(
+                pair_t[1], wbt, pressure
+            ),
         ]
         while pair_w[1] <= 0.01:
             pair_t[1] -= 0.5 * (pair_t[1] - wbt)
-            pair_w[1] = _get_dry_temp_for_constant_wet_temp(
+            pair_w[1] = _hum_ratio_for_constant_wet_temp_at_dry_temp(
                 pair_t[1], wbt, pressure
             )
 
@@ -343,7 +374,7 @@ def make_constant_wet_bulb_temperature_lines(
             style,
             type_curve="constant_wbt_data",
             label_loc=label_loc,
-            label=(f"{wbt:g} °C" if wbt in wbt_label_values else None),
+            label=(_make_temp_label(wbt) if wbt in wbt_label_values else None),
         )
         curves.append(c)
 

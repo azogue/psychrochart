@@ -61,10 +61,11 @@ class PsychroChart:
         self.unit_system_si = use_unit_system_si
         if use_unit_system_si:
             SetUnitSystem(SI)
+            logging.info("[SI units mode] ENABLED")
         else:
-            # TODO customize axis labels, etc for imperial units
             # TODO implement tests for imperial units
             SetUnitSystem(IP)
+            logging.warning("[IP units mode] ENABLED")
         self.pressure = GetStandardAtmPressure(0.0)
 
         self.constant_dry_temp_data: Optional[PsychroCurves] = None
