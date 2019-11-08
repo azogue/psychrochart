@@ -5,21 +5,12 @@ Test Cases for psychrometric equations
 """
 from unittest import TestCase
 
-from psychrolib import (
-    GetStandardAtmPressure,
-    GetTWetBulbFromRelHum,
-)
+import psychrolib
 
-from psychrochart.chartdata import (
-    dew_point_temperature,
-    enthalpy_moist_air,
-    humidity_ratio,
-    relative_humidity_from_temps,
-    saturation_pressure_water_vapor,
-)
 from psychrochart.util import f_range
 
-PRESSURE_STD_ATM_KPA = 101.325
+psychrolib.SetUnitSystem(psychrolib.SI)
+PRESSURE_STD_ATM_PA = 101325.0
 
 # http://www.engineeringtoolbox.com/water-vapor-saturation-pressure-d_599.html
 DRY_TEMP_PSAT_KPA = {
@@ -140,7 +131,8 @@ class TestsPsychrometrics(TestCase):
     def test_press_by_altitude(self):
         """Pressure in kPa from altitude in meters."""
         errors = [
-            GetStandardAtmPressure(alt) / 1000.0 - ALTITUDE_M_PRESSURE_KPA[alt]
+            psychrolib.GetStandardAtmPressure(alt) / 1000.0
+            - ALTITUDE_M_PRESSURE_KPA[alt]
             for alt in ALTITUDE_M_PRESSURE_KPA
         ]
         self._error_compare(
@@ -152,7 +144,7 @@ class TestsPsychrometrics(TestCase):
 
         [
             self._error_compare(
-                GetStandardAtmPressure(alt) / 1000.0,
+                psychrolib.GetStandardAtmPressure(alt) / 1000.0,
                 ALTITUDE_M_PRESSURE_KPA[alt],
                 10 * self.pressure_error,
                 "Pressure for altitude error> {0} kPa: alt={1} m, est={2}",
@@ -161,13 +153,11 @@ class TestsPsychrometrics(TestCase):
         ]
 
     def test_relative_humidity_from_temps(self):
-        p_atm_kpa = PRESSURE_STD_ATM_KPA
-
         for dry_temp_c, data in REL_HUMID_WITH_TEMP_WET_DELTA_TEMPS.items():
             for delta_t, obj_rel_humid in data.items():
                 wet_temp_c = dry_temp_c - delta_t
-                rel_humid_calc = relative_humidity_from_temps(
-                    dry_temp_c, wet_temp_c, p_atm_kpa=p_atm_kpa
+                rel_humid_calc = psychrolib.GetRelHumFromTWetBulb(
+                    dry_temp_c, wet_temp_c, PRESSURE_STD_ATM_PA
                 )
                 self.assertAlmostEqual(
                     round(100 * rel_humid_calc, 1), obj_rel_humid, delta=0.65
@@ -176,35 +166,24 @@ class TestsPsychrometrics(TestCase):
     def test_max_specific_humid(self):
         """Max Specific humidity from dry bulb temperature."""
         for t, (ps_ref, xmax_ref) in TEMP_SAT_PRESS_HUMID_RATIO.items():
-            psat = saturation_pressure_water_vapor(t)
-            xmax = humidity_ratio(psat, PRESSURE_STD_ATM_KPA)
-            self.assertAlmostEqual(psat, ps_ref / 1000, delta=0.05)
+            psat = psychrolib.GetSatVapPres(t)
+            xmax = psychrolib.GetHumRatioFromVapPres(psat, PRESSURE_STD_ATM_PA)
             self.assertAlmostEqual(xmax, xmax_ref, delta=0.0005)
+            self.assertAlmostEqual(psat, ps_ref, delta=ps_ref * 0.015)
 
     def test_enthalpy_moist_air(self):
         """Check the enthalpy of humid air."""
         # From http://www.engineeringtoolbox.com/enthalpy-moist-air-d_683.html
         # Check the enthalpy of humid air at 25ºC with specific
         # moisture content x = 0.0203 kg/kg (saturation).
-        press = PRESSURE_STD_ATM_KPA
         dry_temp_c, w_kg_kga = 25, 0.0203
-
-        p_sat = saturation_pressure_water_vapor(dry_temp_c)
-        w_max = humidity_ratio(p_sat, press)
-        ratio_humid = w_kg_kga / w_max
-        p_w_kpa = ratio_humid * p_sat
-
-        h_m = enthalpy_moist_air(dry_temp_c, p_w_kpa, press)
-        h_m_bis = enthalpy_moist_air(dry_temp_c, p_w_kpa, press)
-        self.assertEqual(h_m, h_m_bis)
+        h_m = psychrolib.GetMoistAirEnthalpy(dry_temp_c, w_kg_kga) / 1000.0
         self.assertEqual(round(h_m, 1), 76.9)
-        # self.assertEqual(round(h_a, 2), 25.15)
-        # self.assertEqual(round(h_v, 1), 0.93 + 50.77)
 
     def test_press_sat_abs_error(self):
         """Saturation pressure in kPa from dry bulb temperature. Sum error."""
         errors = [
-            saturation_pressure_water_vapor(t) - DRY_TEMP_PSAT_KPA[t]
+            psychrolib.GetSatVapPres(t) / 1000.0 - DRY_TEMP_PSAT_KPA[t]
             for t in sorted(DRY_TEMP_PSAT_KPA)
         ]
 
@@ -219,7 +198,7 @@ class TestsPsychrometrics(TestCase):
         """Saturation pressure in kPa from dry bulb temperature."""
         [
             self._error_compare(
-                saturation_pressure_water_vapor(t),
+                psychrolib.GetSatVapPres(t) / 1000.0,
                 DRY_TEMP_PSAT_KPA[t],
                 self.pressure_error * max(0.8, t / 50),
                 "M1 - Saturation Pressure error > {} kPa: T={}, est={}",
@@ -231,8 +210,8 @@ class TestsPsychrometrics(TestCase):
         """Dew point temperature testing."""
         temps = f_range(-20, 60, 1)
         for t in temps:
-            p_sat = saturation_pressure_water_vapor(t)
-            temp_dp_sat = dew_point_temperature(t, p_sat)
+            p_sat = psychrolib.GetSatVapPres(t)
+            temp_dp_sat = psychrolib.GetTDewPointFromVapPres(t, p_sat)
             if temp_dp_sat < 0:
                 self.assertAlmostEqual(temp_dp_sat, t, delta=3)
             else:
@@ -240,26 +219,26 @@ class TestsPsychrometrics(TestCase):
 
     def test_wet_bulb_temperature(self):
         """Wet bulb temperature from dry bulb temp and relative humidity."""
-        p_atm = PRESSURE_STD_ATM_KPA
+        p_atm = PRESSURE_STD_ATM_PA
 
         for dry_temp_c in f_range(-10, 60, 2.5):
             for relative_humid in f_range(0.05, 1.0001, 0.05):
-                wet_temp_c = GetTWetBulbFromRelHum(
-                    dry_temp_c, min(relative_humid, 1.0), p_atm * 1000.0,
+                wet_temp_c = psychrolib.GetTWetBulbFromRelHum(
+                    dry_temp_c, min(relative_humid, 1.0), p_atm
                 )
-                rh_calc = relative_humidity_from_temps(
-                    dry_temp_c, wet_temp_c, p_atm_kpa=p_atm
+                rh_calc = psychrolib.GetRelHumFromTWetBulb(
+                    dry_temp_c, wet_temp_c, p_atm
                 )
                 self.assertAlmostEqual(relative_humid, rh_calc, delta=0.01)
 
-        p_atm = PRESSURE_STD_ATM_KPA * 0.75
+        p_atm = PRESSURE_STD_ATM_PA * 0.75
 
         for dry_temp_c in f_range(-5, 50, 5):
             for relative_humid in f_range(0.05, 1.0001, 0.1):
-                wet_temp_c = GetTWetBulbFromRelHum(
-                    dry_temp_c, min(relative_humid, 1.0), p_atm * 1000.0,
+                wet_temp_c = psychrolib.GetTWetBulbFromRelHum(
+                    dry_temp_c, min(relative_humid, 1.0), p_atm,
                 )
-                rh_calc = relative_humidity_from_temps(
-                    dry_temp_c, wet_temp_c, p_atm_kpa=p_atm
+                rh_calc = psychrolib.GetRelHumFromTWetBulb(
+                    dry_temp_c, wet_temp_c, p_atm
                 )
                 self.assertAlmostEqual(relative_humid, rh_calc, delta=0.01)

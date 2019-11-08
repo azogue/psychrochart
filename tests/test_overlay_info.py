@@ -161,7 +161,7 @@ class TestsPsychroOverlay(TestCase):
 
         # Chart creation
         chart = PsychroChart(config)
-        self.assertEqual(90.5, chart.p_atm_kpa)
+        self.assertEqual(90500.0, chart.pressure)
 
         # Zones:
         zones_conf = {
@@ -277,7 +277,7 @@ class TestsPsychroOverlay(TestCase):
 
         # Chart creation
         chart = PsychroChart(config)
-        self.assertEqual(90.5, chart.p_atm_kpa)
+        self.assertEqual(90500.0, chart.pressure)
 
         # Plotting
         chart.plot()
@@ -314,7 +314,7 @@ class TestsPsychroOverlay(TestCase):
 
         # Chart creation
         chart = PsychroChart(config)
-        self.assertEqual(90.5, chart.p_atm_kpa)
+        self.assertEqual(90500.0, chart.pressure)
 
         # Plotting
         chart.plot()
@@ -351,7 +351,7 @@ class TestsPsychroOverlay(TestCase):
 
         # Chart creation
         chart = PsychroChart(config)
-        self.assertEqual(90.5, chart.p_atm_kpa)
+        self.assertEqual(90500.0, chart.pressure)
 
         # Plotting
         chart.plot()
