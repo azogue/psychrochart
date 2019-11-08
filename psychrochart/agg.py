@@ -6,7 +6,7 @@ Import this module first to set matplotlib to use the Agg backend.
 """
 import matplotlib
 
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 
 # noinspection PyPep8
 # noinspection PyUnresolvedReferences

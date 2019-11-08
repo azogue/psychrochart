@@ -11,7 +11,6 @@ from psychrochart.agg import PsychroChart
 from psychrochart.chart import PsychroCurve
 from psychrochart.util import f_range
 
-
 basedir = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -43,26 +42,29 @@ class TestsPsychroCurves(TestCase):
         # JSON import export
         json_curve = curve.to_json()
         curve_js = PsychroCurve()
-        self.assertEqual(str(curve_js), '<Empty PsychroCurve (label: None)>')
+        self.assertEqual(str(curve_js), "<Empty PsychroCurve (label: None)>")
         if curve_js:  # Existence test
             raise AssertionError()
         curve_js = curve_js.from_json(json_curve)
         if not curve_js:  # Existence test
             raise AssertionError()
-        self.assertEqual(str(curve_js),
-                         '<PsychroCurve 50 values (label: None)>')
+        self.assertEqual(
+            str(curve_js), "<PsychroCurve 50 values (label: None)>"
+        )
 
         self.assertCountEqual(curve.x_data, curve_js.x_data)
         self.assertListEqual(curve.x_data, curve_js.x_data)
         self.assertCountEqual(curve.y_data, curve_js.y_data)
         self.assertListEqual(curve.y_data, curve_js.y_data)
         self.assertDictEqual(curve.style, curve_js.style)
-        self.assertDictEqual(json.loads(json_curve),
-                             json.loads(curve_js.to_json()))
+        self.assertDictEqual(
+            json.loads(json_curve), json.loads(curve_js.to_json())
+        )
 
     def test_plot_curve(self):
         """Test the plotting of PsychroCurve objects."""
         import matplotlib.pyplot as plt
+
         x_data = f_range(0, 50, 1)
         y_data = f_range(0, 50, 1)
         style = {"color": "k", "linewidth": 0.5, "linestyle": "-"}
@@ -78,43 +80,44 @@ class TestsPsychroCurves(TestCase):
         vertical_curve.plot(ax)
 
         # Add label
-        vertical_curve.add_label(ax, 'TEST', va='baseline', ha='center')
-
-        # plt.savefig('test_line_vert.svg')
-        # plt.close()
+        vertical_curve.add_label(ax, "TEST", va="baseline", ha="center")
 
     def test_data_psychrochart(self):
         """Check the string representation of objects."""
         obj_repr = "<PsychroChart [0->50 °C, 0->40 gr/kg_da]>"
         data_chart = PsychroChart()
-        print(data_chart)
         self.assertEqual(str(data_chart), obj_repr)
 
         # noinspection PyUnresolvedReferences
         self.assertEqual(
             str(data_chart.constant_rh_data),
-            '<11 PsychroCurves (label: Constant relative humidity)>')
+            "<11 PsychroCurves (label: Constant relative humidity)>",
+        )
 
         self.assertEqual(
             str(data_chart.constant_v_data),
-            '<10 PsychroCurves (label: Constant specific volume)>')
+            "<10 PsychroCurves (label: Constant specific volume)>",
+        )
 
         self.assertEqual(
             str(data_chart.constant_wbt_data),
-            '<10 PsychroCurves (label: Constant wet bulb temperature)>')
+            "<10 PsychroCurves (label: Constant wet bulb temperature)>",
+        )
 
         self.assertEqual(
             str(data_chart.constant_h_data),
-            '<30 PsychroCurves (label: Constant enthalpy)>')
+            "<30 PsychroCurves (label: Constant enthalpy)>",
+        )
 
         self.assertEqual(
             str(data_chart.constant_dry_temp_data),
-            '<50 PsychroCurves (label: Dry bulb temperature)>')
+            "<50 PsychroCurves (label: Dry bulb temperature)>",
+        )
 
         self.assertEqual(
-            str(data_chart.saturation),
-            '<1 PsychroCurves (label: None)>')
+            str(data_chart.saturation), "<1 PsychroCurves (label: None)>"
+        )
         self.assertEqual(
             str(data_chart.saturation[0]),
-            '<PsychroCurve 51 values (label: None)>')
-
+            "<PsychroCurve 51 values (label: None)>",
+        )

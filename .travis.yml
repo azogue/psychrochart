@@ -3,7 +3,6 @@ os: linux
 sudo: false
 language: python
 python:
-  - "3.5"
   - "3.6"
   - "3.7"
 
@@ -15,8 +14,6 @@ install:
   - pip install coveralls==1.7.0
 
 script:
-  - py.test -v --cov psychrochart --cov-report term-missing
-  - pip install scipy==1.2.1
   - py.test -v --cov psychrochart --cov-report term-missing
 after_sucess:
   - coveralls

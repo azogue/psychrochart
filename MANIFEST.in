@@ -4,6 +4,9 @@ include README.md
 
 # Include JSON config files
 recursive-include *.json
+recursive-include psychrochart/ *.py
 
 # Excluded
+global-exclude *.pyc
+global-exclude *.pyd
 global-exclude .DS_Store
