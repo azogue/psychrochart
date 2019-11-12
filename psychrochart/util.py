@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """A library to make psychrometric charts and overlay information in them."""
 import json
+import logging
 import os
 from time import time
 from typing import Callable, Dict, Iterable, List, Optional, Tuple, Union
@@ -155,7 +156,6 @@ def solve_curves_with_iteration(
     objective_values: Iterable[float],
     func_init: Callable,
     func_eval: Callable,
-    logger=print,
 ) -> List[float]:
     """Run the iteration solver for a list of objective values
     for the three types of curves solved with this method."""
@@ -182,7 +182,7 @@ def solve_curves_with_iteration(
                 precision=precision,
             )
         except AssertionError as exc:  # pragma: no cover
-            logger(f"{family_name} CONVERGENCE ERROR: {exc}")
+            logging.error(f"{family_name} CONVERGENCE ERROR: {exc}")
             if TESTING_MODE:
                 raise exc
             else:
@@ -197,7 +197,7 @@ def solve_curves_with_iteration(
                 f"objective: {objective:.5f}, calc_p: {calc_p:.5f}, "
                 f"EVAL: {func_eval(calc_p):.5f}"
             )
-            logger(msg)
+            logging.error(msg)
             raise AssertionError(msg)
         calc_points.append(calc_p)
     return calc_points
