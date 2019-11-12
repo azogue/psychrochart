@@ -118,6 +118,15 @@ class PsychroChart:
         self.dbt_min, self.dbt_max = config["limits"]["range_temp_c"]
         self.w_min, self.w_max = config["limits"]["range_humidity_g_kg"]
 
+        self.chart_params = config["chart_params"].copy()
+
+        # Base pressure
+        if config["limits"].get("pressure_kpa") is not None:
+            self.pressure = config["limits"]["pressure_kpa"] * 1000.0  # to Pa
+        elif config["limits"].get("altitude_m") is not None:
+            self.altitude_m = config["limits"]["altitude_m"]
+            self.pressure = GetStandardAtmPressure(self.altitude_m)
+
         # Saturation line (always):
         self.saturation = make_saturation_line(
             self.dbt_min,
@@ -126,14 +135,6 @@ class PsychroChart:
             self.pressure,
             style=config["saturation"],
         )
-        self.chart_params = config["chart_params"]
-
-        # Base pressure
-        if config["limits"].get("pressure_kpa") is not None:
-            self.pressure = config["limits"]["pressure_kpa"] * 1000.0  # to Pa
-        elif config["limits"].get("altitude_m") is not None:
-            self.altitude_m = config["limits"]["altitude_m"]
-            self.pressure = GetStandardAtmPressure(self.altitude_m)
 
         # Dry bulb constant lines (vertical):
         if self.chart_params["with_constant_dry_temp"]:
@@ -189,6 +190,7 @@ class PsychroChart:
                 style=config["constant_h"],
                 label_loc=self.chart_params.get("constant_h_labels_loc", 1.0),
                 family_label=self.chart_params["constant_h_label"],
+                saturation_curve=self.saturation.curves[0],
             )
 
         # Constant specific volume lines:
@@ -203,6 +205,7 @@ class PsychroChart:
                 style=config["constant_v"],
                 label_loc=self.chart_params.get("constant_v_labels_loc", 1.0),
                 family_label=self.chart_params["constant_v_label"],
+                saturation_curve=self.saturation.curves[0],
             )
 
         # Constant wet bulb temperature lines:

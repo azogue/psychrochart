@@ -14,19 +14,20 @@ from psychrolib import (
     GetVapPresFromHumRatio,
     isIP,
 )
+from scipy.interpolate import interp1d
 
 from .psychrocurves import PsychroCurve, PsychroCurves
 from .psychrolib_extra import GetTDryBulbFromMoistAirVolume
 from .util import solve_curves_with_iteration
 
-f_vec_specific_volume = np.vectorize(GetMoistAirVolume)
 f_vec_hum_ratio_from_vap_press = np.vectorize(GetHumRatioFromVapPres)
-f_vec_sat_press = np.vectorize(GetSatVapPres)
 f_vec_moist_air_enthalpy = np.vectorize(GetMoistAirEnthalpy)
+f_vec_moist_air_volume = np.vectorize(GetMoistAirVolume)
 f_vec_dew_point_from_vap_press = np.vectorize(GetTDewPointFromVapPres)
-f_vec_vap_press_from_hum_ratio = np.vectorize(GetVapPresFromHumRatio)
 f_vec_dry_temp_from_enthalpy = np.vectorize(GetTDryBulbFromEnthalpyAndHumRatio)
 f_vec_dry_temp_from_spec_vol = np.vectorize(GetTDryBulbFromMoistAirVolume)
+f_vec_sat_press = np.vectorize(GetSatVapPres)
+f_vec_vap_press_from_hum_ratio = np.vectorize(GetVapPresFromHumRatio)
 
 
 def _factor_out_w() -> float:
@@ -74,6 +75,13 @@ def _gen_list_curves_range_temps(
     temps = np.arange(dbt_min, dbt_max + increment, increment)
     curves = [func_curve(temps, value, pressure) for value in curves_values]
     return temps, curves
+
+
+def _get_humid_ratio_in_saturation(
+    dry_temps: np.ndarray, pressure: float,
+) -> np.array:
+    sat_p = f_vec_sat_press(dry_temps)
+    return _factor_out_w() * f_vec_hum_ratio_from_vap_press(sat_p, pressure)
 
 
 def gen_points_in_constant_relative_humidity(
@@ -219,36 +227,42 @@ def make_constant_enthalpy_lines(
     style: dict,
     label_loc: float,
     family_label: str,
+    saturation_curve: PsychroCurve,
 ) -> PsychroCurves:
     """TODO doc for # Constant enthalpy lines:"""
-    temps_max_constant_h = [
-        GetTDryBulbFromEnthalpyAndHumRatio(
-            h * _factor_out_h(), w_humidity_ratio_min / _factor_out_w()
+    enthalpy_objective = np.array(enthalpy_values)
+    temps_max_constant_h = f_vec_dry_temp_from_enthalpy(
+        enthalpy_objective * _factor_out_h(),
+        w_humidity_ratio_min / _factor_out_w(),
+    )
+    h_in_sat = (
+        f_vec_moist_air_enthalpy(
+            saturation_curve.x_data, saturation_curve.y_data / _factor_out_w()
         )
-        for h in enthalpy_values
-    ]
-
-    sat_points = solve_curves_with_iteration(
+        / _factor_out_h()
+    )
+    t_sat_interpolator = interp1d(
+        h_in_sat,
+        saturation_curve.x_data,
+        fill_value="extrapolate",
+        assume_sorted=True,
+    )
+    t_sat_points = solve_curves_with_iteration(
         "ENTHALPHY",
-        enthalpy_values,
-        lambda x: GetTDryBulbFromEnthalpyAndHumRatio(
-            x * _factor_out_h(), w_humidity_ratio_min / _factor_out_w()
-        ),
+        enthalpy_objective,
+        lambda *x: t_sat_interpolator(x[0]),
         lambda x: GetMoistAirEnthalpy(
             x, GetHumRatioFromVapPres(GetSatVapPres(x), pressure),
         )
         / _factor_out_h(),
     )
+    w_in_sat = _get_humid_ratio_in_saturation(t_sat_points, pressure)
 
     return PsychroCurves(
         [
             PsychroCurve(
                 [t_sat, t_max],
-                [
-                    _factor_out_w()
-                    * GetHumRatioFromVapPres(GetSatVapPres(t_sat), pressure),
-                    w_humidity_ratio_min,
-                ],
+                [w_sat, w_humidity_ratio_min],
                 style,
                 type_curve="constant_h_data",
                 label_loc=label_loc,
@@ -258,8 +272,8 @@ def make_constant_enthalpy_lines(
                     else None
                 ),
             )
-            for t_sat, t_max, h in zip(
-                sat_points, temps_max_constant_h, enthalpy_values
+            for t_sat, w_sat, t_max, h in zip(
+                t_sat_points, w_in_sat, temps_max_constant_h, enthalpy_values
             )
         ],
         family_label=family_label,
@@ -269,34 +283,43 @@ def make_constant_enthalpy_lines(
 def make_constant_specific_volume_lines(
     w_humidity_ratio_min: float,
     pressure: float,
-    vol_values: Iterable[float],
+    vol_values: np.ndarray,
     v_label_values: Iterable[float],
     style: dict,
     label_loc: float,
     family_label: str,
+    saturation_curve: PsychroCurve,
 ) -> PsychroCurves:
     """TODO doc for # Constant specific volume lines:"""
     temps_max_constant_v = f_vec_dry_temp_from_spec_vol(
         np.array(vol_values), w_humidity_ratio_min / _factor_out_w(), pressure
     )
-    sat_points = solve_curves_with_iteration(
+    v_in_sat = f_vec_moist_air_volume(
+        saturation_curve.x_data,
+        saturation_curve.y_data / _factor_out_w(),
+        pressure,
+    )
+    t_sat_interpolator = interp1d(
+        v_in_sat,
+        saturation_curve.x_data,
+        fill_value="extrapolate",
+        assume_sorted=True,
+    )
+    t_sat_points = solve_curves_with_iteration(
         "CONSTANT VOLUME",
         vol_values,
-        lambda x: GetTDryBulbFromMoistAirVolume(x, 0, pressure),
+        lambda *x: t_sat_interpolator(x[0]),
         lambda x: GetMoistAirVolume(
             x, GetHumRatioFromVapPres(GetSatVapPres(x), pressure), pressure,
         ),
     )
+    w_in_sat = _get_humid_ratio_in_saturation(t_sat_points, pressure)
 
     return PsychroCurves(
         [
             PsychroCurve(
                 [t_sat, t_max],
-                [
-                    _factor_out_w()
-                    * GetHumRatioFromVapPres(GetSatVapPres(t_sat), pressure),
-                    0.0,
-                ],
+                [w_sat, w_humidity_ratio_min],
                 style,
                 type_curve="constant_v_data",
                 label_loc=label_loc,
@@ -306,8 +329,8 @@ def make_constant_specific_volume_lines(
                     else None
                 ),
             )
-            for t_sat, t_max, vol in zip(
-                sat_points, temps_max_constant_v, vol_values
+            for t_sat, w_sat, t_max, vol in zip(
+                t_sat_points, w_in_sat, temps_max_constant_v, vol_values
             )
         ],
         family_label=family_label,
