@@ -3,7 +3,6 @@
 Tests plotting
 
 """
-import os
 from unittest import TestCase
 
 import numpy as np
@@ -11,9 +10,7 @@ import numpy as np
 from psychrochart.agg import PsychroChart
 from .conftest import TEST_BASEDIR
 
-basedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "charts")
-os.makedirs(basedir, exist_ok=True)
-
+# fmt: off
 TEST_EXAMPLE_ZONES = [
     {
         "label": "Summer",
@@ -70,6 +67,98 @@ TEST_EXAMPLE_FIG_CONFIG = {
     },
     "y_label": None,
 }
+TEST_EXAMPLE_IP_CONFIG = {
+    "figure": {
+        "figsize": [16, 9],
+        "title": "Psychrometric Chart (sea level, IP units)",
+        "x_label": "DRY-BULB TEMPERATURE, $°F$",
+        "y_label": "HUMIDITY RATIO $w, gr_{H₂O} / lb_{da}$",
+        "x_axis": {
+            "color": [0.0, 0.0, 0.0],
+            "linewidth": 1.5,
+            "linestyle": "-",
+        },
+        "x_axis_labels": {"color": [0.0, 0.0, 0.0], "fontsize": 8},
+        "x_axis_ticks": {"direction": "out", "color": [0.0, 0.0, 0.0]},
+        "y_axis": {
+            "color": [0.0, 0.0, 0.0],
+            "linewidth": 1.5,
+            "linestyle": "-",
+        },
+        "y_axis_labels": {"color": [0.0, 0.0, 0.0], "fontsize": 8},
+        "y_axis_ticks": {"direction": "out", "color": [0.0, 0.0, 0.0]},
+        "partial_axis": False,
+        "position": [0.025, 0.075, 0.925, 0.875],
+    },
+    "limits": {
+        "range_temp_c": [-10, 130],
+        "range_humidity_g_kg": [0, 210],
+        "altitude_m": 0,
+        "step_temp": 5.0,
+    },
+    "saturation": {
+        "color": [0.0, 0.0, 0.0],
+        "linewidth": 1.5,
+        "linestyle": "-",
+    },
+    "constant_rh": {
+        "color": [0.0, 0.0, 0.0],
+        "linewidth": 0.5,
+        "linestyle": "-",
+    },
+    "constant_v": {
+        "color": [0.0, 0.0, 0.0],
+        "linewidth": 0.5,
+        "linestyle": "-",
+    },
+    "constant_h": {
+        "color": [0.0, 0.0, 0.0],
+        "linewidth": 0.75,
+        "linestyle": "-",
+    },
+    "constant_wet_temp": {
+        "color": [0.0, 0.0, 0.0],
+        "linewidth": 0.25,
+        "linestyle": "--",
+    },
+    "constant_dry_temp": {
+        "color": [0.0, 0.0, 0.0],
+        "linewidth": 0.25,
+        "linestyle": "-",
+    },
+    "constant_humidity": {
+        "color": [0.0, 0.0, 0.0],
+        "linewidth": 0.25,
+        "linestyle": "-",
+    },
+    "chart_params": {
+        "with_constant_rh": True,
+        "constant_rh_curves": [
+            2, 4, 6, 8, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90
+        ],
+        "with_constant_v": True,
+        "constant_v_step": 0.5,
+        "range_vol_m3_kg": [12.0, 15.5],
+        "constant_v_labels": [12.5, 13.0, 13.5, 14.0, 14.5],
+        "with_constant_h": True,
+        "constant_h_step": 5,
+        "range_h": [0, 55],
+        "constant_h_labels": [20, 30, 40, 50],
+        "with_constant_wet_temp": True,
+        "constant_wet_temp_step": 5,
+        "range_wet_temp": [-5, 95],
+        "constant_wet_temp_labels": [
+            10, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85
+        ],
+        "with_constant_dry_temp": True,
+        "constant_temp_step": 5,
+        "with_constant_humidity": True,
+        "constant_humid_step": 2,
+        "constant_humid_label_step": 10,
+        "with_zones": False,
+    },
+}
+# fmt: on
 
 
 class TestsPsychroPlot(TestCase):
@@ -79,6 +168,15 @@ class TestsPsychroPlot(TestCase):
         """Test the plot custom styling with JSON files/dicts."""
         path_svg_default = TEST_BASEDIR / "test_default_psychrochart.svg"
         chart = PsychroChart()
+        chart.save(path_svg_default)
+        chart.close_fig()
+
+    def test_imperial_units_psychrochart(self):
+        """Test the plot custom styling with JSON files/dicts."""
+        path_svg_default = TEST_BASEDIR / "test_ashrae_psychrochart_ip.svg"
+        chart = PsychroChart(
+            styles=TEST_EXAMPLE_IP_CONFIG, use_unit_system_si=False
+        )
         chart.save(path_svg_default)
         chart.close_fig()
 
