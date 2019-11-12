@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "psychrochart"
-version = "0.3.0"
+version = "0.3.1"
 description = "A python 3 library to make psychrometric charts and overlay information on them"
 authors = ["Eugenio Panadero <eugenio.panadero@gmail.com>"]
 packages = [
