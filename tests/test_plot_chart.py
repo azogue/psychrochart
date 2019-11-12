@@ -9,6 +9,7 @@ from unittest import TestCase
 import numpy as np
 
 from psychrochart.agg import PsychroChart
+from .conftest import TEST_BASEDIR
 
 basedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "charts")
 os.makedirs(basedir, exist_ok=True)
@@ -76,9 +77,7 @@ class TestsPsychroPlot(TestCase):
 
     def test_default_psychrochart(self):
         """Test the plot custom styling with JSON files/dicts."""
-        path_svg_default = os.path.join(
-            basedir, "test_default_psychrochart.svg"
-        )
+        path_svg_default = TEST_BASEDIR / "test_default_psychrochart.svg"
         chart = PsychroChart()
         chart.save(path_svg_default)
         chart.close_fig()
@@ -121,7 +120,7 @@ class TestsPsychroPlot(TestCase):
         chart.plot()
         chart.plot_legend()
 
-        path_png = os.path.join(basedir, "test_custom_psychrochart.png")
+        path_png = TEST_BASEDIR / "test_custom_psychrochart.png"
         chart.save(path_png, transparent=True)
         chart.close_fig()
 
@@ -204,13 +203,11 @@ class TestsPsychroPlot(TestCase):
                 "linestyle": "-",
                 "linewidth": 5,
             },
-            "zones": TEST_EXAMPLE_ZONES,
         }
         chart = PsychroChart(custom_style)
         chart.plot()
-        chart.plot_legend()
 
-        path_png = os.path.join(basedir, "test_custom_psychrochart_2.png")
+        path_png = TEST_BASEDIR / "test_custom_psychrochart_2.png"
         chart.save(path_png, transparent=True)
         chart.close_fig()
 
@@ -301,9 +298,8 @@ class TestsPsychroPlot(TestCase):
         }
         chart = PsychroChart(custom_style)
         chart.plot()
-        chart.plot_legend()
 
-        path_png = os.path.join(basedir, "test_custom_psychrochart_3.png")
+        path_png = TEST_BASEDIR / "test_custom_psychrochart_3.png"
         chart.save(path_png, transparent=True)
         chart.close_fig()
 
@@ -313,14 +309,14 @@ class TestsPsychroPlot(TestCase):
 
     def test_default_styles_psychrochart(self):
         """Test the plot custom styling with JSON files."""
-        path_svg_ashrae = os.path.join(basedir, "test_ashrae_psychrochart.svg")
+        path_svg_ashrae = str(TEST_BASEDIR / "test_ashrae_psychrochart.svg")
         chart = PsychroChart("ashrae")
         chart.plot()
         chart.save(path_svg_ashrae)
         chart.save(path_svg_ashrae.replace("svg", "png"), transparent=True)
         chart.close_fig()
 
-        path_svg_2 = os.path.join(basedir, "test_interior_psychrochart.svg")
+        path_svg_2 = TEST_BASEDIR / "test_interior_psychrochart.svg"
         chart = PsychroChart("interior")
         chart.plot()
         chart.plot_legend(
@@ -329,7 +325,7 @@ class TestsPsychroPlot(TestCase):
         chart.save(path_svg_2)
         chart.close_fig()
 
-        path_svg_3 = os.path.join(basedir, "test_minimal_psychrochart.svg")
+        path_svg_3 = TEST_BASEDIR / "test_minimal_psychrochart.svg"
         chart = PsychroChart("minimal")
         chart.plot()
         chart.plot_legend()

@@ -4,15 +4,12 @@ Tests objects to handle psychrometric curves
 
 """
 import json
-import os
 from unittest import TestCase
 
 import numpy as np
 
 from psychrochart.agg import PsychroChart
 from psychrochart.psychrocurves import PsychroCurve
-
-basedir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestsPsychroCurves(TestCase):

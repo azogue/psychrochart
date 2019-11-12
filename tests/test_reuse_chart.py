@@ -3,14 +3,11 @@
 Tests plotting
 
 """
-import os
 from unittest import TestCase
 
 from psychrochart.agg import PsychroChart
 from psychrochart.util import timeit
-
-basedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "charts")
-os.makedirs(basedir, exist_ok=True)
+from .conftest import TEST_BASEDIR
 
 
 @timeit("make_chart")
@@ -72,7 +69,7 @@ def _make_chart(path_save=None):
     )
     # Save to disk the base chart
     if path_save is not None:
-        path_svg = os.path.join(basedir, path_save)
+        path_svg = TEST_BASEDIR / path_save
         chart.save(path_svg)
     return chart
 
@@ -140,7 +137,7 @@ def _add_points(chart, with_connectors=True, path_save=None):
         chart.plot_points_dbt_rh(points)
     # Save to disk
     if path_save is not None:
-        path_svg = os.path.join(basedir, path_save)
+        path_svg = TEST_BASEDIR / path_save
         chart.save(path_svg)
 
 
