@@ -39,16 +39,16 @@ TESTING_MODE = os.getenv("TESTING") is not None
 def timeit(msg_log: str) -> Callable:
     """Wrap a method to print the execution time of a method call."""
 
-    def real_deco(func) -> Callable:
-        def wrapper(*args, **kwargs):
+    def _real_deco(func) -> Callable:
+        def _wrapper(*args, **kwargs):
             tic = time()
             out = func(*args, **kwargs)
-            print(f"{msg_log} TOOK: {time() - tic:.3f} s")
+            logging.info(f"{msg_log} TOOK: {time() - tic:.3f} s")
             return out
 
-        return wrapper
+        return _wrapper
 
-    return real_deco
+    return _real_deco
 
 
 def _update_config(

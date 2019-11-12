@@ -73,7 +73,7 @@ def GetTDryBulbFromMoistAirVolume(
           rearranged for dry-bulb temperature.
 
     """
-    if HumRatio < 0:
+    if HumRatio < 0:  # pragma: no cover
         raise ValueError("Humidity ratio is negative")
     BoundedHumRatio = max(HumRatio, MIN_HUM_RATIO)
 

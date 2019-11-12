@@ -4,7 +4,6 @@ Tests plotting
 
 """
 import os
-from time import sleep
 from unittest import TestCase
 
 from psychrochart.agg import PsychroChart
@@ -189,12 +188,8 @@ class TestsPsychroReuseMem(TestCase):
 
     def test_redraw_psychrochart(self):
         """Test the workflow to redraw a chart."""
-        sleep_time = 1
         counter = 0
-        print("Make initial chart")
         chart = _make_chart()
         while counter < 10:
-            print(f"Drawing chart #{counter}")
             draw_chart("test_redraw_chart_1.svg", chart)
             counter += 1
-            sleep(sleep_time)

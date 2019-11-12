@@ -155,14 +155,12 @@ def make_constant_dry_bulb_v_line(
 def make_constant_dry_bulb_v_lines(
     w_humidity_ratio_min: float,
     pressure: float,
-    temps_vl: Iterable[float],
+    temps_vl: np.ndarray,
     style: dict,
     family_label: str,
 ) -> PsychroCurves:
     """TODO doc for # Dry bulb constant lines (vertical):"""
-    w_max_vec = _factor_out_w() * f_vec_hum_ratio_from_vap_press(
-        f_vec_sat_press(temps_vl), pressure
-    )
+    w_max_vec = _get_humid_ratio_in_saturation(temps_vl, pressure)
     return PsychroCurves(
         [
             PsychroCurve(
@@ -340,7 +338,7 @@ def make_constant_specific_volume_lines(
 def make_constant_wet_bulb_temperature_lines(
     dry_bulb_temp_max: float,
     pressure: float,
-    wbt_values: Iterable[float],
+    wbt_values: np.ndarray,
     wbt_label_values: Iterable[float],
     style: dict,
     label_loc: float,
@@ -351,9 +349,10 @@ def make_constant_wet_bulb_temperature_lines(
         f_vec_sat_press(np.array(wbt_values)), pressure
     )
 
-    def _hum_ratio_for_constant_wet_temp_at_dry_temp(dbt, wbt, p_atm):
+    def _hum_ratio_for_constant_wet_temp_at_dry_temp(db_t, wb_t, p_atm):
         return _factor_out_w() * GetHumRatioFromVapPres(
-            GetSatVapPres(dbt) * GetRelHumFromTWetBulb(dbt, wbt, p_atm), p_atm
+            GetSatVapPres(db_t) * GetRelHumFromTWetBulb(db_t, wb_t, p_atm),
+            p_atm,
         )
 
     curves = []
