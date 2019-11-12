@@ -66,7 +66,6 @@ class PsychroChart:
             SetUnitSystem(SI)
             logging.info("[SI units mode] ENABLED")
         else:
-            # TODO implement tests for imperial units
             SetUnitSystem(IP)
             logging.warning("[IP units mode] ENABLED")
         self.pressure = GetStandardAtmPressure(0.0)

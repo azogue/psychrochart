@@ -14,8 +14,8 @@ from .util import mod_color
 
 
 def _between_limits(
-    x_data: np.array,
-    y_data: np.array,
+    x_data: np.ndarray,
+    y_data: np.ndarray,
     xmin: float,
     xmax: float,
     ymin: float,
@@ -40,8 +40,8 @@ class PsychroCurve:
 
     def __init__(
         self,
-        x_data: np.array = None,
-        y_data: np.array = None,
+        x_data: np.ndarray = None,
+        y_data: np.ndarray = None,
         style: dict = None,
         type_curve: str = None,
         limits: dict = None,
@@ -49,8 +49,8 @@ class PsychroCurve:
         label_loc: float = 0.75,
     ) -> None:
         """Create the Psychrocurve object."""
-        self.x_data: np.array = np.array(x_data if x_data is not None else [])
-        self.y_data: np.array = np.array(y_data if y_data is not None else [])
+        self.x_data = np.array(x_data if x_data is not None else [])
+        self.y_data = np.array(y_data if y_data is not None else [])
         self.style: dict = style or {}
         self._type_curve = type_curve
         self._label = label

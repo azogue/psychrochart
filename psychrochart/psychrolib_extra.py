@@ -2,7 +2,7 @@
 """Methods suggested to move in psychrolib (TEMPORALLY HERE)."""
 from psychrolib import isIP, MIN_HUM_RATIO, R_DA_IP, R_DA_SI
 
-# TODO suggest a MR in psychrolib with these new methods:
+# TODO Remove these when psychrolib 2.3.0 is released:
 # Zero degree Fahrenheit (°F) expressed as degree Rankine (°R)
 ZERO_FAHRENHEIT_AS_RANKINE = 459.67
 # Zero degree Celsius (°C) expressed as Kelvin (K)
