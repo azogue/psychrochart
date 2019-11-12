@@ -3,9 +3,9 @@
 
 A python 3 library to make **[psychrometric charts](https://en.wikipedia.org/wiki/Psychrometrics)** and overlay information on them.
 
-It implements a useful collection of psychrometric equations for moisture and humid air calculations, and the generation of beautiful and high customizable **psychrometric charts in SVG** with `matplotlib`.
+It implements a useful collection of psychrometric equations for moisture and humid air calculations, and the generation of beautiful and high customizable **psychrometric charts in SVG** with [`matplotlib`](https://matplotlib.org).
 
-Calculations are made by implementing experimental equations extracted from recognized sources, such as the _2009 ASHRAE Handbook—Fundamentals (SI)_.
+**Psychrometric calculations to make the chart data are done with [`PsychroLib`](https://github.com/psychrometrics/psychrolib)** (summary paper in https://doi.org/10.21105/joss.01137).
 
 <img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/chart_overlay_style_minimal.svg" width="100%" height="100%">
 
@@ -32,53 +32,24 @@ pip install psychrochart
 - Plot legend for each family of lines
 - Specify labels for each family of lines
 - **Overlay points, zones, arrows...**
-- **Export SVG files**
-- Tested against example tables from [http://www.engineeringtoolbox.com](http://www.engineeringtoolbox.com)
-- 100 % code coverage.
+- **Export SVG, PNG files**
 
 \* The ranges of temperature, humidity and pressure where this library should provide good results are within the normal environments for people to live in. Don't expect right results if doing other type of thermodynamic calculations. Over saturated water vapor states are not implemented.
-
-#### TODO list:
-- **Better Doc!**
-- **_Bokeh_** interactive psychrochart
-- Overlay `pd.Dataframe` time indexed evolution objects
-
-#### Changelog
-
-- v0.1.0:   Initial version.
-- v0.1.1:   Minor plotting fixes, set axis position, define P with `altitude_m` or `pressure_kpa`, reuse plot removing annotations (`chart.remove_annotations`). Axes as internal prop, lazy plotting, save to disk helper (`chart.save`).
-- v0.1.2:   Add `agg` module to set that `matplotlib` backend.
-- v0.1.3:   Add custom params for plotting styles, option to exclude first and last tick (`constant_{humid/temp}_label_include_limits`).
-- v0.1.4:   Customize labels and its locations for families of psychrometric curves.
-- v0.1.5:   Add Arrows, compatibility with the Home Assistant component `psychrometrics`.
-- v0.1.6:   Some cleaning, better typing, flake8, added `tox.ini`.
-- v0.1.7:   Methods to clean the plot (`.close_fig()`) and to remove the legend (`.remove_legend()`).
-- v0.1.8:   Memleak with `savefig`.
-- v0.1.10:  Fix plot limits, do not use pyplot, axes are not optional.
-- v0.1.11:  Add optional `Axes` as argument for `PsychroChart.plot`.
-- v0.1.12:  Add empiric equation for wet bulb temperature (@ZhukovGreen contribution).
-- v0.1.13:  Add convex hull option for overlay points.
-- v0.2.0:   Hide output in verbose mode, better convex hull zones syntax, stable.
-- v0.2.1:   Make `scipy` an optional requirement (it's only used for the ConvexHull zone).
-- v0.2.2:   Fix initial conditions for iteration solvers
-- v0.2.3:   Handle ConvexHull exception, overlay of series of points.
-- v0.2.4:   Set ASHRAE formulation for `saturation_pressure_water_vapor` as default. Minimal adjustments to iteration solvers for enthalpy and specific volume.
-- v0.2.5:   Fix coefficient in ASHRAE formulation for `dew_point_temperature`.
-- v0.2.6:   Add labels for connectors in chart legend (@@zhang-shen contribution).
 
 ## Usage
 
 ```python
-from psychrochart.chart import PsychroChart
+from psychrochart import PsychroChart
 
 # Load default style:
 chart_default = PsychroChart()
 axes = chart_default.plot()
+axes.get_figure()
 ```
 
 Called from a terminal (`python psychrochart`), it plots and shows the default chart using the default matplotlib backend, equivalent to this python script:
 ```python
-from psychrochart.chart import PsychroChart
+from psychrochart import PsychroChart
 import matplotlib.pyplot as plt
 
 PsychroChart().plot(ax=plt.gca())
@@ -92,8 +63,7 @@ The default styling for charts is defined in JSON files that you can change, or 
 Included styles are: `default`, `ashrae`, `interior` and `minimal`.
 
 ```python
-from psychrochart.chart import PsychroChart
-from psychrochart.util import load_config
+from psychrochart import load_config, PsychroChart
 
 # Load preconfigured styles:
 chart_ashrae_style = PsychroChart('ashrae')
@@ -149,11 +119,7 @@ To play with it and see the results, look at this **[notebook with usage example
 
 ## Tests
 
-To run the tests, clone the repository and run:
-```bash
-export TESTING=1; py.test tests/ --cov=psychrochart -v --cov-report html; coverage report -m; export TESTING=;
-```
-to generate the coverage reports.
+To run the tests, clone the repository, `poetry install` it, and run `poetry run pytest`.
 
 ## License
 
@@ -168,6 +134,10 @@ to generate the coverage reports.
 **ASHRAE Handbook black and white style**:
 
 <img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/test_ashrae_psychrochart.svg" width="100%" height="100%">
+
+**ASHRAE Handbook black and white style (IP units)**:
+
+<img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/test_ashrae_psychrochart_ip.svg" width="100%" height="100%">
 
 **Minimal style**:
 

@@ -5,6 +5,7 @@ import logging
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import numpy as np
+import psychrolib as psy
 from matplotlib import figure
 from matplotlib.axes import Axes
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -26,7 +27,9 @@ from .chartdata import (
     make_zone_curve,
 )
 from .psychrocurves import PsychroCurves
-from .util import f_range, load_config, load_zones, mod_color
+from .util import load_config, load_zones, mod_color
+
+spec_vol_vec = np.vectorize(psy.GetMoistAirVolume)
 
 PSYCHRO_CURVES_KEYS = [
     "constant_dry_temp_data",
@@ -63,7 +66,6 @@ class PsychroChart:
             SetUnitSystem(SI)
             logging.info("[SI units mode] ENABLED")
         else:
-            # TODO implement tests for imperial units
             SetUnitSystem(IP)
             logging.warning("[IP units mode] ENABLED")
         self.pressure = GetStandardAtmPressure(0.0)
@@ -100,6 +102,14 @@ class PsychroChart:
         assert isinstance(self._axes, Axes)
         return self._axes
 
+    @property
+    def figure(self) -> figure.Figure:
+        """Return the Figure object, plotting the chart if necessary."""
+        if self._fig is None:
+            self.plot()
+        assert isinstance(self._fig, figure.Figure)
+        return self._fig
+
     def _make_chart_data(
         self,
         styles: Union[dict, str] = None,
@@ -114,7 +124,8 @@ class PsychroChart:
         self.figure_params = config["figure"]
         self.dbt_min, self.dbt_max = config["limits"]["range_temp_c"]
         self.w_min, self.w_max = config["limits"]["range_humidity_g_kg"]
-        self.chart_params = config["chart_params"]
+
+        self.chart_params = config["chart_params"].copy()
 
         # Base pressure
         if config["limits"].get("pressure_kpa") is not None:
@@ -123,13 +134,22 @@ class PsychroChart:
             self.altitude_m = config["limits"]["altitude_m"]
             self.pressure = GetStandardAtmPressure(self.altitude_m)
 
+        # Saturation line (always):
+        self.saturation = make_saturation_line(
+            self.dbt_min,
+            self.dbt_max,
+            self.temp_step,
+            self.pressure,
+            style=config["saturation"],
+        )
+
         # Dry bulb constant lines (vertical):
         if self.chart_params["with_constant_dry_temp"]:
             step = self.chart_params["constant_temp_step"]
             self.constant_dry_temp_data = make_constant_dry_bulb_v_lines(
                 self.w_min,
                 self.pressure,
-                temps_vl=f_range(self.dbt_min, self.dbt_max, step),
+                temps_vl=np.arange(self.dbt_min, self.dbt_max, step),
                 style=config["constant_dry_temp"],
                 family_label=self.chart_params["constant_temp_label"],
             )
@@ -140,7 +160,9 @@ class PsychroChart:
             self.constant_humidity_data = make_constant_humidity_ratio_h_lines(
                 self.dbt_max,
                 self.pressure,
-                ws_hl=f_range(self.w_min + step, self.w_max + step / 10, step),
+                ws_hl=np.arange(
+                    self.w_min + step, self.w_max + step / 10, step
+                ),
                 style=config["constant_humidity"],
                 family_label=self.chart_params["constant_humid_label"],
             )
@@ -170,11 +192,12 @@ class PsychroChart:
             self.constant_h_data = make_constant_enthalpy_lines(
                 self.w_min,
                 self.pressure,
-                enthalpy_values=f_range(start, end, step),
+                enthalpy_values=np.arange(start, end, step),
                 h_label_values=self.chart_params.get("constant_h_labels", []),
                 style=config["constant_h"],
                 label_loc=self.chart_params.get("constant_h_labels_loc", 1.0),
                 family_label=self.chart_params["constant_h_label"],
+                saturation_curve=self.saturation.curves[0],
             )
 
         # Constant specific volume lines:
@@ -182,12 +205,14 @@ class PsychroChart:
             step = self.chart_params["constant_v_step"]
             start, end = self.chart_params["range_vol_m3_kg"]
             self.constant_v_data = make_constant_specific_volume_lines(
+                self.w_min,
                 self.pressure,
-                vol_values=f_range(start, end, step),
+                vol_values=np.arange(start, end, step),
                 v_label_values=self.chart_params.get("constant_v_labels", []),
                 style=config["constant_v"],
                 label_loc=self.chart_params.get("constant_v_labels_loc", 1.0),
                 family_label=self.chart_params["constant_v_label"],
+                saturation_curve=self.saturation.curves[0],
             )
 
         # Constant wet bulb temperature lines:
@@ -197,7 +222,7 @@ class PsychroChart:
             self.constant_wbt_data = make_constant_wet_bulb_temperature_lines(
                 self.dbt_max,
                 self.pressure,
-                wbt_values=f_range(start, end, step),
+                wbt_values=np.arange(start, end, step),
                 wbt_label_values=self.chart_params.get(
                     "constant_wet_temp_labels", []
                 ),
@@ -207,15 +232,6 @@ class PsychroChart:
                 ),
                 family_label=self.chart_params["constant_wet_temp_label"],
             )
-
-        # Saturation line (always):
-        self.saturation = make_saturation_line(
-            self.dbt_min,
-            self.dbt_max,
-            self.temp_step,
-            self.pressure,
-            style=config["saturation"],
-        )
 
         # Zones
         if self.chart_params["with_zones"] or zones_file is not None:
@@ -469,7 +485,7 @@ class PsychroChart:
         **label_params,
     ) -> None:
         """Append a vertical line from w_min to w_sat."""
-        style_curve = style or self.d_config.get("constant_dry_temp")
+        style_curve = style or self.d_config["constant_dry_temp"]
         curve = make_constant_dry_bulb_v_line(
             self.w_min,
             temp,
@@ -512,9 +528,9 @@ class PsychroChart:
 
         # Create figure and format axis
         self._fig = figure.Figure(figsize=figsize, dpi=150, frameon=False)
-        self._canvas = FigureCanvas(self._fig)
+        self._canvas = FigureCanvas(self.figure)
         if ax is None:
-            ax = self._fig.gca(position=position)
+            ax = self.figure.gca(position=position)
         ax.yaxis.tick_right()
         ax.yaxis.set_label_position("right")
         ax.set_xlim(self.dbt_min, self.dbt_max)
@@ -533,7 +549,7 @@ class PsychroChart:
                 "constant_temp_label_step", None
             )
             if step_label:  # Explicit xticks
-                ticks = f_range(
+                ticks = np.arange(
                     self.dbt_min, self.dbt_max + step_label / 10, step_label
                 )
                 if not self.chart_params.get(
@@ -554,7 +570,7 @@ class PsychroChart:
                 "constant_humid_label_step", None
             )
             if step_label:  # Explicit xticks
-                ticks = f_range(
+                ticks = np.arange(
                     self.w_min, self.w_max + step_label / 10, step_label
                 )
                 if not self.chart_params.get(

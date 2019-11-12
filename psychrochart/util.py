@@ -1,31 +1,27 @@
 # -*- coding: utf-8 -*-
 """A library to make psychrometric charts and overlay information in them."""
 import json
+import logging
 import os
+from pathlib import Path
 from time import time
-from typing import Callable, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
+import numpy as np
 
 NUM_ITERS_MAX = 100
-PATH_STYLES = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "chart_styles"
-)
 
-DEFAULT_CHART_CONFIG_FILE = os.path.join(
-    PATH_STYLES, "default_chart_config.json"
-)
-ASHRAE_CHART_CONFIG_FILE = os.path.join(PATH_STYLES, "ashrae_chart_style.json")
-INTERIOR_CHART_CONFIG_FILE = os.path.join(
-    PATH_STYLES, "interior_chart_style.json"
-)
-MINIMAL_CHART_CONFIG_FILE = os.path.join(
-    PATH_STYLES, "minimal_chart_style.json"
-)
-
-DEFAULT_ZONES_FILE = os.path.join(PATH_STYLES, "default_comfort_zones.json")
+path_styles = Path(__file__).parent / "chart_styles"
+DEFAULT_CHART_CONFIG_FILE = str(path_styles / "default_chart_config.json")
+ASHRAE_CHART_CONFIG_FILE = str(path_styles / "ashrae_chart_style.json")
+ASHRAE_IP_CHART_CONFIG_FILE = str(path_styles / "ashrae_ip_chart_style.json")
+INTERIOR_CHART_CONFIG_FILE = str(path_styles / "interior_chart_style.json")
+MINIMAL_CHART_CONFIG_FILE = str(path_styles / "minimal_chart_style.json")
+DEFAULT_ZONES_FILE = str(path_styles / "default_comfort_zones.json")
 
 STYLES = {
     "ashrae": ASHRAE_CHART_CONFIG_FILE,
+    "ashrae_ip": ASHRAE_IP_CHART_CONFIG_FILE,
     "default": DEFAULT_CHART_CONFIG_FILE,
     "interior": INTERIOR_CHART_CONFIG_FILE,
     "minimal": MINIMAL_CHART_CONFIG_FILE,
@@ -37,16 +33,16 @@ TESTING_MODE = os.getenv("TESTING") is not None
 def timeit(msg_log: str) -> Callable:
     """Wrap a method to print the execution time of a method call."""
 
-    def real_deco(func) -> Callable:
-        def wrapper(*args, **kwargs):
+    def _real_deco(func) -> Callable:
+        def _wrapper(*args, **kwargs):
             tic = time()
             out = func(*args, **kwargs)
-            print(f"{msg_log} TOOK: {time() - tic:.3f} s")
+            logging.info(f"{msg_log} TOOK: {time() - tic:.3f} s")
             return out
 
-        return wrapper
+        return _wrapper
 
-    return real_deco
+    return _real_deco
 
 
 def _update_config(
@@ -112,22 +108,24 @@ def load_zones(zones: Optional[Union[Dict, str]] = DEFAULT_ZONES_FILE) -> Dict:
 
 
 def _iter_solver(
-    initial_value: float,
-    objective_value: float,
+    initial_value: np.ndarray,
+    objective_value: np.ndarray,
     func_eval: Callable,
     initial_increment: float = 4.0,
     num_iters_max: int = NUM_ITERS_MAX,
     precision: float = 0.01,
 ) -> Tuple[float, int]:
     """Solve by iteration."""
-    error = 100 * precision
     decreasing = True
     increment = initial_increment
     num_iter = 0
-    value_calc = initial_value
+    value_calc = initial_value.copy()
+    error = objective_value - func_eval(initial_value)
     while abs(error) > precision and num_iter < num_iters_max:
         iteration_value = func_eval(value_calc)
         error = objective_value - iteration_value
+        if abs(error) < precision:
+            break
         if error < 0:
             if not decreasing:
                 increment /= 2
@@ -153,19 +151,18 @@ def _iter_solver(
 
 def solve_curves_with_iteration(
     family_name,
-    objective_values: Iterable[float],
+    objective_values: np.ndarray,
     func_init: Callable,
     func_eval: Callable,
-    logger=print,
-) -> List[float]:
+) -> np.ndarray:
     """Run the iteration solver for a list of objective values
     for the three types of curves solved with this method."""
     # family:= checking precision | initial_increment | precision
     families = {
-        "DEW POINT": (0.0001, 0.1, 0.00000001),
-        "ENTHALPHY": (0.005, 25, 0.000002),
-        "CONSTANT VOLUME": (0.0025, 0.75, 0.00000025),
+        "ENTHALPHY": (0.01, 0.5, 0.01),
+        "CONSTANT VOLUME": (0.0005, 1, 0.00025),
     }
+    # "CONSTANT VOLUME": (0.0005, 1, 0.00000025, 0.0025, 0.75, 0.00000025),
     if family_name not in families.keys():  # pragma: no cover
         raise AssertionError(
             f"Need a valid family of curves: {list(families.keys())}"
@@ -176,18 +173,18 @@ def solve_curves_with_iteration(
     for objective in objective_values:
         try:
             calc_p, num_iter = _iter_solver(
-                func_init(objective),
-                objective,
+                np.array(func_init(objective)),
+                np.array(objective),
                 func_eval=func_eval,
                 initial_increment=initial_increment,
                 precision=precision,
             )
         except AssertionError as exc:  # pragma: no cover
-            logger(f"{family_name} CONVERGENCE ERROR: {exc}")
+            logging.error(f"{family_name} CONVERGENCE ERROR: {exc}")
             if TESTING_MODE:
                 raise exc
             else:
-                return calc_points
+                return np.array(calc_points)
 
         if TESTING_MODE and (
             abs(objective - func_eval(calc_p)) > precision_comp
@@ -198,10 +195,10 @@ def solve_curves_with_iteration(
                 f"objective: {objective:.5f}, calc_p: {calc_p:.5f}, "
                 f"EVAL: {func_eval(calc_p):.5f}"
             )
-            logger(msg)
+            logging.error(msg)
             raise AssertionError(msg)
         calc_points.append(calc_p)
-    return calc_points
+    return np.array(calc_points)
 
 
 def mod_color(color: Union[Tuple, List], modification: float) -> List[float]:
@@ -213,12 +210,3 @@ def mod_color(color: Union[Tuple, List], modification: float) -> List[float]:
             max(0.0, min(1.0, c * (1 + modification / 100))) for c in color
         ]
     return color
-
-
-def f_range(start: float, end: float, step: float = 1.0) -> List[float]:
-    """Make list of floats like `numpy.arange`."""
-    out = []
-    while start < end:
-        out.append(start)
-        start += step
-    return out

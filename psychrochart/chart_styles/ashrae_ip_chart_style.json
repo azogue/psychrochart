@@ -1,0 +1,67 @@
+{
+	"figure": {
+        "figsize": [16, 9],
+        "title": "Psychrometric Chart (sea level, IP units)",
+        "x_label": "DRY-BULB TEMPERATURE, $°F$",
+        "y_label": "HUMIDITY RATIO $w, gr_{H₂O} / lb_{da}$",
+        "x_axis": {
+            "color": [0.0, 0.0, 0.0],
+            "linewidth": 1.5,
+            "linestyle": "-"
+        },
+        "x_axis_labels": {"color": [0.0, 0.0, 0.0], "fontsize": 8},
+        "x_axis_ticks": {"direction": "out", "color": [0.0, 0.0, 0.0]},
+        "y_axis": {
+            "color": [0.0, 0.0, 0.0],
+            "linewidth": 1.5,
+            "linestyle": "-"
+        },
+        "y_axis_labels": {"color": [0.0, 0.0, 0.0], "fontsize": 8},
+        "y_axis_ticks": {"direction": "out", "color": [0.0, 0.0, 0.0]},
+        "partial_axis": false,
+        "position": [0.025, 0.075, 0.925, 0.875]
+    },
+	"limits": {
+		"range_temp_c": [-10, 130],
+		"range_humidity_g_kg": [0, 210],
+		"altitude_m": 0,
+		"step_temp": 5.0
+	},
+
+	"saturation": {"color": [0.0, 0.0, 0.0], "linewidth": 2, "linestyle": "-"},
+	"constant_rh": {"color": [0.0, 0.0, 0.0], "linewidth": 1, "linestyle": "-"},
+	"constant_v": {"color": [0.0, 0.0, 0.0], "linewidth": 0.5, "linestyle": "-"},
+	"constant_h": {"color": [0.0, 0.0, 0.0], "linewidth": 0.75, "linestyle": "-"},
+	"constant_wet_temp": {"color": [0.0, 0.0, 0.0], "linewidth": 1, "linestyle": "--"},
+	"constant_dry_temp": {"color": [0.0, 0.0, 0.0], "linewidth": 0.25, "linestyle": "-"},
+	"constant_humidity": {"color": [0.0, 0.0, 0.0], "linewidth": 0.25, "linestyle": "-"},
+
+	"chart_params": {
+		"with_constant_rh": true,
+        "constant_rh_curves": [2, 4, 6, 8, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90],
+
+        "with_constant_v": true,
+        "constant_v_step": 0.5,
+        "range_vol_m3_kg": [12.0, 15.5],
+        "constant_v_labels": [12.5, 13.0, 13.5, 14.0, 14.5],
+
+		"with_constant_h": true,
+        "constant_h_step": 5,
+        "range_h": [0, 55],
+        "constant_h_labels": [20, 30, 40, 50],
+
+		"with_constant_wet_temp": true,
+        "constant_wet_temp_step": 5,
+        "range_wet_temp": [-5, 95],
+        "constant_wet_temp_labels": [10, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85],
+
+		"with_constant_dry_temp": true,
+        "constant_temp_step": 5,
+
+		"with_constant_humidity": true,
+        "constant_humid_step": 2,
+        "constant_humid_label_step": 10,
+
+		"with_zones": false
+	}
+}

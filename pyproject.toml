@@ -1,19 +1,37 @@
 [tool.poetry]
 name = "psychrochart"
-version = "0.3.0a"
+version = "0.3.1"
 description = "A python 3 library to make psychrometric charts and overlay information on them"
 authors = ["Eugenio Panadero <eugenio.panadero@gmail.com>"]
 packages = [
     { include = "psychrochart" }
 ]
+license = "MIT"
 readme = "README.md"
 repository = "https://github.com/azogue/psychrochart"
+classifiers=[
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Education",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+]
+keywords=["psychrometrics", "moist", "humid air", "climate control", "matplotlib"]
+include = ["CHANGELOG.md"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
 matplotlib = "^3.1"
 scipy = "^1.3"
 psychrolib = "^2.2"
+numpy = "^1.17"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.0"

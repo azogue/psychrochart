@@ -3,14 +3,71 @@
 Tests plotting
 
 """
-import os
 from unittest import TestCase
 
-from psychrochart.agg import PsychroChart
-from psychrochart.util import f_range
+import numpy as np
 
-basedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "charts")
-os.makedirs(basedir, exist_ok=True)
+from psychrochart.agg import PsychroChart
+from .conftest import TEST_BASEDIR
+
+# fmt: off
+TEST_EXAMPLE_ZONES = [
+    {
+        "label": "Summer",
+        "points_x": [23, 28],
+        "points_y": [40, 60],
+        "style": {
+            "edgecolor": [1.0, 0.749, 0.0, 0.8],
+            "facecolor": [1.0, 0.749, 0.0, 0.2],
+            "linestyle": "--",
+            "linewidth": 2,
+        },
+        "zone_type": "dbt-rh",
+    },
+    {
+        "label": "Winter",
+        "points_x": [18, 23],
+        "points_y": [35, 55],
+        "style": {
+            "edgecolor": [0.498, 0.624, 0.8],
+            "facecolor": [0.498, 0.624, 1.0, 0.2],
+            "linestyle": "--",
+            "linewidth": 2,
+        },
+        "zone_type": "dbt-rh",
+    },
+]
+TEST_EXAMPLE_FIG_CONFIG = {
+    "figsize": [16, 9],
+    "partial_axis": True,
+    "position": [0, 0, 1, 1],
+    "title": None,
+    "x_axis": {
+        "color": [0.855, 0.145, 0.114],
+        "linestyle": "-",
+        "linewidth": 2,
+    },
+    "x_axis_labels": {"color": [0.855, 0.145, 0.114], "fontsize": 10},
+    "x_axis_ticks": {
+        "color": [0.855, 0.145, 0.114],
+        "direction": "in",
+        "pad": -20,
+    },
+    "x_label": None,
+    "y_axis": {
+        "color": [0.0, 0.125, 0.376],
+        "linestyle": "-",
+        "linewidth": 2,
+    },
+    "y_axis_labels": {"color": [0.0, 0.125, 0.376], "fontsize": 10},
+    "y_axis_ticks": {
+        "color": [0.0, 0.125, 0.376],
+        "direction": "in",
+        "pad": -20,
+    },
+    "y_label": None,
+}
+# fmt: on
 
 
 class TestsPsychroPlot(TestCase):
@@ -18,10 +75,15 @@ class TestsPsychroPlot(TestCase):
 
     def test_default_psychrochart(self):
         """Test the plot custom styling with JSON files/dicts."""
-        path_svg_default = os.path.join(
-            basedir, "test_default_psychrochart.svg"
-        )
+        path_svg_default = TEST_BASEDIR / "test_default_psychrochart.svg"
         chart = PsychroChart()
+        chart.save(path_svg_default)
+        chart.close_fig()
+
+    def test_imperial_units_psychrochart(self):
+        """Test the plot custom styling with JSON files/dicts."""
+        path_svg_default = TEST_BASEDIR / "test_ashrae_psychrochart_ip.svg"
+        chart = PsychroChart(styles="ashrae_ip", use_unit_system_si=False)
         chart.save(path_svg_default)
         chart.close_fig()
 
@@ -63,7 +125,7 @@ class TestsPsychroPlot(TestCase):
         chart.plot()
         chart.plot_legend()
 
-        path_png = os.path.join(basedir, "test_custom_psychrochart.png")
+        path_png = TEST_BASEDIR / "test_custom_psychrochart.png"
         chart.save(path_png, transparent=True)
         chart.close_fig()
 
@@ -134,42 +196,7 @@ class TestsPsychroPlot(TestCase):
                 "linestyle": "-",
                 "linewidth": 1,
             },
-            "figure": {
-                "figsize": [16, 9],
-                "partial_axis": True,
-                "position": [0, 0, 1, 1],
-                "title": None,
-                "x_axis": {
-                    "color": [0.855, 0.145, 0.114],
-                    "linestyle": "-",
-                    "linewidth": 2,
-                },
-                "x_axis_labels": {
-                    "color": [0.855, 0.145, 0.114],
-                    "fontsize": 10,
-                },
-                "x_axis_ticks": {
-                    "color": [0.855, 0.145, 0.114],
-                    "direction": "in",
-                    "pad": -20,
-                },
-                "x_label": None,
-                "y_axis": {
-                    "color": [0.0, 0.125, 0.376],
-                    "linestyle": "-",
-                    "linewidth": 2,
-                },
-                "y_axis_labels": {
-                    "color": [0.0, 0.125, 0.376],
-                    "fontsize": 10,
-                },
-                "y_axis_ticks": {
-                    "color": [0.0, 0.125, 0.376],
-                    "direction": "in",
-                    "pad": -20,
-                },
-                "y_label": None,
-            },
+            "figure": TEST_EXAMPLE_FIG_CONFIG,
             "limits": {
                 "range_humidity_g_kg": [2.5, 20],
                 "range_temp_c": [15, 35],
@@ -181,42 +208,15 @@ class TestsPsychroPlot(TestCase):
                 "linestyle": "-",
                 "linewidth": 5,
             },
-            "zones": [
-                {
-                    "label": "Summer",
-                    "points_x": [23, 28],
-                    "points_y": [40, 60],
-                    "style": {
-                        "edgecolor": [1.0, 0.749, 0.0, 0.8],
-                        "facecolor": [1.0, 0.749, 0.0, 0.2],
-                        "linestyle": "--",
-                        "linewidth": 2,
-                    },
-                    "zone_type": "dbt-rh",
-                },
-                {
-                    "label": "Winter",
-                    "points_x": [18, 23],
-                    "points_y": [35, 55],
-                    "style": {
-                        "edgecolor": [0.498, 0.624, 0.8],
-                        "facecolor": [0.498, 0.624, 1.0, 0.2],
-                        "linestyle": "--",
-                        "linewidth": 2,
-                    },
-                    "zone_type": "dbt-rh",
-                },
-            ],
         }
         chart = PsychroChart(custom_style)
         chart.plot()
-        chart.plot_legend()
 
-        path_png = os.path.join(basedir, "test_custom_psychrochart_2.png")
+        path_png = TEST_BASEDIR / "test_custom_psychrochart_2.png"
         chart.save(path_png, transparent=True)
         chart.close_fig()
 
-        for p in f_range(90.0, 105.0):
+        for p in np.arange(90.0, 105.0):
             custom_style["limits"]["pressure_kpa"] = p
             PsychroChart(custom_style)
 
@@ -287,42 +287,7 @@ class TestsPsychroPlot(TestCase):
                 "linestyle": "-",
                 "linewidth": 1,
             },
-            "figure": {
-                "figsize": [16, 9],
-                "partial_axis": True,
-                "position": [0, 0, 1, 1],
-                "title": None,
-                "x_axis": {
-                    "color": [0.855, 0.145, 0.114],
-                    "linestyle": "-",
-                    "linewidth": 2,
-                },
-                "x_axis_labels": {
-                    "color": [0.855, 0.145, 0.114],
-                    "fontsize": 10,
-                },
-                "x_axis_ticks": {
-                    "color": [0.855, 0.145, 0.114],
-                    "direction": "in",
-                    "pad": -20,
-                },
-                "x_label": None,
-                "y_axis": {
-                    "color": [0.0, 0.125, 0.376],
-                    "linestyle": "-",
-                    "linewidth": 2,
-                },
-                "y_axis_labels": {
-                    "color": [0.0, 0.125, 0.376],
-                    "fontsize": 10,
-                },
-                "y_axis_ticks": {
-                    "color": [0.0, 0.125, 0.376],
-                    "direction": "in",
-                    "pad": -20,
-                },
-                "y_label": None,
-            },
+            "figure": TEST_EXAMPLE_FIG_CONFIG,
             "limits": {
                 "range_humidity_g_kg": [0, 3],
                 "range_temp_c": [-30, 10],
@@ -334,55 +299,29 @@ class TestsPsychroPlot(TestCase):
                 "linestyle": "-",
                 "linewidth": 5,
             },
-            "zones": [
-                {
-                    "label": "Summer",
-                    "points_x": [23, 28],
-                    "points_y": [40, 60],
-                    "style": {
-                        "edgecolor": [1.0, 0.749, 0.0, 0.8],
-                        "facecolor": [1.0, 0.749, 0.0, 0.2],
-                        "linestyle": "--",
-                        "linewidth": 2,
-                    },
-                    "zone_type": "dbt-rh",
-                },
-                {
-                    "label": "Winter",
-                    "points_x": [18, 23],
-                    "points_y": [35, 55],
-                    "style": {
-                        "edgecolor": [0.498, 0.624, 0.8],
-                        "facecolor": [0.498, 0.624, 1.0, 0.2],
-                        "linestyle": "--",
-                        "linewidth": 2,
-                    },
-                    "zone_type": "dbt-rh",
-                },
-            ],
+            "zones": TEST_EXAMPLE_ZONES,
         }
         chart = PsychroChart(custom_style)
         chart.plot()
-        chart.plot_legend()
 
-        path_png = os.path.join(basedir, "test_custom_psychrochart_3.png")
+        path_png = TEST_BASEDIR / "test_custom_psychrochart_3.png"
         chart.save(path_png, transparent=True)
         chart.close_fig()
 
-        for p in f_range(90.0, 105.0):
+        for p in np.arange(90.0, 105.0):
             custom_style["limits"]["pressure_kpa"] = p
             PsychroChart(custom_style)
 
     def test_default_styles_psychrochart(self):
         """Test the plot custom styling with JSON files."""
-        path_svg_ashrae = os.path.join(basedir, "test_ashrae_psychrochart.svg")
+        path_svg_ashrae = str(TEST_BASEDIR / "test_ashrae_psychrochart.svg")
         chart = PsychroChart("ashrae")
         chart.plot()
         chart.save(path_svg_ashrae)
         chart.save(path_svg_ashrae.replace("svg", "png"), transparent=True)
         chart.close_fig()
 
-        path_svg_2 = os.path.join(basedir, "test_interior_psychrochart.svg")
+        path_svg_2 = TEST_BASEDIR / "test_interior_psychrochart.svg"
         chart = PsychroChart("interior")
         chart.plot()
         chart.plot_legend(
@@ -391,7 +330,7 @@ class TestsPsychroPlot(TestCase):
         chart.save(path_svg_2)
         chart.close_fig()
 
-        path_svg_3 = os.path.join(basedir, "test_minimal_psychrochart.svg")
+        path_svg_3 = TEST_BASEDIR / "test_minimal_psychrochart.svg"
         chart = PsychroChart("minimal")
         chart.plot()
         chart.plot_legend()

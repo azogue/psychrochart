@@ -3,15 +3,11 @@
 Tests plotting
 
 """
-import os
-from time import sleep
 from unittest import TestCase
 
 from psychrochart.agg import PsychroChart
 from psychrochart.util import timeit
-
-basedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "charts")
-os.makedirs(basedir, exist_ok=True)
+from .conftest import TEST_BASEDIR
 
 
 @timeit("make_chart")
@@ -73,7 +69,7 @@ def _make_chart(path_save=None):
     )
     # Save to disk the base chart
     if path_save is not None:
-        path_svg = os.path.join(basedir, path_save)
+        path_svg = TEST_BASEDIR / path_save
         chart.save(path_svg)
     return chart
 
@@ -151,7 +147,7 @@ def _add_points(chart, with_connectors=True, path_save=None):
         chart.plot_points_dbt_rh(points)
     # Save to disk
     if path_save is not None:
-        path_svg = os.path.join(basedir, path_save)
+        path_svg = TEST_BASEDIR / path_save
         chart.save(path_svg)
 
 
@@ -168,7 +164,7 @@ def _make_charts(with_reuse=False):
     _add_points(chart, False, f"{name}_2.svg")
 
 
-def draw_chart(path_img, chart=None):
+def _draw_chart(path_img, chart=None):
     if chart is None:
         chart = _make_chart()
     chart.plot_legend()
@@ -189,12 +185,8 @@ class TestsPsychroReuseMem(TestCase):
 
     def test_redraw_psychrochart(self):
         """Test the workflow to redraw a chart."""
-        sleep_time = 1
         counter = 0
-        print("Make initial chart")
         chart = _make_chart()
         while counter < 10:
-            print(f"Drawing chart #{counter}")
-            draw_chart("test_redraw_chart_1.svg", chart)
+            _draw_chart("test_redraw_chart_1.svg", chart)
             counter += 1
-            sleep(sleep_time)

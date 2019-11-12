@@ -3,16 +3,13 @@
 Tests plotting
 
 """
-import os
 from unittest import TestCase
 
 import numpy as np
 
 from psychrochart.agg import PsychroChart
 from psychrochart.util import load_config, timeit
-
-basedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "charts")
-os.makedirs(basedir, exist_ok=True)
+from .conftest import TEST_BASEDIR
 
 
 class TestsPsychroOverlay(TestCase):
@@ -139,7 +136,7 @@ class TestsPsychroOverlay(TestCase):
             )
 
             # Save to disk
-            path_svg = os.path.join(basedir, "chart_overlay_style_minimal.svg")
+            path_svg = TEST_BASEDIR / "chart_overlay_style_minimal.svg"
             chart.save(path_svg)
 
         _make_chart()
@@ -201,7 +198,7 @@ class TestsPsychroOverlay(TestCase):
         chart.plot_legend(markerscale=1.0, fontsize=11, labelspacing=1.3)
 
         # Save to disk
-        path_svg = os.path.join(basedir, "chart_overlay_test.svg")
+        path_svg = TEST_BASEDIR / "chart_overlay_test.svg"
         chart.save(path_svg)
 
     def test_custom_psychrochart_3(self):
@@ -228,7 +225,7 @@ class TestsPsychroOverlay(TestCase):
         chart.plot_legend(markerscale=1.0, fontsize=11, labelspacing=1.3)
 
         # Save to disk
-        path_svg = os.path.join(basedir, "test_chart_overlay_arrows_1.svg")
+        path_svg = TEST_BASEDIR / "test_chart_overlay_arrows_1.svg"
         chart.save(path_svg)
 
         chart.remove_annotations()
@@ -264,7 +261,7 @@ class TestsPsychroOverlay(TestCase):
         chart.plot_arrows_dbt_rh(points_arrows)
 
         # Save to disk
-        path_svg = os.path.join(basedir, "test_chart_overlay_arrows_2.svg")
+        path_svg = TEST_BASEDIR / "test_chart_overlay_arrows_2.svg"
         chart.save(path_svg)
 
     def test_custom_psychrochart_4(self):
@@ -301,7 +298,7 @@ class TestsPsychroOverlay(TestCase):
         chart.plot_legend(markerscale=1.0, fontsize=11, labelspacing=1.3)
 
         # Save to disk
-        path_svg = os.path.join(basedir, "chart_overlay_test_convexhull.svg")
+        path_svg = TEST_BASEDIR / "chart_overlay_test_convexhull.svg"
         chart.save(path_svg)
 
     def test_overlay_a_lot_of_points_1(self):
@@ -336,9 +333,7 @@ class TestsPsychroOverlay(TestCase):
         chart.plot_points_dbt_rh(points, scatter_style=scatter_style)
 
         # Save to disk
-        path_png = os.path.join(
-            basedir, "chart_overlay_test_lot_of_points_1.png"
-        )
+        path_png = TEST_BASEDIR / "chart_overlay_test_lot_of_points_1.png"
         chart.save(path_png)
 
     def test_overlay_a_lot_of_points_2(self):
@@ -388,7 +383,5 @@ class TestsPsychroOverlay(TestCase):
         chart.plot_legend(markerscale=1.0, fontsize=11, labelspacing=1.3)
 
         # Save to disk
-        path_png = os.path.join(
-            basedir, "chart_overlay_test_lot_of_points.png"
-        )
+        path_png = TEST_BASEDIR / "chart_overlay_test_lot_of_points.png"
         chart.save(path_png)

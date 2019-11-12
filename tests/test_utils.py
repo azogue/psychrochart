@@ -4,11 +4,11 @@ Tests utilities
 
 """
 import json
-import os
 from unittest import TestCase
 
-basedir = os.path.dirname(os.path.abspath(__file__))
-PATH_CONFIG_UPDATE = os.path.join(basedir, "test_chart_config_update.json")
+from .conftest import TEST_BASEDIR
+
+PATH_CONFIG_UPDATE = str(TEST_BASEDIR.parent / "test_chart_config_update.json")
 
 
 class TestsPsychroUtils(TestCase):
