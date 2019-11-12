@@ -478,7 +478,7 @@ class PsychroChart:
         **label_params,
     ) -> None:
         """Append a vertical line from w_min to w_sat."""
-        style_curve = style or self.d_config.get("constant_dry_temp")
+        style_curve = style or self.d_config["constant_dry_temp"]
         curve = make_constant_dry_bulb_v_line(
             self.w_min,
             temp,

@@ -3,31 +3,25 @@
 import json
 import logging
 import os
+from pathlib import Path
 from time import time
 from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
 NUM_ITERS_MAX = 100
-PATH_STYLES = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "chart_styles"
-)
 
-DEFAULT_CHART_CONFIG_FILE = os.path.join(
-    PATH_STYLES, "default_chart_config.json"
-)
-ASHRAE_CHART_CONFIG_FILE = os.path.join(PATH_STYLES, "ashrae_chart_style.json")
-INTERIOR_CHART_CONFIG_FILE = os.path.join(
-    PATH_STYLES, "interior_chart_style.json"
-)
-MINIMAL_CHART_CONFIG_FILE = os.path.join(
-    PATH_STYLES, "minimal_chart_style.json"
-)
-
-DEFAULT_ZONES_FILE = os.path.join(PATH_STYLES, "default_comfort_zones.json")
+path_styles = Path(__file__).parent / "chart_styles"
+DEFAULT_CHART_CONFIG_FILE = str(path_styles / "default_chart_config.json")
+ASHRAE_CHART_CONFIG_FILE = str(path_styles / "ashrae_chart_style.json")
+ASHRAE_IP_CHART_CONFIG_FILE = str(path_styles / "ashrae_ip_chart_style.json")
+INTERIOR_CHART_CONFIG_FILE = str(path_styles / "interior_chart_style.json")
+MINIMAL_CHART_CONFIG_FILE = str(path_styles / "minimal_chart_style.json")
+DEFAULT_ZONES_FILE = str(path_styles / "default_comfort_zones.json")
 
 STYLES = {
     "ashrae": ASHRAE_CHART_CONFIG_FILE,
+    "ashrae_ip": ASHRAE_IP_CHART_CONFIG_FILE,
     "default": DEFAULT_CHART_CONFIG_FILE,
     "interior": INTERIOR_CHART_CONFIG_FILE,
     "minimal": MINIMAL_CHART_CONFIG_FILE,
