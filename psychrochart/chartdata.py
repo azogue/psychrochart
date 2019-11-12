@@ -2,6 +2,7 @@
 """A library to make psychrometric charts and overlay information in them."""
 from typing import Callable, Dict, Iterable, List, Tuple, Union
 
+import numpy as np
 from psychrolib import (
     GetHumRatioFromVapPres,
     GetMoistAirEnthalpy,
@@ -16,7 +17,16 @@ from psychrolib import (
 
 from .psychrocurves import PsychroCurve, PsychroCurves
 from .psychrolib_extra import GetTDryBulbFromMoistAirVolume
-from .util import f_range, solve_curves_with_iteration
+from .util import solve_curves_with_iteration
+
+f_vec_specific_volume = np.vectorize(GetMoistAirVolume)
+f_vec_hum_ratio_from_vap_press = np.vectorize(GetHumRatioFromVapPres)
+f_vec_sat_press = np.vectorize(GetSatVapPres)
+f_vec_moist_air_enthalpy = np.vectorize(GetMoistAirEnthalpy)
+f_vec_dew_point_from_vap_press = np.vectorize(GetTDewPointFromVapPres)
+f_vec_vap_press_from_hum_ratio = np.vectorize(GetVapPresFromHumRatio)
+f_vec_dry_temp_from_enthalpy = np.vectorize(GetTDryBulbFromEnthalpyAndHumRatio)
+f_vec_dry_temp_from_spec_vol = np.vectorize(GetTDryBulbFromMoistAirVolume)
 
 
 def _factor_out_w() -> float:
@@ -59,9 +69,9 @@ def _gen_list_curves_range_temps(
     dbt_max: float,
     increment: float,
     pressure: float,
-) -> Tuple[List[float], List[List[float]]]:
+) -> Tuple[np.array, List[np.array]]:
     """Generate a curve from a range of temperatures."""
-    temps = f_range(dbt_min, dbt_max + increment, increment)
+    temps = np.arange(dbt_min, dbt_max + increment, increment)
     curves = [func_curve(temps, value, pressure) for value in curves_values]
     return temps, curves
 
@@ -70,21 +80,11 @@ def gen_points_in_constant_relative_humidity(
     dry_temps: Iterable[float],
     rh_percentage: Union[float, Iterable[float]],
     pressure: float,
-) -> List[float]:
+) -> np.array:
     """Generate a curve (numpy array) of constant humidity ratio."""
-    if isinstance(rh_percentage, Iterable):
-        return [
-            _factor_out_w()
-            * GetHumRatioFromVapPres(GetSatVapPres(t) * rh / 100.0, pressure)
-            for t, rh in zip(dry_temps, rh_percentage)
-        ]
-    return [
-        _factor_out_w()
-        * GetHumRatioFromVapPres(
-            GetSatVapPres(t) * rh_percentage / 100.0, pressure,
-        )
-        for t in dry_temps
-    ]
+    return _factor_out_w() * f_vec_hum_ratio_from_vap_press(
+        f_vec_sat_press(dry_temps) * np.array(rh_percentage) / 100.0, pressure,
+    )
 
 
 def make_constant_relative_humidity_lines(
@@ -152,16 +152,18 @@ def make_constant_dry_bulb_v_lines(
     family_label: str,
 ) -> PsychroCurves:
     """TODO doc for # Dry bulb constant lines (vertical):"""
+    w_max_vec = _factor_out_w() * f_vec_hum_ratio_from_vap_press(
+        f_vec_sat_press(temps_vl), pressure
+    )
     return PsychroCurves(
         [
-            make_constant_dry_bulb_v_line(
-                w_humidity_ratio_min,
-                temp,
-                pressure,
+            PsychroCurve(
+                [temp, temp],
+                [w_humidity_ratio_min, w_max],
                 style=style,
                 type_curve="constant_dry_temp_data",
             )
-            for temp in temps_vl
+            for temp, w_max in zip(temps_vl, w_max_vec)
         ],
         family_label=family_label,
     )
@@ -175,13 +177,9 @@ def make_constant_humidity_ratio_h_lines(
     family_label: str,
 ) -> PsychroCurves:
     """TODO doc for # Absolute humidity constant lines (horizontal):"""
-    dew_points = solve_curves_with_iteration(
-        "DEW POINT",
-        [x / _factor_out_w() for x in ws_hl],
-        lambda x: GetTDewPointFromVapPres(
-            dbt_max, GetVapPresFromHumRatio(x, pressure)
-        ),
-        lambda x: GetHumRatioFromVapPres(GetSatVapPres(x), pressure),
+    arr_hum_ratios = np.array(ws_hl) / _factor_out_w()
+    dew_points = f_vec_dew_point_from_vap_press(
+        dbt_max, f_vec_vap_press_from_hum_ratio(arr_hum_ratios, pressure)
     )
     return PsychroCurves(
         [
@@ -205,21 +203,12 @@ def make_saturation_line(
     style: dict,
 ) -> PsychroCurves:
     """TODO doc for # Saturation line:"""
-    temps_sat_line, w_sat_line = _gen_list_curves_range_temps(
-        gen_points_in_constant_relative_humidity,
-        [100],
-        dbt_min,
-        dbt_max,
-        temp_step,
-        pressure,
+    temps_sat_line = np.arange(dbt_min, dbt_max + temp_step, temp_step)
+    w_sat = gen_points_in_constant_relative_humidity(
+        temps_sat_line, 100.0, pressure
     )
-    return PsychroCurves(
-        [
-            PsychroCurve(
-                temps_sat_line, w_sat_line[0], style, type_curve="saturation",
-            )
-        ]
-    )
+    sat_c = PsychroCurve(temps_sat_line, w_sat, style, type_curve="saturation")
+    return PsychroCurves([sat_c])
 
 
 def make_constant_enthalpy_lines(
@@ -278,6 +267,7 @@ def make_constant_enthalpy_lines(
 
 
 def make_constant_specific_volume_lines(
+    w_humidity_ratio_min: float,
     pressure: float,
     vol_values: Iterable[float],
     v_label_values: Iterable[float],
@@ -286,10 +276,9 @@ def make_constant_specific_volume_lines(
     family_label: str,
 ) -> PsychroCurves:
     """TODO doc for # Constant specific volume lines:"""
-    temps_max_constant_v = [
-        GetTDryBulbFromMoistAirVolume(specific_vol, 0, pressure)
-        for specific_vol in vol_values
-    ]
+    temps_max_constant_v = f_vec_dry_temp_from_spec_vol(
+        np.array(vol_values), w_humidity_ratio_min / _factor_out_w(), pressure
+    )
     sat_points = solve_curves_with_iteration(
         "CONSTANT VOLUME",
         vol_values,
@@ -335,10 +324,9 @@ def make_constant_wet_bulb_temperature_lines(
     family_label: str,
 ) -> PsychroCurves:
     """TODO doc for # Constant wet bulb temperature lines:"""
-    w_max_constant_wbt = [
-        GetHumRatioFromVapPres(GetSatVapPres(wbt), pressure)
-        for wbt in wbt_values
-    ]
+    w_max_constant_wbt = f_vec_hum_ratio_from_vap_press(
+        f_vec_sat_press(np.array(wbt_values)), pressure
+    )
 
     def _hum_ratio_for_constant_wet_temp_at_dry_temp(dbt, wbt, p_atm):
         return _factor_out_w() * GetHumRatioFromVapPres(
@@ -392,7 +380,7 @@ def _make_zone_dbt_rh(
     label: str = None,
 ) -> PsychroCurve:
     """Generate points for zone between constant dry bulb temps and RH."""
-    temps = f_range(t_min, t_max + increment, increment)
+    temps = np.arange(t_min, t_max + increment, increment)
     curve_rh_up = gen_points_in_constant_relative_humidity(
         temps, rh_max, pressure
     )

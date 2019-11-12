@@ -14,8 +14,8 @@ from .util import mod_color
 
 
 def _between_limits(
-    x_data: List[float],
-    y_data: List[float],
+    x_data: np.array,
+    y_data: np.array,
     xmin: float,
     xmax: float,
     ymin: float,
@@ -40,8 +40,8 @@ class PsychroCurve:
 
     def __init__(
         self,
-        x_data: List[float] = None,
-        y_data: List[float] = None,
+        x_data: np.array = None,
+        y_data: np.array = None,
         style: dict = None,
         type_curve: str = None,
         limits: dict = None,
@@ -49,8 +49,8 @@ class PsychroCurve:
         label_loc: float = 0.75,
     ) -> None:
         """Create the Psychrocurve object."""
-        self.x_data: List[float] = x_data if x_data else []
-        self.y_data: List[float] = y_data if y_data else []
+        self.x_data: np.array = np.array(x_data if x_data is not None else [])
+        self.y_data: np.array = np.array(y_data if y_data is not None else [])
         self.style: dict = style or {}
         self._type_curve = type_curve
         self._label = label
@@ -72,18 +72,18 @@ class PsychroCurve:
     def __repr__(self) -> str:
         """Object string representation."""
         name = "PsychroZone" if self._is_patch else "PsychroCurve"
-        if self and self.x_data:
+        if self and self.x_data is not None:
             return f"<{name} {len(self.x_data)} values (label: {self._label})>"
         else:
             return f"<Empty {name} (label: {self._label})>"
 
     def to_dict(self) -> Dict:
         """Return the curve as a dict."""
-        if not self.x_data or not self.y_data:
+        if len(self.x_data) == 0 or len(self.y_data) == 0:
             return {}
         return {
-            "x_data": self.x_data,
-            "y_data": self.y_data,
+            "x_data": self.x_data.tolist(),
+            "y_data": self.y_data.tolist(),
             "style": self.style,
             "label": self._label,
         }
@@ -95,8 +95,8 @@ class PsychroCurve:
     def from_json(self, json_str: AnyStr):
         """Load a curve from a JSON string."""
         data = json.loads(json_str)
-        self.x_data = data["x_data"]
-        self.y_data = data["y_data"]
+        self.x_data = np.array(data["x_data"])
+        self.y_data = np.array(data["y_data"])
         self.style = data.get("style")
         self._label = data.get("label")
         return self
@@ -123,13 +123,13 @@ class PsychroCurve:
         xmin, xmax = ax.get_xlim()
         ymin, ymax = ax.get_ylim()
         if (
-            not self.x_data
-            or not self.y_data
+            self.x_data is None
+            or self.y_data is None
             or not _between_limits(
                 self.x_data, self.y_data, xmin, xmax, ymin, ymax
             )
         ):
-            logging.error(
+            logging.info(
                 f"{self._type_curve} (label:{self._label}) Not between limits "
                 f"([{xmin}, {xmax}, {ymin}, {ymax}]) "
                 f"-> x:{self.x_data}, y:{self.y_data}"

@@ -5,6 +5,7 @@ import logging
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 import numpy as np
+import psychrolib as psy
 from matplotlib import figure
 from matplotlib.axes import Axes
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -26,7 +27,9 @@ from .chartdata import (
     make_zone_curve,
 )
 from .psychrocurves import PsychroCurves
-from .util import f_range, load_config, load_zones, mod_color
+from .util import load_config, load_zones, mod_color
+
+spec_vol_vec = np.vectorize(psy.GetMoistAirVolume)
 
 PSYCHRO_CURVES_KEYS = [
     "constant_dry_temp_data",
@@ -119,7 +122,6 @@ class PsychroChart:
         self.saturation = make_saturation_line(
             self.dbt_min,
             self.dbt_max,
-            self.w_max,
             self.temp_step,
             self.pressure,
             style=config["saturation"],
@@ -139,7 +141,7 @@ class PsychroChart:
             self.constant_dry_temp_data = make_constant_dry_bulb_v_lines(
                 self.w_min,
                 self.pressure,
-                temps_vl=f_range(self.dbt_min, self.dbt_max, step),
+                temps_vl=np.arange(self.dbt_min, self.dbt_max, step),
                 style=config["constant_dry_temp"],
                 family_label=self.chart_params["constant_temp_label"],
             )
@@ -150,7 +152,9 @@ class PsychroChart:
             self.constant_humidity_data = make_constant_humidity_ratio_h_lines(
                 self.dbt_max,
                 self.pressure,
-                ws_hl=f_range(self.w_min + step, self.w_max + step / 10, step),
+                ws_hl=np.arange(
+                    self.w_min + step, self.w_max + step / 10, step
+                ),
                 style=config["constant_humidity"],
                 family_label=self.chart_params["constant_humid_label"],
             )
@@ -180,7 +184,7 @@ class PsychroChart:
             self.constant_h_data = make_constant_enthalpy_lines(
                 self.w_min,
                 self.pressure,
-                enthalpy_values=f_range(start, end, step),
+                enthalpy_values=np.arange(start, end, step),
                 h_label_values=self.chart_params.get("constant_h_labels", []),
                 style=config["constant_h"],
                 label_loc=self.chart_params.get("constant_h_labels_loc", 1.0),
@@ -192,8 +196,9 @@ class PsychroChart:
             step = self.chart_params["constant_v_step"]
             start, end = self.chart_params["range_vol_m3_kg"]
             self.constant_v_data = make_constant_specific_volume_lines(
+                self.w_min,
                 self.pressure,
-                vol_values=f_range(start, end, step),
+                vol_values=np.arange(start, end, step),
                 v_label_values=self.chart_params.get("constant_v_labels", []),
                 style=config["constant_v"],
                 label_loc=self.chart_params.get("constant_v_labels_loc", 1.0),
@@ -207,7 +212,7 @@ class PsychroChart:
             self.constant_wbt_data = make_constant_wet_bulb_temperature_lines(
                 self.dbt_max,
                 self.pressure,
-                wbt_values=f_range(start, end, step),
+                wbt_values=np.arange(start, end, step),
                 wbt_label_values=self.chart_params.get(
                     "constant_wet_temp_labels", []
                 ),
@@ -534,7 +539,7 @@ class PsychroChart:
                 "constant_temp_label_step", None
             )
             if step_label:  # Explicit xticks
-                ticks = f_range(
+                ticks = np.arange(
                     self.dbt_min, self.dbt_max + step_label / 10, step_label
                 )
                 if not self.chart_params.get(
@@ -555,7 +560,7 @@ class PsychroChart:
                 "constant_humid_label_step", None
             )
             if step_label:  # Explicit xticks
-                ticks = f_range(
+                ticks = np.arange(
                     self.w_min, self.w_max + step_label / 10, step_label
                 )
                 if not self.chart_params.get(

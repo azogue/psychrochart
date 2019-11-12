@@ -5,9 +5,8 @@ Test Cases for psychrometric equations
 """
 from unittest import TestCase
 
+import numpy as np
 import psychrolib
-
-from psychrochart.util import f_range
 
 psychrolib.SetUnitSystem(psychrolib.SI)
 PRESSURE_STD_ATM_PA = 101325.0
@@ -208,7 +207,7 @@ class TestsPsychrometrics(TestCase):
 
     def test_dew_point_temperature(self):
         """Dew point temperature testing."""
-        temps = f_range(-20, 60, 1)
+        temps = np.arange(-20, 60, 1)
         for t in temps:
             p_sat = psychrolib.GetSatVapPres(t)
             temp_dp_sat = psychrolib.GetTDewPointFromVapPres(t, p_sat)
@@ -221,8 +220,8 @@ class TestsPsychrometrics(TestCase):
         """Wet bulb temperature from dry bulb temp and relative humidity."""
         p_atm = PRESSURE_STD_ATM_PA
 
-        for dry_temp_c in f_range(-10, 60, 2.5):
-            for relative_humid in f_range(0.05, 1.0001, 0.05):
+        for dry_temp_c in np.arange(-10, 60, 2.5):
+            for relative_humid in np.arange(0.05, 1.0001, 0.05):
                 wet_temp_c = psychrolib.GetTWetBulbFromRelHum(
                     dry_temp_c, min(relative_humid, 1.0), p_atm
                 )
@@ -233,8 +232,8 @@ class TestsPsychrometrics(TestCase):
 
         p_atm = PRESSURE_STD_ATM_PA * 0.75
 
-        for dry_temp_c in f_range(-5, 50, 5):
-            for relative_humid in f_range(0.05, 1.0001, 0.1):
+        for dry_temp_c in np.arange(-5, 50, 5):
+            for relative_humid in np.arange(0.05, 1.0001, 0.1):
                 wet_temp_c = psychrolib.GetTWetBulbFromRelHum(
                     dry_temp_c, min(relative_humid, 1.0), p_atm,
                 )

@@ -7,9 +7,10 @@ import json
 import os
 from unittest import TestCase
 
+import numpy as np
+
 from psychrochart.agg import PsychroChart
 from psychrochart.psychrocurves import PsychroCurve
-from psychrochart.util import f_range
 
 basedir = os.path.dirname(os.path.abspath(__file__))
 
@@ -19,8 +20,8 @@ class TestsPsychroCurves(TestCase):
 
     def test_curve(self):
         """Test the PsychroCurve object."""
-        x_data = f_range(0, 50, 1)
-        y_data = f_range(0, 50, 1)
+        x_data = np.arange(0, 50, 1)
+        y_data = np.arange(0, 50, 1)
         style = {"color": "k", "linewidth": 0.5, "linestyle": "-"}
 
         empty_curve = PsychroCurve()
@@ -33,9 +34,9 @@ class TestsPsychroCurves(TestCase):
         curve_d = PsychroCurve(**d_curve)
 
         self.assertCountEqual(curve.x_data, curve_d.x_data)
-        self.assertListEqual(curve.x_data, curve_d.x_data)
+        self.assertListEqual(curve.x_data.tolist(), curve_d.x_data.tolist())
         self.assertCountEqual(curve.y_data, curve_d.y_data)
-        self.assertListEqual(curve.y_data, curve_d.y_data)
+        self.assertListEqual(curve.y_data.tolist(), curve_d.y_data.tolist())
         self.assertDictEqual(curve.style, curve_d.style)
         self.assertDictEqual(d_curve, curve_d.to_dict())
 
@@ -53,9 +54,9 @@ class TestsPsychroCurves(TestCase):
         )
 
         self.assertCountEqual(curve.x_data, curve_js.x_data)
-        self.assertListEqual(curve.x_data, curve_js.x_data)
+        self.assertListEqual(curve.x_data.tolist(), curve_js.x_data.tolist())
         self.assertCountEqual(curve.y_data, curve_js.y_data)
-        self.assertListEqual(curve.y_data, curve_js.y_data)
+        self.assertListEqual(curve.y_data.tolist(), curve_js.y_data.tolist())
         self.assertDictEqual(curve.style, curve_js.style)
         self.assertDictEqual(
             json.loads(json_curve), json.loads(curve_js.to_json())
@@ -65,14 +66,14 @@ class TestsPsychroCurves(TestCase):
         """Test the plotting of PsychroCurve objects."""
         import matplotlib.pyplot as plt
 
-        x_data = f_range(0, 50, 1)
-        y_data = f_range(0, 50, 1)
+        x_data = np.arange(0, 50, 1)
+        y_data = np.arange(0, 50, 1)
         style = {"color": "k", "linewidth": 0.5, "linestyle": "-"}
 
         curve = PsychroCurve(x_data, y_data, style)
 
         # Plotting
-        ax = plt.subplot()
+        ax: plt.Axes = plt.subplot()
         ax = curve.plot(ax)
 
         # Vertical line

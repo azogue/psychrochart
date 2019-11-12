@@ -5,7 +5,6 @@ import os
 from time import time
 from typing import Callable, Dict, Iterable, List, Optional, Tuple, Union
 
-
 NUM_ITERS_MAX = 100
 PATH_STYLES = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "chart_styles"
@@ -213,12 +212,3 @@ def mod_color(color: Union[Tuple, List], modification: float) -> List[float]:
             max(0.0, min(1.0, c * (1 + modification / 100))) for c in color
         ]
     return color
-
-
-def f_range(start: float, end: float, step: float = 1.0) -> List[float]:
-    """Make list of floats like `numpy.arange`."""
-    out = []
-    while start < end:
-        out.append(start)
-        start += step
-    return out
