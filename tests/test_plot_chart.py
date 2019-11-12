@@ -6,11 +6,69 @@ Tests plotting
 import os
 from unittest import TestCase
 
+import numpy as np
+
 from psychrochart.agg import PsychroChart
-from psychrochart.util import f_range
 
 basedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "charts")
 os.makedirs(basedir, exist_ok=True)
+
+TEST_EXAMPLE_ZONES = [
+    {
+        "label": "Summer",
+        "points_x": [23, 28],
+        "points_y": [40, 60],
+        "style": {
+            "edgecolor": [1.0, 0.749, 0.0, 0.8],
+            "facecolor": [1.0, 0.749, 0.0, 0.2],
+            "linestyle": "--",
+            "linewidth": 2,
+        },
+        "zone_type": "dbt-rh",
+    },
+    {
+        "label": "Winter",
+        "points_x": [18, 23],
+        "points_y": [35, 55],
+        "style": {
+            "edgecolor": [0.498, 0.624, 0.8],
+            "facecolor": [0.498, 0.624, 1.0, 0.2],
+            "linestyle": "--",
+            "linewidth": 2,
+        },
+        "zone_type": "dbt-rh",
+    },
+]
+TEST_EXAMPLE_FIG_CONFIG = {
+    "figsize": [16, 9],
+    "partial_axis": True,
+    "position": [0, 0, 1, 1],
+    "title": None,
+    "x_axis": {
+        "color": [0.855, 0.145, 0.114],
+        "linestyle": "-",
+        "linewidth": 2,
+    },
+    "x_axis_labels": {"color": [0.855, 0.145, 0.114], "fontsize": 10},
+    "x_axis_ticks": {
+        "color": [0.855, 0.145, 0.114],
+        "direction": "in",
+        "pad": -20,
+    },
+    "x_label": None,
+    "y_axis": {
+        "color": [0.0, 0.125, 0.376],
+        "linestyle": "-",
+        "linewidth": 2,
+    },
+    "y_axis_labels": {"color": [0.0, 0.125, 0.376], "fontsize": 10},
+    "y_axis_ticks": {
+        "color": [0.0, 0.125, 0.376],
+        "direction": "in",
+        "pad": -20,
+    },
+    "y_label": None,
+}
 
 
 class TestsPsychroPlot(TestCase):
@@ -134,42 +192,7 @@ class TestsPsychroPlot(TestCase):
                 "linestyle": "-",
                 "linewidth": 1,
             },
-            "figure": {
-                "figsize": [16, 9],
-                "partial_axis": True,
-                "position": [0, 0, 1, 1],
-                "title": None,
-                "x_axis": {
-                    "color": [0.855, 0.145, 0.114],
-                    "linestyle": "-",
-                    "linewidth": 2,
-                },
-                "x_axis_labels": {
-                    "color": [0.855, 0.145, 0.114],
-                    "fontsize": 10,
-                },
-                "x_axis_ticks": {
-                    "color": [0.855, 0.145, 0.114],
-                    "direction": "in",
-                    "pad": -20,
-                },
-                "x_label": None,
-                "y_axis": {
-                    "color": [0.0, 0.125, 0.376],
-                    "linestyle": "-",
-                    "linewidth": 2,
-                },
-                "y_axis_labels": {
-                    "color": [0.0, 0.125, 0.376],
-                    "fontsize": 10,
-                },
-                "y_axis_ticks": {
-                    "color": [0.0, 0.125, 0.376],
-                    "direction": "in",
-                    "pad": -20,
-                },
-                "y_label": None,
-            },
+            "figure": TEST_EXAMPLE_FIG_CONFIG,
             "limits": {
                 "range_humidity_g_kg": [2.5, 20],
                 "range_temp_c": [15, 35],
@@ -181,32 +204,7 @@ class TestsPsychroPlot(TestCase):
                 "linestyle": "-",
                 "linewidth": 5,
             },
-            "zones": [
-                {
-                    "label": "Summer",
-                    "points_x": [23, 28],
-                    "points_y": [40, 60],
-                    "style": {
-                        "edgecolor": [1.0, 0.749, 0.0, 0.8],
-                        "facecolor": [1.0, 0.749, 0.0, 0.2],
-                        "linestyle": "--",
-                        "linewidth": 2,
-                    },
-                    "zone_type": "dbt-rh",
-                },
-                {
-                    "label": "Winter",
-                    "points_x": [18, 23],
-                    "points_y": [35, 55],
-                    "style": {
-                        "edgecolor": [0.498, 0.624, 0.8],
-                        "facecolor": [0.498, 0.624, 1.0, 0.2],
-                        "linestyle": "--",
-                        "linewidth": 2,
-                    },
-                    "zone_type": "dbt-rh",
-                },
-            ],
+            "zones": TEST_EXAMPLE_ZONES,
         }
         chart = PsychroChart(custom_style)
         chart.plot()
@@ -216,7 +214,7 @@ class TestsPsychroPlot(TestCase):
         chart.save(path_png, transparent=True)
         chart.close_fig()
 
-        for p in f_range(90.0, 105.0):
+        for p in np.arange(90.0, 105.0):
             custom_style["limits"]["pressure_kpa"] = p
             PsychroChart(custom_style)
 
@@ -287,42 +285,7 @@ class TestsPsychroPlot(TestCase):
                 "linestyle": "-",
                 "linewidth": 1,
             },
-            "figure": {
-                "figsize": [16, 9],
-                "partial_axis": True,
-                "position": [0, 0, 1, 1],
-                "title": None,
-                "x_axis": {
-                    "color": [0.855, 0.145, 0.114],
-                    "linestyle": "-",
-                    "linewidth": 2,
-                },
-                "x_axis_labels": {
-                    "color": [0.855, 0.145, 0.114],
-                    "fontsize": 10,
-                },
-                "x_axis_ticks": {
-                    "color": [0.855, 0.145, 0.114],
-                    "direction": "in",
-                    "pad": -20,
-                },
-                "x_label": None,
-                "y_axis": {
-                    "color": [0.0, 0.125, 0.376],
-                    "linestyle": "-",
-                    "linewidth": 2,
-                },
-                "y_axis_labels": {
-                    "color": [0.0, 0.125, 0.376],
-                    "fontsize": 10,
-                },
-                "y_axis_ticks": {
-                    "color": [0.0, 0.125, 0.376],
-                    "direction": "in",
-                    "pad": -20,
-                },
-                "y_label": None,
-            },
+            "figure": TEST_EXAMPLE_FIG_CONFIG,
             "limits": {
                 "range_humidity_g_kg": [0, 3],
                 "range_temp_c": [-30, 10],
@@ -334,32 +297,7 @@ class TestsPsychroPlot(TestCase):
                 "linestyle": "-",
                 "linewidth": 5,
             },
-            "zones": [
-                {
-                    "label": "Summer",
-                    "points_x": [23, 28],
-                    "points_y": [40, 60],
-                    "style": {
-                        "edgecolor": [1.0, 0.749, 0.0, 0.8],
-                        "facecolor": [1.0, 0.749, 0.0, 0.2],
-                        "linestyle": "--",
-                        "linewidth": 2,
-                    },
-                    "zone_type": "dbt-rh",
-                },
-                {
-                    "label": "Winter",
-                    "points_x": [18, 23],
-                    "points_y": [35, 55],
-                    "style": {
-                        "edgecolor": [0.498, 0.624, 0.8],
-                        "facecolor": [0.498, 0.624, 1.0, 0.2],
-                        "linestyle": "--",
-                        "linewidth": 2,
-                    },
-                    "zone_type": "dbt-rh",
-                },
-            ],
+            "zones": TEST_EXAMPLE_ZONES,
         }
         chart = PsychroChart(custom_style)
         chart.plot()
@@ -369,7 +307,7 @@ class TestsPsychroPlot(TestCase):
         chart.save(path_png, transparent=True)
         chart.close_fig()
 
-        for p in f_range(90.0, 105.0):
+        for p in np.arange(90.0, 105.0):
             custom_style["limits"]["pressure_kpa"] = p
             PsychroChart(custom_style)
 
