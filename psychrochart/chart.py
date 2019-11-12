@@ -114,6 +114,16 @@ class PsychroChart:
         self.figure_params = config["figure"]
         self.dbt_min, self.dbt_max = config["limits"]["range_temp_c"]
         self.w_min, self.w_max = config["limits"]["range_humidity_g_kg"]
+
+        # Saturation line (always):
+        self.saturation = make_saturation_line(
+            self.dbt_min,
+            self.dbt_max,
+            self.w_max,
+            self.temp_step,
+            self.pressure,
+            style=config["saturation"],
+        )
         self.chart_params = config["chart_params"]
 
         # Base pressure
@@ -207,15 +217,6 @@ class PsychroChart:
                 ),
                 family_label=self.chart_params["constant_wet_temp_label"],
             )
-
-        # Saturation line (always):
-        self.saturation = make_saturation_line(
-            self.dbt_min,
-            self.dbt_max,
-            self.temp_step,
-            self.pressure,
-            style=config["saturation"],
-        )
 
         # Zones
         if self.chart_params["with_zones"] or zones_file is not None:
