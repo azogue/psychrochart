@@ -103,6 +103,14 @@ class PsychroChart:
         assert isinstance(self._axes, Axes)
         return self._axes
 
+    @property
+    def figure(self) -> figure.Figure:
+        """Return the Figure object, plotting the chart if necessary."""
+        if self._fig is None:
+            self.plot()
+        assert isinstance(self._fig, figure.Figure)
+        return self._fig
+
     def _make_chart_data(
         self,
         styles: Union[dict, str] = None,
@@ -521,9 +529,9 @@ class PsychroChart:
 
         # Create figure and format axis
         self._fig = figure.Figure(figsize=figsize, dpi=150, frameon=False)
-        self._canvas = FigureCanvas(self._fig)
+        self._canvas = FigureCanvas(self.figure)
         if ax is None:
-            ax = self._fig.gca(position=position)
+            ax = self.figure.gca(position=position)
         ax.yaxis.tick_right()
         ax.yaxis.set_label_position("right")
         ax.set_xlim(self.dbt_min, self.dbt_max)
