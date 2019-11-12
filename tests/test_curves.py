@@ -8,7 +8,7 @@ import os
 from unittest import TestCase
 
 from psychrochart.agg import PsychroChart
-from psychrochart.chart import PsychroCurve
+from psychrochart.psychrocurves import PsychroCurve
 from psychrochart.util import f_range
 
 basedir = os.path.dirname(os.path.abspath(__file__))

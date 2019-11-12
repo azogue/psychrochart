@@ -2,18 +2,33 @@ dist: xenial   # required for Python >= 3.7
 os: linux
 sudo: false
 language: python
-python:
-  - "3.6"
-  - "3.7"
-
+cache:
+  pip: true
+  directories:
+    - $HOME/.cache/pre-commit
+env:
+  - TEST_CMD="poetry run pytest"
 install:
-#  - pip install psychrochart
-  - pip install .
-  - pip install coverage==4.5.3
-  - pip install pytest==4.4.1 pytest-cov==2.6.1
-  - pip install coveralls==1.7.0
-
+  - pip install pre-commit
+  - pre-commit install-hooks
+  - pip install poetry
+  - poetry install -v
 script:
-  - py.test -v --cov psychrochart --cov-report term-missing
+  - $TEST_CMD
 after_sucess:
-  - coveralls
+  - poetry run coveralls
+
+matrix:
+#  allow_failures:
+#    - python: 3.8
+  include:
+    - name: "lint"
+      python: 3.7
+      env:
+        - TEST_CMD="pre-commit run --all-files"
+    - name: "3.6"
+      python: 3.6
+    - name: "3.7"
+      python: 3.7
+#    - name: "3.8"
+#      python: 3.8

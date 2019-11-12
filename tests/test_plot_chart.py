@@ -7,6 +7,7 @@ import os
 from unittest import TestCase
 
 from psychrochart.agg import PsychroChart
+from psychrochart.util import f_range
 
 basedir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "charts")
 os.makedirs(basedir, exist_ok=True)
@@ -68,9 +69,6 @@ class TestsPsychroPlot(TestCase):
 
     def test_custom_style_psychrochart_2(self):
         """Test the plot custom styling with dicts."""
-        import logging
-        from psychrochart.util import f_range
-
         custom_style = {
             "chart_params": {
                 "constant_h_label": None,
@@ -210,7 +208,7 @@ class TestsPsychroPlot(TestCase):
                 },
             ],
         }
-        chart = PsychroChart(custom_style, logger=logging, verbose=True)
+        chart = PsychroChart(custom_style)
         chart.plot()
         chart.plot_legend()
 
@@ -220,13 +218,10 @@ class TestsPsychroPlot(TestCase):
 
         for p in f_range(90.0, 105.0):
             custom_style["limits"]["pressure_kpa"] = p
-            PsychroChart(custom_style, logger=logging, verbose=True)
+            PsychroChart(custom_style)
 
     def test_custom_style_psychrochart_3(self):
         """Test the plot custom styling with dicts, negative temperatures."""
-        import logging
-        from psychrochart.util import f_range
-
         custom_style = {
             "chart_params": {
                 "constant_h_label": None,
@@ -366,7 +361,7 @@ class TestsPsychroPlot(TestCase):
                 },
             ],
         }
-        chart = PsychroChart(custom_style, logger=logging, verbose=True)
+        chart = PsychroChart(custom_style)
         chart.plot()
         chart.plot_legend()
 
@@ -374,9 +369,9 @@ class TestsPsychroPlot(TestCase):
         chart.save(path_png, transparent=True)
         chart.close_fig()
 
-        for p in f_range(90.0, 105.0, 1.0):
+        for p in f_range(90.0, 105.0):
             custom_style["limits"]["pressure_kpa"] = p
-            PsychroChart(custom_style, logger=logging, verbose=True)
+            PsychroChart(custom_style)
 
     def test_default_styles_psychrochart(self):
         """Test the plot custom styling with JSON files."""
