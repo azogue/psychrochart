@@ -14,7 +14,7 @@
 [pypi-image]: https://img.shields.io/pypi/v/psychrochart
 [pypi-url]: https://pypi.org/project/psychrochart/
 
-# Psychrochart 
+# Psychrochart
 
 A python 3 library to make **[psychrometric charts](https://en.wikipedia.org/wiki/Psychrometrics)** and overlay information on them.
 
