@@ -1,26 +1,28 @@
 {
-	"zones": [
-		{
-			"zone_type": "dbt-rh",
-			"style": {
-				"edgecolor": [1.0, 0.749, 0.0, 0.8],
-				"facecolor": [1.0, 0.749, 0.0, 0.5],
-				"linewidth": 2,
-				"linestyle": "--"},
-			"points_x": [23, 25],
-			"points_y": [45, 60],
-			"label": "Summer"
-		},
-		{
-			"zone_type": "dbt-rh",
-			"style": {
-				"edgecolor": [0.498, 0.624, 0.8],
-				"facecolor": [0.498, 0.624, 1.0, 0.5],
-				"linewidth": 2,
-				"linestyle": "--"},
-			"points_x": [21, 23],
-			"points_y": [40, 50],
-			"label": "Winter"
-		}
-	]
+  "zones": [
+    {
+      "zone_type": "dbt-rh",
+      "style": {
+        "edgecolor": [1, 0.749, 0, 0.8],
+        "facecolor": [1, 0.749, 0, 0.5],
+        "linewidth": 2,
+        "linestyle": "--"
+      },
+      "points_x": [23, 25],
+      "points_y": [45, 60],
+      "label": "Summer"
+    },
+    {
+      "zone_type": "dbt-rh",
+      "style": {
+        "edgecolor": [0.498, 0.624, 0.8],
+        "facecolor": [0.498, 0.624, 1, 0.5],
+        "linewidth": 2,
+        "linestyle": "--"
+      },
+      "points_x": [21, 23],
+      "points_y": [40, 50],
+      "label": "Winter"
+    }
+  ]
 }

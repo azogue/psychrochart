@@ -1,6 +1,6 @@
 exclude: >
   (?x)^(
-    .*\.svg|.*\.json
+    .*\.svg
   )$
 minimum_pre_commit_version: 1.13.0
 repos:
