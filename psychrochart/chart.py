@@ -530,7 +530,7 @@ class PsychroChart:
         self._fig = figure.Figure(figsize=figsize, dpi=150, frameon=False)
         self._canvas = FigureCanvas(self.figure)
         if ax is None:
-            ax = self.figure.gca(position=position)
+            ax = self.figure.add_subplot(position=position)
         ax.yaxis.tick_right()
         ax.yaxis.set_label_position("right")
         ax.set_xlim(self.dbt_min, self.dbt_max)
