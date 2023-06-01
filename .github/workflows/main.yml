@@ -25,12 +25,12 @@ jobs:
       - name: Run tests
         run: poetry run pytest
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      #      - name: Upload coverage reports to Codecov
+      #        uses: codecov/codecov-action@v3
+      #        env:
+      #          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-        # publish version only when pyproject.toml is changed in master
+      # publish version only when pyproject.toml is changed in master
       - name: Filter changes in pyproject
         uses: dorny/paths-filter@v2
         id: changes

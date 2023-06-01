@@ -1,6 +1,5 @@
 [![pre-commit.ci Status][pre-commit-ci-image]][pre-commit-ci-url]
 [![Build Status][build-image]][build-url]
-[![Code Coverage][coverage-image]][coverage-url]
 [![PyPI Version][pypi-image]][pypi-url]
 
 <!-- Badges -->
@@ -9,8 +8,6 @@
 [pre-commit-ci-url]: https://results.pre-commit.ci/latest/github/azogue/psychrochart/master
 [build-image]: https://github.com/azogue/psychrochart/actions/workflows/main.yml/badge.svg
 [build-url]: https://github.com/azogue/psychrochart/actions/workflows/main.yml
-[coverage-image]: https://codecov.io/gh/azogue/psychrochart/branch/master/graph/badge.svg
-[coverage-url]: https://codecov.io/gh/azogue/psychrochart
 [pypi-image]: https://img.shields.io/pypi/v/psychrochart
 [pypi-url]: https://pypi.org/project/psychrochart/
 

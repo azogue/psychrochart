@@ -17,6 +17,7 @@ line-length = 79
 [tool.coverage.run]
 branch = true
 source = ["psychrochart"]
+relative_files = true
 
 [tool.coverage.paths]
 source = ["psychrochart/"]
