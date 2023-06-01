@@ -1,4 +1,20 @@
-# Psychrochart [![Travis Status](https://travis-ci.org/azogue/psychrochart.svg?branch=master)](https://travis-ci.org/azogue/psychrochart) [![Coverage Status](https://coveralls.io/repos/github/azogue/psychrochart/badge.svg?branch=master)](https://coveralls.io/github/azogue/psychrochart?branch=master) [![PyPi](https://pypip.in/v/psychrochart/badge.svg)](https://pypi.org/project/psychrochart/) [![Wheel](https://pypip.in/wheel/psychrochart/badge.svg)](https://pypi.org/project/psychrochart/)
+[![pre-commit.ci Status][pre-commit-ci-image]][pre-commit-ci-url]
+[![Build Status][build-image]][build-url]
+[![Code Coverage][coverage-image]][coverage-url]
+[![PyPI Version][pypi-image]][pypi-url]
+
+<!-- Badges -->
+
+[pre-commit-ci-image]: https://results.pre-commit.ci/badge/github/azogue/psychrochart/master.svg
+[pre-commit-ci-url]: https://results.pre-commit.ci/latest/github/azogue/psychrochart/master
+[build-image]: https://github.com/azogue/psychrochart/actions/workflows/main.yml/badge.svg
+[build-url]: https://github.com/azogue/psychrochart/actions/workflows/main.yml
+[coverage-image]: https://codecov.io/gh/azogue/psychrochart/branch/master/graph/badge.svg
+[coverage-url]: https://codecov.io/gh/azogue/psychrochart
+[pypi-image]: https://img.shields.io/pypi/v/psychrochart
+[pypi-url]: https://pypi.org/project/psychrochart/
+
+# Psychrochart 
 
 A python 3 library to make **[psychrometric charts](https://en.wikipedia.org/wiki/Psychrometrics)** and overlay information on them.
 
