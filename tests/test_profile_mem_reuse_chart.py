@@ -7,7 +7,7 @@ from unittest import TestCase
 
 from psychrochart.agg import PsychroChart
 from psychrochart.util import timeit
-from .conftest import TEST_BASEDIR
+from tests.conftest import TEST_BASEDIR
 
 
 @timeit("make_chart")

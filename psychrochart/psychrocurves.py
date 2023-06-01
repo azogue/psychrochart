@@ -5,10 +5,10 @@ import logging
 from math import atan2, degrees
 from typing import AnyStr, Dict, List, Optional
 
-import numpy as np
 from matplotlib import patches
 from matplotlib.axes import Axes
 from matplotlib.path import Path
+import numpy as np
 
 from .util import mod_color
 

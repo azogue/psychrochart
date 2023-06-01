@@ -8,7 +8,7 @@ from unittest import TestCase
 import numpy as np
 
 from psychrochart.agg import PsychroChart
-from .conftest import TEST_BASEDIR
+from tests.conftest import TEST_BASEDIR
 
 # fmt: off
 TEST_EXAMPLE_ZONES = [

@@ -4,15 +4,14 @@ import gc
 import logging
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
-import numpy as np
-import psychrolib as psy
 from matplotlib import figure
 from matplotlib.axes import Axes
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.legend import Legend
+import numpy as np
+import psychrolib as psy
 from psychrolib import GetStandardAtmPressure, IP, SetUnitSystem, SI
-from scipy.spatial import ConvexHull
-from scipy.spatial.qhull import QhullError
+from scipy.spatial import ConvexHull, QhullError
 
 from .chartdata import (
     gen_points_in_constant_relative_humidity,

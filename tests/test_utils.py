@@ -6,7 +6,7 @@ Tests utilities
 import json
 from unittest import TestCase
 
-from .conftest import TEST_BASEDIR
+from tests.conftest import TEST_BASEDIR
 
 PATH_CONFIG_UPDATE = str(TEST_BASEDIR.parent / "test_chart_config_update.json")
 
@@ -16,7 +16,7 @@ class TestsPsychroUtils(TestCase):
 
     def test_load_plot_config(self):
         """Test the plot custom styling with JSON files/dicts."""
-        from psychrochart.util import load_config, DEFAULT_CHART_CONFIG_FILE
+        from psychrochart.util import DEFAULT_CHART_CONFIG_FILE, load_config
 
         # Test load default config
         default_config = load_config()
@@ -48,8 +48,8 @@ class TestsCLI(TestCase):
     def test_cli_main(self):
         """Unit test for the CLI entry point."""
         # noinspection PyUnresolvedReferences
-        import psychrochart.agg  # noqa F401
         from psychrochart.__main__ import main
+        import psychrochart.agg  # noqa F401
 
         main()
 
