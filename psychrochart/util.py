@@ -5,19 +5,19 @@ import logging
 import os
 from pathlib import Path
 from time import time
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Sequence
 
 import numpy as np
 
 NUM_ITERS_MAX = 100
 
-path_styles = Path(__file__).parent / "chart_styles"
-DEFAULT_CHART_CONFIG_FILE = str(path_styles / "default_chart_config.json")
-ASHRAE_CHART_CONFIG_FILE = str(path_styles / "ashrae_chart_style.json")
-ASHRAE_IP_CHART_CONFIG_FILE = str(path_styles / "ashrae_ip_chart_style.json")
-INTERIOR_CHART_CONFIG_FILE = str(path_styles / "interior_chart_style.json")
-MINIMAL_CHART_CONFIG_FILE = str(path_styles / "minimal_chart_style.json")
-DEFAULT_ZONES_FILE = str(path_styles / "default_comfort_zones.json")
+PATH_STYLES = Path(__file__).parent / "chart_styles"
+DEFAULT_CHART_CONFIG_FILE = str(PATH_STYLES / "default_chart_config.json")
+ASHRAE_CHART_CONFIG_FILE = str(PATH_STYLES / "ashrae_chart_style.json")
+ASHRAE_IP_CHART_CONFIG_FILE = str(PATH_STYLES / "ashrae_ip_chart_style.json")
+INTERIOR_CHART_CONFIG_FILE = str(PATH_STYLES / "interior_chart_style.json")
+MINIMAL_CHART_CONFIG_FILE = str(PATH_STYLES / "minimal_chart_style.json")
+DEFAULT_ZONES_FILE = str(PATH_STYLES / "default_comfort_zones.json")
 
 STYLES = {
     "ashrae": ASHRAE_CHART_CONFIG_FILE,
@@ -46,8 +46,8 @@ def timeit(msg_log: str) -> Callable:
 
 
 def _update_config(
-    old_conf: dict, new_conf: dict, recurs_idx: int = 0
-) -> Dict:
+    old_conf: dict[str, Any], new_conf: dict[str, Any], recurs_idx: int = 0
+) -> dict[str, Any]:
     """Update a dict recursively."""
     assert recurs_idx < 3
     if old_conf is None:
@@ -72,8 +72,9 @@ def _update_config(
 
 
 def _load_config(
-    new_config: Union[Dict, str] = None, default_config_file: str = None,
-) -> Dict:
+    new_config: dict[str, Any] | str | None = None,
+    default_config_file: str | None = None,
+) -> dict[str, Any]:
     """Load plot parameters from a JSON file."""
     if default_config_file is not None:
         with open(default_config_file, encoding="utf-8") as f:
@@ -97,12 +98,16 @@ def _load_config(
     return config
 
 
-def load_config(styles: Optional[Union[Dict, str]] = None) -> Dict:
+# TODO remove this config-loader method
+def load_config(styles: dict[str, Any] | str | None = None) -> dict[str, Any]:
     """Load the plot params for the psychrometric chart."""
     return _load_config(styles, default_config_file=DEFAULT_CHART_CONFIG_FILE)
 
 
-def load_zones(zones: Optional[Union[Dict, str]] = DEFAULT_ZONES_FILE) -> Dict:
+# TODO remove this config-loader method
+def load_zones(
+    zones: dict[str, Any] | str | None = DEFAULT_ZONES_FILE
+) -> dict[str, Any]:
     """Load a zones JSON file to overlay in the psychrometric chart."""
     return _load_config(zones)
 
@@ -201,7 +206,7 @@ def solve_curves_with_iteration(
     return np.array(calc_points)
 
 
-def mod_color(color: Union[Tuple, List], modification: float) -> List[float]:
+def mod_color(color: Sequence[float], modification: float) -> list[float]:
     """Modify color with an alpha value or a darken/lighten percentage."""
     if abs(modification) < 0.999:  # is alpha level
         color = list(color[:3]) + [modification]

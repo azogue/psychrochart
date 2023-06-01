@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """A library to make psychrometric charts and overlay information in them."""
-from typing import Callable, Dict, Iterable, List, Tuple, Union
+from typing import Any, Callable, Iterable
 
 import numpy as np
 from psychrolib import (
@@ -102,7 +102,7 @@ def make_constant_relative_humidity_lines(
     pressure: float,
     rh_perc_values: Iterable[float],
     rh_label_values: Iterable[float],
-    style: dict,
+    style: dict[str, Any],
     label_loc: float,
     family_label: str,
 ) -> PsychroCurves:
@@ -137,7 +137,7 @@ def make_constant_dry_bulb_v_line(
     w_humidity_ratio_min: float,
     temp: float,
     pressure: float,
-    style: dict,
+    style: dict[str, Any],
     type_curve: str | None = None,
     reverse: bool = False,
 ) -> PsychroCurve:
@@ -158,7 +158,7 @@ def make_constant_dry_bulb_v_lines(
     w_humidity_ratio_min: float,
     pressure: float,
     temps_vl: np.ndarray,
-    style: dict,
+    style: dict[str, Any],
     family_label: str,
 ) -> PsychroCurves:
     """Generate curves of constant dry bulb temperature (vertical)."""
@@ -181,7 +181,7 @@ def make_constant_humidity_ratio_h_lines(
     dbt_max: float,
     pressure: float,
     ws_hl: Iterable[float],
-    style: dict,
+    style: dict[str, Any],
     family_label: str,
 ) -> PsychroCurves:
     """Generate curves of constant absolute humidity (horizontal)."""
@@ -208,7 +208,7 @@ def make_saturation_line(
     dbt_max: float,
     temp_step: float,
     pressure: float,
-    style: dict,
+    style: dict[str, Any],
 ) -> PsychroCurves:
     """Generate line of saturation for the psychrochart."""
     temps_sat_line = np.arange(dbt_min, dbt_max + temp_step, temp_step)
@@ -224,7 +224,7 @@ def make_constant_enthalpy_lines(
     pressure: float,
     enthalpy_values: Iterable[float],
     h_label_values: Iterable[float],
-    style: dict,
+    style: dict[str, Any],
     label_loc: float,
     family_label: str,
     saturation_curve: PsychroCurve,
@@ -285,7 +285,7 @@ def make_constant_specific_volume_lines(
     pressure: float,
     vol_values: np.ndarray,
     v_label_values: Iterable[float],
-    style: dict,
+    style: dict[str, Any],
     label_loc: float,
     family_label: str,
     saturation_curve: PsychroCurve,
@@ -342,7 +342,7 @@ def make_constant_wet_bulb_temperature_lines(
     pressure: float,
     wbt_values: np.ndarray,
     wbt_label_values: Iterable[float],
-    style: dict,
+    style: dict[str, Any],
     label_loc: float,
     family_label: str,
 ) -> PsychroCurves:
@@ -400,8 +400,8 @@ def _make_zone_dbt_rh(
     rh_min: float,
     rh_max: float,
     pressure: float,
-    style: dict = None,
-    label: str = None,
+    style: dict[str, Any] | None = None,
+    label: str | None = None,
 ) -> PsychroCurve:
     """Generate points for zone between constant dry bulb temps and RH."""
     temps = np.arange(t_min, t_max + increment, increment)
@@ -425,7 +425,7 @@ def _make_zone_dbt_rh(
 
 
 def make_zone_curve(
-    zone_conf: Dict, increment: float, pressure: float
+    zone_conf: dict[str, Any], increment: float, pressure: float
 ) -> PsychroCurve:
     """Generate points for zone between constant dry bulb temps and RH."""
     # TODO make conversion rh -> w and new zone_type: "dbt-rh-points"

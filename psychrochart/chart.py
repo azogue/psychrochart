@@ -2,7 +2,7 @@
 """A library to make psychrometric charts and overlay information in them."""
 import gc
 import logging
-from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from typing import Any, Iterable
 
 from matplotlib import figure
 from matplotlib.axes import Axes
@@ -46,18 +46,18 @@ class PsychroChart:
 
     def __init__(
         self,
-        styles: Union[dict, str] = None,
-        zones_file: Union[dict, str] = None,
+        styles: dict[str, Any] | str | None = None,
+        zones_file: dict[str, Any] | str | None = None,
         use_unit_system_si: bool = True,
     ) -> None:
         """Create the PsychroChart object."""
-        self.d_config: dict = {}
-        self.figure_params: dict = {}
+        self.d_config: dict[str, Any] = {}
+        self.figure_params: dict[str, Any] = {}
         self.dbt_min = self.dbt_max = -100
         self.w_min = self.w_max = -1
         self.temp_step = 1.0
         self.altitude_m = -1
-        self.chart_params: dict = {}
+        self.chart_params: dict[str, Any] = {}
 
         # Set unit system for psychrolib and get standard pressure
         self.unit_system_si = use_unit_system_si
@@ -69,20 +69,22 @@ class PsychroChart:
             logging.warning("[IP units mode] ENABLED")
         self.pressure = GetStandardAtmPressure(0.0)
 
-        self.constant_dry_temp_data: Optional[PsychroCurves] = None
-        self.constant_humidity_data: Optional[PsychroCurves] = None
-        self.constant_rh_data: Optional[PsychroCurves] = None
-        self.constant_h_data: Optional[PsychroCurves] = None
-        self.constant_v_data: Optional[PsychroCurves] = None
-        self.constant_wbt_data: Optional[PsychroCurves] = None
-        self.saturation: Optional[PsychroCurves] = None
-        self.zones: List = []
+        self.constant_dry_temp_data: PsychroCurves | None = None
+        self.constant_humidity_data: PsychroCurves | None = None
+        self.constant_rh_data: PsychroCurves | None = None
+        self.constant_h_data: PsychroCurves | None = None
+        self.constant_v_data: PsychroCurves | None = None
+        self.constant_wbt_data: PsychroCurves | None = None
+        self.saturation: PsychroCurves | None = None
+        # TODO evolve typing zones
+        self.zones: list = []
 
-        self._fig: Optional[figure.Figure] = None
-        self._canvas: Optional[FigureCanvas] = None
-        self._axes: Optional[Axes] = None
-        self._legend: Optional[Legend] = None
-        self._handlers_annotations: List = []
+        self._fig: figure.Figure | None = None
+        self._canvas: FigureCanvas | None = None
+        self._axes: Axes | None = None
+        self._legend: Legend | None = None
+        # TODO evolve typing handlers_annotations
+        self._handlers_annotations: list = []
 
         self._make_chart_data(styles, zones_file)
 
@@ -111,8 +113,8 @@ class PsychroChart:
 
     def _make_chart_data(
         self,
-        styles: Union[dict, str] = None,
-        zones_file: Union[dict, str] = None,
+        styles: dict[str, Any] | str | None = None,
+        zones_file: dict[str, Any] | str | None = None,
     ) -> None:
         """Generate the data to plot the psychrometric chart."""
         # Get styling
@@ -236,7 +238,7 @@ class PsychroChart:
         if self.chart_params["with_zones"] or zones_file is not None:
             self.append_zones(zones_file)
 
-    def append_zones(self, zones: Union[dict, str] = None) -> None:
+    def append_zones(self, zones: dict[str, Any] | str | None = None) -> None:
         """Append zones as patches to the psychrometric chart."""
         if zones is None:
             # load default 'Comfort' zones (Spain RITE)
@@ -254,11 +256,11 @@ class PsychroChart:
 
     def plot_points_dbt_rh(
         self,
-        points: Dict,
-        connectors: list = None,
-        convex_groups: list = None,
-        scatter_style: dict = None,
-    ) -> Dict:
+        points: dict[str, Any],
+        connectors: list | None = None,
+        convex_groups: list | None = None,
+        scatter_style: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Append individual points, connectors and groups to the plot.
 
         * Pass a specific style dict to do a scatter plot:
@@ -325,7 +327,9 @@ class PsychroChart:
         ```
         """
         use_scatter = False
-        points_plot: dict[str, tuple[list[float], list[float], dict]] = {}
+        points_plot: dict[
+            str, tuple[list[float], list[float], dict[str, Any]]
+        ] = {}
         default_style = {
             "marker": "o",
             "markersize": 10,
@@ -435,7 +439,9 @@ class PsychroChart:
 
         return points_plot
 
-    def plot_arrows_dbt_rh(self, points_pairs: Dict) -> Dict:
+    def plot_arrows_dbt_rh(
+        self, points_pairs: dict[str, Any]
+    ) -> dict[str, Any]:
         """Append individual points to the plot."""
         points_plot = {}
         default_style = {
@@ -478,8 +484,8 @@ class PsychroChart:
     def plot_vertical_dry_bulb_temp_line(
         self,
         temp: float,
-        style: dict = None,
-        label: str = None,
+        style: dict[str, Any] | None = None,
+        label: str | None = None,
         reverse: bool = False,
         **label_params,
     ) -> None:
@@ -502,7 +508,7 @@ class PsychroChart:
         markerscale: float = 0.9,
         frameon: bool = True,
         fancybox: bool = True,
-        edgecolor: Union[str, Iterable] = "darkgrey",
+        edgecolor: str | Iterable = "darkgrey",
         fontsize: float = 15.0,
         labelspacing: float = 1.5,
         **params,
@@ -519,7 +525,7 @@ class PsychroChart:
             **params,
         )
 
-    def _prepare_fig_and_axis(self, ax: Axes = None) -> Tuple[Axes, dict]:
+    def _prepare_fig_and_axis(self, ax: Axes = None) -> tuple[Axes, dict]:
         """Prepare matplotlib fig & Axes object for the chart."""
         fig_params = self.figure_params.copy()
         figsize = fig_params.pop("figsize", (16, 9))
@@ -540,7 +546,10 @@ class PsychroChart:
         return ax, fig_params
 
     def _set_tick_labels_in_main_axes(
-        self, ax: Axes, x_style_labels: dict, y_style_labels: dict
+        self,
+        ax: Axes,
+        x_style_labels: dict[str, Any],
+        y_style_labels: dict[str, Any],
     ):
         """Plot the psychrochart and return the matplotlib Axes instance."""
         if self.chart_params.get("with_constant_dry_temp", True):
@@ -583,7 +592,7 @@ class PsychroChart:
         else:
             ax.set_yticks([])
 
-    def _apply_axis_styling(self, ax: Axes, fig_params: dict):
+    def _apply_axis_styling(self, ax: Axes, fig_params: dict[str, Any]):
         """Plot the psychrochart and return the matplotlib Axes instance."""
 
         def _apply_spines_style(axes, style, location="right"):
