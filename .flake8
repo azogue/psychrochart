@@ -1,6 +1,0 @@
-[flake8]
-application-import-names = psychrochart
-import-order-style = smarkets
-inline-quotes = double
-max-complexity = 15
-multiline-quotes = double
