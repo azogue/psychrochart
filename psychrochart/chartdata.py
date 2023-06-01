@@ -25,7 +25,9 @@ f_vec_moist_air_enthalpy = np.vectorize(GetMoistAirEnthalpy)
 f_vec_moist_air_volume = np.vectorize(GetMoistAirVolume)
 f_vec_dew_point_from_vap_press = np.vectorize(GetTDewPointFromVapPres)
 f_vec_dry_temp_from_enthalpy = np.vectorize(GetTDryBulbFromEnthalpyAndHumRatio)
-f_vec_dry_temp_from_spec_vol = np.vectorize(GetTDryBulbFromMoistAirVolumeAndHumRatio)
+f_vec_dry_temp_from_spec_vol = np.vectorize(
+    GetTDryBulbFromMoistAirVolumeAndHumRatio
+)
 f_vec_sat_press = np.vectorize(GetSatVapPres)
 f_vec_vap_press_from_hum_ratio = np.vectorize(GetVapPresFromHumRatio)
 

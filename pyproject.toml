@@ -38,7 +38,6 @@ addopts = "-vv -s --cov psychrochart --cov-report term --cov-report html"
 log_level = "INFO"
 log_format = "%(asctime)s %(levelname)s: (%(filename)s:%(lineno)s): %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
-asyncio_mode = "auto"
 
 [tool.poetry]
 name = "psychrochart"
