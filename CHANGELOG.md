@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - ♻️ Maintenance update to upgrade used libraries
+
+### Changes
+
+- 🐛 (from @simplynail in #25): fixing chart setup error with gca() call for recent Matplotlib versions
+- 🙈 Add missing .gitignore
+- 💥 **Update dependencies + minimal Python version to 3.10** to work with latest releases 🏄
+- 🎨 lint: Apply `isort` and `prettier`, and update typing
+- 🎨 lint: Evolve pre-commit config with ruff
+- 🍱 tests: Update SVG outputs from latest matplotlib
+- 🐛 Fix saving PNG with transparent background, by swapping `transparent=True` with `facecolor="none"`
+- 🗑️ Use `psychrolib.GetTDryBulbFromMoistAirVolumeAndHumRatio`, removing local method from here, now that it's included there
+- 👷 ci: **Swap travis CI config with GH actions to test + publish**
+
 ## [0.3.1] - 2019-11-12
 
 ### Changed
