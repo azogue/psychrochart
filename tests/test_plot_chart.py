@@ -8,7 +8,7 @@ from unittest import TestCase
 import numpy as np
 
 from psychrochart.agg import PsychroChart
-from .conftest import TEST_BASEDIR
+from tests.conftest import TEST_BASEDIR
 
 # fmt: off
 TEST_EXAMPLE_ZONES = [
@@ -126,7 +126,7 @@ class TestsPsychroPlot(TestCase):
         chart.plot_legend()
 
         path_png = TEST_BASEDIR / "test_custom_psychrochart.png"
-        chart.save(path_png, transparent=True)
+        chart.save(path_png, facecolor="none")
         chart.close_fig()
 
     def test_custom_style_psychrochart_2(self):
@@ -213,7 +213,7 @@ class TestsPsychroPlot(TestCase):
         chart.plot()
 
         path_png = TEST_BASEDIR / "test_custom_psychrochart_2.png"
-        chart.save(path_png, transparent=True)
+        chart.save(path_png, facecolor="none")
         chart.close_fig()
 
         for p in np.arange(90.0, 105.0):
@@ -305,7 +305,7 @@ class TestsPsychroPlot(TestCase):
         chart.plot()
 
         path_png = TEST_BASEDIR / "test_custom_psychrochart_3.png"
-        chart.save(path_png, transparent=True)
+        chart.save(path_png, facecolor="none")
         chart.close_fig()
 
         for p in np.arange(90.0, 105.0):
@@ -318,7 +318,7 @@ class TestsPsychroPlot(TestCase):
         chart = PsychroChart("ashrae")
         chart.plot()
         chart.save(path_svg_ashrae)
-        chart.save(path_svg_ashrae.replace("svg", "png"), transparent=True)
+        chart.save(path_svg_ashrae.replace("svg", "png"), facecolor="none")
         chart.close_fig()
 
         path_svg_2 = TEST_BASEDIR / "test_interior_psychrochart.svg"

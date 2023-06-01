@@ -1,5 +1,17 @@
-# Psychrochart [![Travis Status](https://travis-ci.org/azogue/psychrochart.svg?branch=master)](https://travis-ci.org/azogue/psychrochart) [![Coverage Status](https://coveralls.io/repos/github/azogue/psychrochart/badge.svg?branch=master)](https://coveralls.io/github/azogue/psychrochart?branch=master) [![PyPi](https://pypip.in/v/psychrochart/badge.svg)](https://pypi.org/project/psychrochart/) [![Wheel](https://pypip.in/wheel/psychrochart/badge.svg)](https://pypi.org/project/psychrochart/)
+[![pre-commit.ci Status][pre-commit-ci-image]][pre-commit-ci-url]
+[![Build Status][build-image]][build-url]
+[![PyPI Version][pypi-image]][pypi-url]
 
+<!-- Badges -->
+
+[pre-commit-ci-image]: https://results.pre-commit.ci/badge/github/azogue/psychrochart/master.svg
+[pre-commit-ci-url]: https://results.pre-commit.ci/latest/github/azogue/psychrochart/master
+[build-image]: https://github.com/azogue/psychrochart/actions/workflows/main.yml/badge.svg
+[build-url]: https://github.com/azogue/psychrochart/actions/workflows/main.yml
+[pypi-image]: https://img.shields.io/pypi/v/psychrochart
+[pypi-url]: https://pypi.org/project/psychrochart/
+
+# Psychrochart
 
 A python 3 library to make **[psychrometric charts](https://en.wikipedia.org/wiki/Psychrometrics)** and overlay information on them.
 
@@ -22,13 +34,13 @@ pip install psychrochart
 - **SI** units (with temperatures in celsius for better readability).
 - Easy style customization with a **JSON template** (colors, line styles and line widths).
 - Psychrometric charts within temperature and humidity ratio ranges, for any pressure\*, with:
-    * **Saturation line**
-    * **Constant RH lines**
-    * **Constant enthalpy lines**
-    * **Constant wet-bulb temperature lines**
-    * **Constant specific volume lines**
-    * **Constant dry-bulb temperature lines** (internal orthogonal grid, vertical)
-    * **Constant humidity ratio lines** (internal orthogonal grid, horizontal)
+  - **Saturation line**
+  - **Constant RH lines**
+  - **Constant enthalpy lines**
+  - **Constant wet-bulb temperature lines**
+  - **Constant specific volume lines**
+  - **Constant dry-bulb temperature lines** (internal orthogonal grid, vertical)
+  - **Constant humidity ratio lines** (internal orthogonal grid, horizontal)
 - Plot legend for each family of lines
 - Specify labels for each family of lines
 - **Overlay points, zones, arrows...**
@@ -48,6 +60,7 @@ axes.get_figure()
 ```
 
 Called from a terminal (`python psychrochart`), it plots and shows the default chart using the default matplotlib backend, equivalent to this python script:
+
 ```python
 from psychrochart import PsychroChart
 import matplotlib.pyplot as plt
@@ -55,7 +68,6 @@ import matplotlib.pyplot as plt
 PsychroChart().plot(ax=plt.gca())
 plt.show()
 ```
-
 
 ### Chart customization
 

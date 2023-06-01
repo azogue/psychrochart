@@ -235,7 +235,7 @@ class TestsPsychrometrics(TestCase):
         for dry_temp_c in np.arange(-5, 50, 5):
             for relative_humid in np.arange(0.05, 1.0001, 0.1):
                 wet_temp_c = psychrolib.GetTWetBulbFromRelHum(
-                    dry_temp_c, min(relative_humid, 1.0), p_atm,
+                    dry_temp_c, min(relative_humid, 1.0), p_atm
                 )
                 rh_calc = psychrolib.GetRelHumFromTWetBulb(
                     dry_temp_c, wet_temp_c, p_atm

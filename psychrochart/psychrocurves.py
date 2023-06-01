@@ -3,12 +3,12 @@
 import json
 import logging
 from math import atan2, degrees
-from typing import AnyStr, Dict, List, Optional
+from typing import Any, AnyStr
 
-import numpy as np
 from matplotlib import patches
 from matplotlib.axes import Axes
 from matplotlib.path import Path
+import numpy as np
 
 from .util import mod_color
 
@@ -40,23 +40,23 @@ class PsychroCurve:
 
     def __init__(
         self,
-        x_data: np.ndarray = None,
-        y_data: np.ndarray = None,
-        style: dict = None,
-        type_curve: str = None,
-        limits: dict = None,
-        label: str = None,
+        x_data: np.ndarray | None = None,
+        y_data: np.ndarray | None = None,
+        style: dict[str, Any] | None = None,
+        type_curve: str | None = None,
+        limits: dict[str, Any] | None = None,
+        label: str | None = None,
         label_loc: float = 0.75,
     ) -> None:
         """Create the Psychrocurve object."""
         self.x_data = np.array(x_data if x_data is not None else [])
         self.y_data = np.array(y_data if y_data is not None else [])
-        self.style: dict = style or {}
+        self.style: dict[str, Any] = style or {}
         self._type_curve = type_curve
         self._label = label
         self._label_loc = label_loc
         self._limits = limits
-        self._is_patch: bool = (style is not None and "facecolor" in style)
+        self._is_patch: bool = style is not None and "facecolor" in style
 
     def __bool__(self) -> bool:
         """Return the valid existence of the curve."""
@@ -77,7 +77,7 @@ class PsychroCurve:
         else:
             return f"<Empty {name} (label: {self._label})>"
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict[str, Any]:
         """Return the curve as a dict."""
         if len(self.x_data) == 0 or len(self.y_data) == 0:
             return {}
@@ -108,7 +108,7 @@ class PsychroCurve:
         text_x: float,
         text_y: float,
         rotation: float,
-        text_style: Dict,
+        text_style: dict[str, Any],
     ):
         if abs(rotation) > 0:
             text_loc = np.array((text_x, text_y))
@@ -170,10 +170,10 @@ class PsychroCurve:
     def add_label(
         self,
         ax: Axes,
-        text_label: str = None,
-        va: str = None,
-        ha: str = None,
-        loc: float = None,
+        text_label: str | None = None,
+        va: str | None = None,
+        ha: str | None = None,
+        loc: float | None = None,
         **params,
     ) -> Axes:
         """Annotate the curve with its label."""
@@ -244,12 +244,12 @@ class PsychroCurves:
     """Object to store a list of psychrometric curves for plotting."""
 
     def __init__(
-        self, curves: List[PsychroCurve], family_label: str = None
+        self, curves: list[PsychroCurve], family_label: str | None = None
     ) -> None:
         """Create the Psychrocurves array object."""
-        self.curves: List[PsychroCurve] = curves
+        self.curves: list[PsychroCurve] = curves
         self.size: int = len(self.curves)
-        self.family_label: Optional[str] = family_label
+        self.family_label: str | None = family_label
 
     def __getitem__(self, item) -> PsychroCurve:
         """Get item from the PsychroCurve list."""

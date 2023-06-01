@@ -9,7 +9,7 @@ import numpy as np
 
 from psychrochart.agg import PsychroChart
 from psychrochart.util import load_config, timeit
-from .conftest import TEST_BASEDIR
+from tests.conftest import TEST_BASEDIR
 
 
 class TestsPsychroOverlay(TestCase):

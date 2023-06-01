@@ -7,7 +7,7 @@ import pickle
 from unittest import TestCase
 
 from psychrochart.agg import PsychroChart
-from .conftest import TEST_BASEDIR
+from tests.conftest import TEST_BASEDIR
 
 
 class TestsPicklePsychrochart(TestCase):

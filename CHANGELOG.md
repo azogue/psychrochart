@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - ♻️ Maintenance update to upgrade used libraries
+
+### Changes
+
+- 🐛 (from @simplynail in #25): fixing chart setup error with gca() call for recent Matplotlib versions
+- 🙈 Add missing .gitignore
+- 💥 **Update dependencies + minimal Python version to 3.10** to work with latest releases 🏄
+- 🎨 lint: Apply `isort` and `prettier`, and update typing
+- 🎨 lint: Evolve pre-commit config with ruff
+- 🍱 tests: Update SVG outputs from latest matplotlib
+- 🐛 Fix saving PNG with transparent background, by swapping `transparent=True` with `facecolor="none"`
+- 🗑️ Use `psychrolib.GetTDryBulbFromMoistAirVolumeAndHumRatio`, removing local method from here, now that it's included there
+- 👷 ci: **Swap travis CI config with GH actions to test + publish**
+
 ## [0.3.1] - 2019-11-12
 
 ### Changed
@@ -37,23 +51,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [< 0.2.7] - Old versions changelog
 
-- v0.1.0:   Initial version.
-- v0.1.1:   Minor plotting fixes, set axis position, define P with `altitude_m` or `pressure_kpa`, reuse plot removing annotations (`chart.remove_annotations`). Axes as internal prop, lazy plotting, save to disk helper (`chart.save`).
-- v0.1.2:   Add `agg` module to set that `matplotlib` backend.
-- v0.1.3:   Add custom params for plotting styles, option to exclude first and last tick (`constant_{humid/temp}_label_include_limits`).
-- v0.1.4:   Customize labels and its locations for families of psychrometric curves.
-- v0.1.5:   Add Arrows, compatibility with the Home Assistant component `psychrometrics`.
-- v0.1.6:   Some cleaning, better typing, flake8, added `tox.ini`.
-- v0.1.7:   Methods to clean the plot (`.close_fig()`) and to remove the legend (`.remove_legend()`).
-- v0.1.8:   Memleak with `savefig`.
-- v0.1.10:  Fix plot limits, do not use pyplot, axes are not optional.
-- v0.1.11:  Add optional `Axes` as argument for `PsychroChart.plot`.
-- v0.1.12:  Add empiric equation for wet bulb temperature (@ZhukovGreen contribution).
-- v0.1.13:  Add convex hull option for overlay points.
-- v0.2.0:   Hide output in verbose mode, better convex hull zones syntax, stable.
-- v0.2.1:   Make `scipy` an optional requirement (it's only used for the ConvexHull zone).
-- v0.2.2:   Fix initial conditions for iteration solvers
-- v0.2.3:   Handle ConvexHull exception, overlay of series of points.
-- v0.2.4:   Set ASHRAE formulation for `saturation_pressure_water_vapor` as default. Minimal adjustments to iteration solvers for enthalpy and specific volume.
-- v0.2.5:   Fix coefficient in ASHRAE formulation for `dew_point_temperature`.
-- v0.2.6:   Add labels for connectors in chart legend (@@zhang-shen contribution).
+- v0.1.0: Initial version.
+- v0.1.1: Minor plotting fixes, set axis position, define P with `altitude_m` or `pressure_kpa`, reuse plot removing annotations (`chart.remove_annotations`). Axes as internal prop, lazy plotting, save to disk helper (`chart.save`).
+- v0.1.2: Add `agg` module to set that `matplotlib` backend.
+- v0.1.3: Add custom params for plotting styles, option to exclude first and last tick (`constant_{humid/temp}_label_include_limits`).
+- v0.1.4: Customize labels and its locations for families of psychrometric curves.
+- v0.1.5: Add Arrows, compatibility with the Home Assistant component `psychrometrics`.
+- v0.1.6: Some cleaning, better typing, flake8, added `tox.ini`.
+- v0.1.7: Methods to clean the plot (`.close_fig()`) and to remove the legend (`.remove_legend()`).
+- v0.1.8: Memleak with `savefig`.
+- v0.1.10: Fix plot limits, do not use pyplot, axes are not optional.
+- v0.1.11: Add optional `Axes` as argument for `PsychroChart.plot`.
+- v0.1.12: Add empiric equation for wet bulb temperature (@ZhukovGreen contribution).
+- v0.1.13: Add convex hull option for overlay points.
+- v0.2.0: Hide output in verbose mode, better convex hull zones syntax, stable.
+- v0.2.1: Make `scipy` an optional requirement (it's only used for the ConvexHull zone).
+- v0.2.2: Fix initial conditions for iteration solvers
+- v0.2.3: Handle ConvexHull exception, overlay of series of points.
+- v0.2.4: Set ASHRAE formulation for `saturation_pressure_water_vapor` as default. Minimal adjustments to iteration solvers for enthalpy and specific volume.
+- v0.2.5: Fix coefficient in ASHRAE formulation for `dew_point_temperature`.
+- v0.2.6: Add labels for connectors in chart legend (@@zhang-shen contribution).
