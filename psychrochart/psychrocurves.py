@@ -170,10 +170,10 @@ class PsychroCurve:
     def add_label(
         self,
         ax: Axes,
-        text_label: str = None,
-        va: str = None,
-        ha: str = None,
-        loc: float = None,
+        text_label: str | None = None,
+        va: str | None = None,
+        ha: str | None = None,
+        loc: float | None = None,
         **params,
     ) -> Axes:
         """Annotate the curve with its label."""
@@ -244,12 +244,12 @@ class PsychroCurves:
     """Object to store a list of psychrometric curves for plotting."""
 
     def __init__(
-        self, curves: List[PsychroCurve], family_label: str = None
+        self, curves: list[PsychroCurve], family_label: str | None = None
     ) -> None:
         """Create the Psychrocurves array object."""
-        self.curves: List[PsychroCurve] = curves
+        self.curves: list[PsychroCurve] = curves
         self.size: int = len(self.curves)
-        self.family_label: Optional[str] = family_label
+        self.family_label: str | None = family_label
 
     def __getitem__(self, item) -> PsychroCurve:
         """Get item from the PsychroCurve list."""

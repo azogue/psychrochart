@@ -325,7 +325,7 @@ class PsychroChart:
         ```
         """
         use_scatter = False
-        points_plot: Dict[str, Tuple[List[float], List[float], dict]] = {}
+        points_plot: dict[str, tuple[list[float], list[float], dict]] = {}
         default_style = {
             "marker": "o",
             "markersize": 10,

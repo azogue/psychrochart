@@ -70,7 +70,7 @@ class TestsPsychroCurves(TestCase):
         curve = PsychroCurve(x_data, y_data, style)
 
         # Plotting
-        ax: plt.Axes = plt.subplot()
+        ax = plt.subplot()
         ax = curve.plot(ax)
 
         # Vertical line

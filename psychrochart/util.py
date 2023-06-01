@@ -82,7 +82,7 @@ def _load_config(
         config = None
     if new_config is not None:
         if isinstance(new_config, str):
-            new_config_d = {}  # type: dict
+            new_config_d = {}
             if new_config.endswith(".json"):
                 with open(new_config, encoding="utf-8") as f:
                     new_config_d.update(json.load(f))
@@ -114,7 +114,7 @@ def _iter_solver(
     initial_increment: float = 4.0,
     num_iters_max: int = NUM_ITERS_MAX,
     precision: float = 0.01,
-) -> Tuple[float, int]:
+) -> tuple[float, int]:
     """Solve by iteration."""
     decreasing = True
     increment = initial_increment
@@ -169,7 +169,7 @@ def solve_curves_with_iteration(
         )
 
     precision_comp, initial_increment, precision = families[family_name]
-    calc_points: List[float] = []
+    calc_points: list[float] = []
     for objective in objective_values:
         try:
             calc_p, num_iter = _iter_solver(
