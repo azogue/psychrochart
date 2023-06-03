@@ -8,8 +8,8 @@ from unittest import TestCase
 import numpy as np
 
 from psychrochart.agg import PsychroChart
-from psychrochart.util import load_config, timeit
-from tests.conftest import TEST_BASEDIR
+from psychrochart.util import load_config
+from tests.conftest import TEST_BASEDIR, timeit
 
 
 class TestsPsychroOverlay(TestCase):

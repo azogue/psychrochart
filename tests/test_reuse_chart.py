@@ -6,8 +6,7 @@ Tests plotting
 from unittest import TestCase
 
 from psychrochart.agg import PsychroChart
-from psychrochart.util import timeit
-from tests.conftest import TEST_BASEDIR
+from tests.conftest import TEST_BASEDIR, timeit
 
 
 @timeit("make_chart")
