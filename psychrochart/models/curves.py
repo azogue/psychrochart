@@ -35,6 +35,23 @@ def _between_limits(
     return True
 
 
+def _annotate_label(
+    ax: Axes,
+    label: AnyStr,
+    text_x: float,
+    text_y: float,
+    rotation: float,
+    text_style: dict[str, Any],
+) -> None:
+    if abs(rotation) > 0:
+        text_loc = np.array((text_x, text_y))
+        text_style["rotation"] = ax.transData.transform_angles(
+            np.array((rotation,)), text_loc.reshape((1, 2))
+        )[0]
+        text_style["rotation_mode"] = "anchor"
+    ax.annotate(label, (text_x, text_y), **text_style)
+
+
 class PsychroCurve(BaseModel):
     """Pydantic model to store a psychrometric curve for plotting."""
 
@@ -63,25 +80,8 @@ class PsychroCurve(BaseModel):
         extra = f" (label: {self.label})" if self.label else ""
         return f"<{name} {len(self.x_data)} values{extra}>"
 
-    @staticmethod
-    def _annotate_label(
-        ax: Axes,
-        label: AnyStr,
-        text_x: float,
-        text_y: float,
-        rotation: float,
-        text_style: dict[str, Any],
-    ):
-        if abs(rotation) > 0:
-            text_loc = np.array((text_x, text_y))
-            text_style["rotation"] = ax.transData.transform_angles(
-                np.array((rotation,)), text_loc.reshape((1, 2))
-            )[0]
-            text_style["rotation_mode"] = "anchor"
-        ax.annotate(label, (text_x, text_y), **text_style)
-
     def plot_curve(self, ax: Axes) -> bool:
-        """Plot the curve."""
+        """Plot the curve, if it's between chart limits."""
         xmin, xmax = ax.get_xlim()
         ymin, ymax = ax.get_ylim()
         if (
@@ -91,7 +91,7 @@ class PsychroCurve(BaseModel):
                 self.x_data, self.y_data, xmin, xmax, ymin, ymax
             )
         ):
-            logging.info(
+            logging.debug(
                 "%s (label:%s) Not between limits ([%.2g, %.2g, %.2g, %.2g]) "
                 "-> x:%s, y:%s",
                 self.type_curve,
@@ -128,7 +128,7 @@ class PsychroCurve(BaseModel):
                 }
                 assert isinstance(self.style, ZoneStyle)
                 style_params["color"] = mod_color(self.style.edgecolor, -25)
-                self._annotate_label(
+                _annotate_label(
                     ax, self.label, text_x, text_y, 0, style_params
                 )
         else:
@@ -204,7 +204,7 @@ class PsychroCurve(BaseModel):
         if params:
             text_style.update(params)
 
-        self._annotate_label(ax, label, text_x, text_y, rotation, text_style)
+        _annotate_label(ax, label, text_x, text_y, rotation, text_style)
 
         return ax
 
@@ -253,7 +253,3 @@ class PsychroChartModel(BaseModel):
     constant_v_data: PsychroCurves | None = None
     constant_wbt_data: PsychroCurves | None = None
     zones: list[PsychroCurves] = Field(default_factory=list)
-
-    class Config:
-        arbitrary_types_allowed = True
-        json_encoders = {np.ndarray: lambda x: x.tolist()}

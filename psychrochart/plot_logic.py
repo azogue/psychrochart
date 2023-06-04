@@ -11,7 +11,7 @@ from psychrochart.models.config import ChartConfig
 from psychrochart.models.curves import PsychroChartModel
 
 
-def _apply_spines_style(axes, style, location="right"):
+def _apply_spines_style(axes, style, location="right") -> None:
     for key in style:
         try:
             getattr(axes.spines[location], f"set_{key}")(style[key])
@@ -124,6 +124,7 @@ def plot_chart(chart: PsychroChartModel, ax: Axes) -> Axes:
 def plot_annots_dbt_rh(
     ax: Axes, annots: ChartAnnots
 ) -> list[Artist | list[Artist]]:
+    """Plot chat annotations in given matplotlib Axes, return `Artist` objs."""
     _handlers_annotations = []
     for d_con in annots.connectors:
         x_start, y_start = annots.get_point_by_name(d_con.start)

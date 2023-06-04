@@ -45,7 +45,6 @@ class ChartLine(BaseModel):
     end: str
     label: str | None = Field(default=None)
     style: CurveStyle = Field(default_factory=CurveStyle)
-    # TODO document option to remove/style 'outline'
     outline_marker_width: int | None = Field(default=None)
 
 
@@ -98,6 +97,7 @@ class ChartAnnots(BaseModel):
         return check_connector_and_areas_by_point_name(values)
 
     def get_point_by_name(self, key: str) -> tuple[float, float]:
+        """Access coords tuple for named point (or 1st point of series)."""
         if key in self.points:
             return self.points[key].xy
         else:

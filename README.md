@@ -25,14 +25,14 @@ It implements a useful collection of psychrometric equations for moisture and hu
 
 Get it **[from pypi](https://pypi.python.org/pypi?:action=display&name=psychrochart)** or **[clone it](https://github.com/azogue/psychrochart.git)** if you want to run the tests.
 
-```bash
+```shell
 pip install psychrochart
 ```
 
 ## Features
 
 - **SI** units (with temperatures in celsius for better readability).
-- Easy style customization with a **JSON template** (colors, line styles and line widths).
+- Easy style customization based on [**pydantic**](https://docs.pydantic.dev/latest/) models and config presets for full customization of colors, line styles, line widths, etc..
 - Psychrometric charts within temperature and humidity ratio ranges, for any pressure\*, with:
   - **Saturation line**
   - **Constant RH lines**
@@ -43,10 +43,14 @@ pip install psychrochart
   - **Constant humidity ratio lines** (internal orthogonal grid, horizontal)
 - Plot legend for each family of lines
 - Specify labels for each family of lines
-- **Overlay points, zones, arrows...**
+- **Overlay points, zones, convex hulls, and arrows**
 - **Export SVG, PNG files**
 
-\* The ranges of temperature, humidity and pressure where this library should provide good results are within the normal environments for people to live in. Don't expect right results if doing other type of thermodynamic calculations. Over saturated water vapor states are not implemented.
+> NOTE: The ranges of temperature, humidity and pressure where this library should provide good results are within the normal environments for people to live in.
+>
+> Don't expect right results if doing other type of thermodynamic calculations.
+>
+> ⚠️ **Over saturated water vapor states are not implemented**. This library is intended for HVAC applications only ⚠️
 
 ## Usage
 
@@ -54,18 +58,18 @@ pip install psychrochart
 from psychrochart import PsychroChart
 
 # Load default style:
-chart_default = PsychroChart()
+chart_default = PsychroChart.create()
 axes = chart_default.plot()
 axes.get_figure()
 ```
 
-Called from a terminal (`python psychrochart`), it plots and shows the default chart using the default matplotlib backend, equivalent to this python script:
+Called from the terminal (`python psychrochart`), it plots and shows the default chart using the default matplotlib backend, equivalent to this python script:
 
 ```python
 from psychrochart import PsychroChart
 import matplotlib.pyplot as plt
 
-PsychroChart().plot(ax=plt.gca())
+PsychroChart.create().plot(ax=plt.gca())
 plt.show()
 ```
 
@@ -75,20 +79,35 @@ The default styling for charts is defined in JSON files that you can change, or 
 Included styles are: `default`, `ashrae`, `interior` and `minimal`.
 
 ```python
+from pathlib import Path
 from psychrochart import load_config, PsychroChart
 
 # Load preconfigured styles:
-chart_ashrae_style = PsychroChart('ashrae')
+chart_ashrae_style = PsychroChart.create('ashrae')
 chart_ashrae_style.plot()
 
-chart_minimal = PsychroChart('minimal')
+chart_minimal = PsychroChart.create('minimal')
 chart_minimal.plot()
 
-# Get a preconfigured style dict
-dict_config = load_config('interior')
+# Get a preconfigured style model and customize it
+chart_config = load_config('interior')
+chart_config.limits.range_temp_c = (18.0, 32.0)
+chart_config.limits.range_humidity_g_kg = (1.0, 40.0)
+chart_config.limits.altitude_m = 3000
+
+custom_chart = PsychroChart.create(chart_config)
+custom_chart.save("custom-chart.svg")
+
+# serialize the config for future uses
+assert chart_config.json() == custom_chart.config.json()
+Path('path/to/chart_config_file.json').write_text(chart_config.json())
+custom_chart_bis = PsychroChart.create('path/to/chart_config_file.json')
+# or even the full psychrochart
+Path('path/to/chart_file.json').write_text(custom_chart.json())
+custom_chart_bis_2 = PsychroChart.parse_file('path/to/chart_file.json')
 
 # Specify the styles JSON file:
-chart_custom = PsychroChart('/path/to/json_file.json')
+chart_custom = PsychroChart.create('/path/to/json_file.json')
 chart_custom.plot()
 
 # Pass a dict with the changes wanted:
@@ -121,7 +140,7 @@ custom_style = {
     }
 }
 
-chart_custom_2 = PsychroChart(custom_style)
+chart_custom_2 = PsychroChart.create(custom_style)
 chart_custom_2.plot()
 ```
 
@@ -129,9 +148,11 @@ The custom configuration does not need to include all fields, but only the field
 
 To play with it and see the results, look at this **[notebook with usage examples](https://github.com/azogue/psychrochart/blob/master/notebooks/Usage%20example%20of%20psychrochart.ipynb)**.
 
-## Tests
+## Development and testing
 
 To run the tests, clone the repository, `poetry install` it, and run `poetry run pytest`.
+
+Run `poetry run pre-commit run --all-files` to apply linters for changes in the code 😜.
 
 ## License
 
