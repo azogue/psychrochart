@@ -6,7 +6,7 @@ from tests.conftest import TEST_BASEDIR, timeit
 
 @timeit("make_chart")
 def _make_chart(path_save=None):
-    chart = PsychroChart("minimal")
+    chart = PsychroChart.create("minimal")
     # Zones:
     zones_conf = {
         "zones": [

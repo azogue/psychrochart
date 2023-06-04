@@ -1,13 +1,10 @@
-"""Tests plotting."""
-from unittest import TestCase
-
 from psychrochart.agg import PsychroChart
 from tests.conftest import TEST_BASEDIR, timeit
 
 
 @timeit("make_chart")
 def _make_chart(path_save=None):
-    chart = PsychroChart("minimal")
+    chart = PsychroChart.create("minimal")
     # Zones:
     zones_conf = {
         "zones": [
@@ -149,23 +146,22 @@ def _make_charts(with_reuse=False):
     _add_points(chart, False, f"{name}_2.svg")
 
 
-class TestsPsychroReuse(TestCase):
-    """Unit Tests to check the re-utilization of psychrometric charts."""
+def test_reuse_psychrochart():
+    """Customize a chart with some additions"""
+    _make_charts(with_reuse=True)
 
-    def test_reuse_psychrochart(self):
-        """Customize a chart with some additions"""
-        _make_charts(with_reuse=True)
 
-    def test_no_reuse_psychrochart(self):
-        """Customize a chart with some additions"""
-        _make_charts(with_reuse=False)
+def test_no_reuse_psychrochart():
+    """Customize a chart with some additions"""
+    _make_charts(with_reuse=False)
 
-    def test_redraw_psychrochart(self):
-        """Test the workflow to redraw a chart."""
-        chart = _make_chart()
-        chart.plot_legend()
-        _add_points(chart, True, "test_redraw_chart_1.svg")
-        chart.close_fig()
 
-        _add_points(chart, False, "test_redraw_chart_2.svg")
-        chart.close_fig()
+def test_redraw_psychrochart():
+    """Test the workflow to redraw a chart."""
+    chart = _make_chart()
+    chart.plot_legend()
+    _add_points(chart, True, "test_redraw_chart_1.svg")
+    chart.close_fig()
+
+    _add_points(chart, False, "test_redraw_chart_2.svg")
+    chart.close_fig()
