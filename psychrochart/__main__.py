@@ -6,7 +6,7 @@ from psychrochart.chart import PsychroChart
 
 def main():
     """CLI entry point to show the default psychrometric chart."""
-    PsychroChart().plot(ax=plt.gca())
+    PsychroChart.create().plot(ax=plt.gca())
 
 
 if __name__ == "__main__":
