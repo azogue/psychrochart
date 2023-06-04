@@ -212,3 +212,6 @@ fabric.properties
 
 # Mac Os X files
 **/.DS_Store
+
+# generated plots in tests
+tests/generated

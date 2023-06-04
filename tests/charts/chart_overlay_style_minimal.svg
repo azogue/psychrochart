@@ -6,7 +6,6 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2023-06-03T20:42:18.977762</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -1497,10 +1496,15 @@ L 1025.28 423.576725
    </g>
    <g id="line2d_34">
     <path d="M 808.704 435.375461 
+L 1025.28 423.576725 
+" clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #921b51; stroke-opacity: 0.15; stroke-width: 50; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_35">
+    <path d="M 808.704 435.375461 
 L 745.728 304.853884 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke-dasharray: 2,3.3; stroke-dashoffset: 0; stroke: #da251d; stroke-opacity: 0.8; stroke-width: 2; stroke-linecap: round"/>
    </g>
-   <g id="line2d_35">
+   <g id="line2d_36">
     <path d="M 808.704 435.375461 
 " clip-path="url(#pc0e6066e52)" style="fill: none"/>
     <defs>
@@ -1523,7 +1527,7 @@ z
      <use xlink:href="#m9eb41c64e2" x="808.704" y="435.375461" style="fill: #da0147; fill-opacity: 0.8; stroke: #da0147; stroke-opacity: 0.8; stroke-linejoin: miter"/>
     </g>
    </g>
-   <g id="line2d_36">
+   <g id="line2d_37">
     <path d="M 1025.28 423.576725 
 " clip-path="url(#pc0e6066e52)" style="fill: none"/>
     <defs>
@@ -1537,7 +1541,7 @@ L 5 5
      <use xlink:href="#mebb1f06587" x="1025.28" y="423.576725" style="fill: #921b51; fill-opacity: 0.5; stroke: #921b51; stroke-opacity: 0.5"/>
     </g>
    </g>
-   <g id="line2d_37">
+   <g id="line2d_38">
     <path d="M 745.728 304.853884 
 " clip-path="url(#pc0e6066e52)" style="fill: none"/>
     <defs>
@@ -1904,7 +1908,7 @@ z
     </g>
    </g>
    <g id="legend_1">
-    <g id="line2d_38">
+    <g id="line2d_39">
      <path d="M 9 13.098438 
 L 19 13.098438 
 L 29 13.098438 
@@ -1946,7 +1950,7 @@ z
       <use xlink:href="#DejaVuSans-65" x="1025.972656"/>
      </g>
     </g>
-    <g id="line2d_39">
+    <g id="line2d_40">
      <path d="M 9 34.776563 
 L 19 34.776563 
 L 29 34.776563 
@@ -2037,7 +2041,7 @@ z
       <use xlink:href="#DejaVuSans-79" x="861.376953"/>
      </g>
     </g>
-    <g id="line2d_40">
+    <g id="line2d_41">
      <path d="M 9 56.454688 
 L 19 56.454688 
 L 29 56.454688 
@@ -2137,7 +2141,7 @@ z
       <use xlink:href="#DejaVuSans-65" x="1199.902344"/>
      </g>
     </g>
-    <g id="line2d_41">
+    <g id="line2d_42">
      <path d="M 9 78.132812 
 L 19 78.132812 
 L 29 78.132812 
@@ -2185,7 +2189,7 @@ z
       <use xlink:href="#DejaVuSans-79" x="1272.701172"/>
      </g>
     </g>
-    <g id="line2d_42">
+    <g id="line2d_43">
      <path d="M 9 99.810938 
 L 19 99.810938 
 L 29 99.810938 
