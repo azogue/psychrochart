@@ -1,115 +1,11 @@
-# -*- coding: utf-8 -*-
-"""A library to make psychrometric charts and overlay information in them."""
-import json
 import logging
 import os
-from pathlib import Path
-from time import time
-from typing import Any, Callable, Sequence
+from typing import Callable, Sequence
 
 import numpy as np
 
 NUM_ITERS_MAX = 100
-
-PATH_STYLES = Path(__file__).parent / "chart_styles"
-DEFAULT_CHART_CONFIG_FILE = str(PATH_STYLES / "default_chart_config.json")
-ASHRAE_CHART_CONFIG_FILE = str(PATH_STYLES / "ashrae_chart_style.json")
-ASHRAE_IP_CHART_CONFIG_FILE = str(PATH_STYLES / "ashrae_ip_chart_style.json")
-INTERIOR_CHART_CONFIG_FILE = str(PATH_STYLES / "interior_chart_style.json")
-MINIMAL_CHART_CONFIG_FILE = str(PATH_STYLES / "minimal_chart_style.json")
-DEFAULT_ZONES_FILE = str(PATH_STYLES / "default_comfort_zones.json")
-
-STYLES = {
-    "ashrae": ASHRAE_CHART_CONFIG_FILE,
-    "ashrae_ip": ASHRAE_IP_CHART_CONFIG_FILE,
-    "default": DEFAULT_CHART_CONFIG_FILE,
-    "interior": INTERIOR_CHART_CONFIG_FILE,
-    "minimal": MINIMAL_CHART_CONFIG_FILE,
-}
-
-TESTING_MODE = os.getenv("TESTING") is not None
-
-
-def timeit(msg_log: str) -> Callable:
-    """Wrap a method to print the execution time of a method call."""
-
-    def _real_deco(func) -> Callable:
-        def _wrapper(*args, **kwargs):
-            tic = time()
-            out = func(*args, **kwargs)
-            logging.info(f"{msg_log} TOOK: {time() - tic:.3f} s")
-            return out
-
-        return _wrapper
-
-    return _real_deco
-
-
-def _update_config(
-    old_conf: dict[str, Any], new_conf: dict[str, Any], recurs_idx: int = 0
-) -> dict[str, Any]:
-    """Update a dict recursively."""
-    assert recurs_idx < 3
-    if old_conf is None:
-        return new_conf
-    for key, value in old_conf.items():
-        if key in new_conf:
-            if isinstance(value, dict) and isinstance(new_conf[key], dict):
-                new_value = _update_config(
-                    old_conf[key], new_conf[key], recurs_idx + 1
-                )
-            else:
-                new_value = new_conf[key]
-            old_conf[key] = new_value
-    if recurs_idx > 0:
-        old_conf.update(
-            {
-                key: new_conf[key]
-                for key in filter(lambda x: x not in old_conf, new_conf)
-            }
-        )
-    return old_conf
-
-
-def _load_config(
-    new_config: dict[str, Any] | str | None = None,
-    default_config_file: str | None = None,
-) -> dict[str, Any]:
-    """Load plot parameters from a JSON file."""
-    if default_config_file is not None:
-        with open(default_config_file, encoding="utf-8") as f:
-            config = json.load(f)
-    else:
-        config = None
-    if new_config is not None:
-        if isinstance(new_config, str):
-            new_config_d = {}
-            if new_config.endswith(".json"):
-                with open(new_config, encoding="utf-8") as f:
-                    new_config_d.update(json.load(f))
-            elif new_config in STYLES:
-                with open(STYLES[new_config], encoding="utf-8") as f:
-                    new_config_d.update(json.load(f))
-            config = _update_config(config, new_config_d)
-        else:
-            assert isinstance(new_config, dict)
-            config = _update_config(config, new_config)
-
-    return config
-
-
-# TODO remove this config-loader method
-def load_config(styles: dict[str, Any] | str | None = None) -> dict[str, Any]:
-    """Load the plot params for the psychrometric chart."""
-    return _load_config(styles, default_config_file=DEFAULT_CHART_CONFIG_FILE)
-
-
-# TODO remove this config-loader method
-def load_zones(
-    zones: dict[str, Any] | str | None = DEFAULT_ZONES_FILE
-) -> dict[str, Any]:
-    """Load a zones JSON file to overlay in the psychrometric chart."""
-    return _load_config(zones)
+TESTING_MODE = os.getenv("PYTEST_CURRENT_TEST") is not None
 
 
 def _iter_solver(
