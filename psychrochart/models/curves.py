@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-"""A library to make psychrometric charts and overlay information in them."""
-import json
 import logging
 from math import atan2, degrees
 from typing import Any, AnyStr
@@ -9,8 +6,11 @@ from matplotlib import patches
 from matplotlib.axes import Axes
 from matplotlib.path import Path
 import numpy as np
+from pydantic import BaseModel, Field, root_validator
 
-from .util import mod_color
+from psychrochart.models.styles import CurveStyle, ZoneStyle
+from psychrochart.models.validators import parse_curve_arrays
+from psychrochart.util import mod_color
 
 
 def _between_limits(
@@ -35,71 +35,33 @@ def _between_limits(
     return True
 
 
-class PsychroCurve:
-    """Object to store a psychrometric curve for plotting."""
+class PsychroCurve(BaseModel):
+    """Pydantic model to store a psychrometric curve for plotting."""
 
-    def __init__(
-        self,
-        x_data: np.ndarray | None = None,
-        y_data: np.ndarray | None = None,
-        style: dict[str, Any] | None = None,
-        type_curve: str | None = None,
-        limits: dict[str, Any] | None = None,
-        label: str | None = None,
-        label_loc: float = 0.75,
-    ) -> None:
-        """Create the Psychrocurve object."""
-        self.x_data = np.array(x_data if x_data is not None else [])
-        self.y_data = np.array(y_data if y_data is not None else [])
-        self.style: dict[str, Any] = style or {}
-        self._type_curve = type_curve
-        self._label = label
-        self._label_loc = label_loc
-        self._limits = limits
-        self._is_patch: bool = style is not None and "facecolor" in style
+    x_data: np.ndarray
+    y_data: np.ndarray
+    style: ZoneStyle | CurveStyle
+    type_curve: str | None = None
+    label: str | None = None
+    label_loc: float = 0.75
 
-    def __bool__(self) -> bool:
-        """Return the valid existence of the curve."""
-        if (
-            self.x_data is not None
-            and len(self.x_data) > 1
-            and self.y_data is not None
-            and len(self.y_data) > 1
-        ):
-            return True
-        return False
+    class Config:
+        arbitrary_types_allowed = True
+        json_encoders = {np.ndarray: lambda x: x.tolist()}
+
+    @root_validator(pre=True)
+    def _parse_curve_data(cls, values):
+        return parse_curve_arrays(values)
 
     def __repr__(self) -> str:
         """Object string representation."""
-        name = "PsychroZone" if self._is_patch else "PsychroCurve"
-        if self and self.x_data is not None:
-            return f"<{name} {len(self.x_data)} values (label: {self._label})>"
-        else:
-            return f"<Empty {name} (label: {self._label})>"
-
-    def to_dict(self) -> dict[str, Any]:
-        """Return the curve as a dict."""
-        if len(self.x_data) == 0 or len(self.y_data) == 0:
-            return {}
-        return {
-            "x_data": self.x_data.tolist(),
-            "y_data": self.y_data.tolist(),
-            "style": self.style,
-            "label": self._label,
-        }
-
-    def to_json(self) -> str:
-        """Return the curve as a JSON string."""
-        return json.dumps(self.to_dict())
-
-    def from_json(self, json_str: AnyStr):
-        """Load a curve from a JSON string."""
-        data = json.loads(json_str)
-        self.x_data = np.array(data["x_data"])
-        self.y_data = np.array(data["y_data"])
-        self.style = data.get("style")
-        self._label = data.get("label")
-        return self
+        name = (
+            "PsychroZone"
+            if isinstance(self.style, ZoneStyle)
+            else "PsychroCurve"
+        )
+        extra = f" (label: {self.label})" if self.label else ""
+        return f"<{name} {len(self.x_data)} values{extra}>"
 
     @staticmethod
     def _annotate_label(
@@ -118,7 +80,7 @@ class PsychroCurve:
             text_style["rotation_mode"] = "anchor"
         ax.annotate(label, (text_x, text_y), **text_style)
 
-    def plot(self, ax: Axes) -> Axes:
+    def plot_curve(self, ax: Axes) -> bool:
         """Plot the curve."""
         xmin, xmax = ax.get_xlim()
         ymin, ymax = ax.get_ylim()
@@ -130,13 +92,20 @@ class PsychroCurve:
             )
         ):
             logging.info(
-                f"{self._type_curve} (label:{self._label}) Not between limits "
-                f"([{xmin}, {xmax}, {ymin}, {ymax}]) "
-                f"-> x:{self.x_data}, y:{self.y_data}"
+                "%s (label:%s) Not between limits ([%.2g, %.2g, %.2g, %.2g]) "
+                "-> x:%s, y:%s",
+                self.type_curve,
+                self.label or "unnamed",
+                xmin,
+                xmax,
+                ymin,
+                ymax,
+                self.x_data,
+                self.y_data,
             )
-            return ax
+            return False
 
-        if self._is_patch and self.y_data is not None:
+        if isinstance(self.style, ZoneStyle):
             assert len(self.y_data) > 2
             verts = list(zip(self.x_data, self.y_data))
             codes = (
@@ -145,27 +114,28 @@ class PsychroCurve:
                 + [Path.CLOSEPOLY]
             )
             path = Path(verts, codes)
-            patch = patches.PathPatch(path, **self.style)
+            patch = patches.PathPatch(path, **self.style.dict())
             ax.add_patch(patch)
 
-            if self._label is not None:
+            if self.label is not None:
                 bbox_p = path.get_extents()
                 text_x = 0.5 * (bbox_p.x0 + bbox_p.x1)
                 text_y = 0.5 * (bbox_p.y0 + bbox_p.y1)
-                style = {
+                style_params = {
                     "ha": "center",
                     "va": "center",
                     "backgroundcolor": [1, 1, 1, 0.4],
                 }
-                if "edgecolor" in self.style:
-                    style["color"] = mod_color(self.style["edgecolor"], -25)
-                self._annotate_label(ax, self._label, text_x, text_y, 0, style)
+                assert isinstance(self.style, ZoneStyle)
+                style_params["color"] = mod_color(self.style.edgecolor, -25)
+                self._annotate_label(
+                    ax, self.label, text_x, text_y, 0, style_params
+                )
         else:
-            ax.plot(self.x_data, self.y_data, **self.style)
-            if self._label is not None:
+            ax.plot(self.x_data, self.y_data, **self.style.dict())
+            if self.label is not None:
                 self.add_label(ax)
-
-        return ax
+        return True
 
     def add_label(
         self,
@@ -180,9 +150,9 @@ class PsychroCurve:
         num_samples = len(self.x_data)
         assert num_samples > 1
         text_style = {"va": "bottom", "ha": "left", "color": [0.0, 0.0, 0.0]}
-        loc_f: float = self._label_loc if loc is None else loc
+        loc_f: float = self.label_loc if loc is None else loc
         label: str = (
-            (self._label if self._label is not None else "")
+            (self.label if self.label is not None else "")
             if text_label is None
             else text_label
         )
@@ -226,8 +196,7 @@ class PsychroCurve:
             text_x, text_y = self.x_data[idx], self.y_data[idx]
             text_style["ha"] = "center"
 
-        if "color" in self.style:
-            text_style["color"] = mod_color(self.style["color"], -25)
+        text_style["color"] = mod_color(self.style.color, -25)
         if ha is not None:
             text_style["ha"] = ha
         if va is not None:
@@ -240,39 +209,51 @@ class PsychroCurve:
         return ax
 
 
-class PsychroCurves:
-    """Object to store a list of psychrometric curves for plotting."""
+class PsychroCurves(BaseModel):
+    """Pydantic model to store a list of psychrometric curves for plotting."""
 
-    def __init__(
-        self, curves: list[PsychroCurve], family_label: str | None = None
-    ) -> None:
-        """Create the Psychrocurves array object."""
-        self.curves: list[PsychroCurve] = curves
-        self.size: int = len(self.curves)
-        self.family_label: str | None = family_label
-
-    def __getitem__(self, item) -> PsychroCurve:
-        """Get item from the PsychroCurve list."""
-        return self.curves[item]
+    curves: list[PsychroCurve] = Field(min_items=1)
+    family_label: str | None = None
 
     def __repr__(self) -> str:
         """Object string representation."""
-        return f"<{self.size} PsychroCurves (label: {self.family_label})>"
+        extra = f" (label: {self.family_label})" if self.family_label else ""
+        return f"<{len(self.curves)} PsychroCurves{extra}>"
 
     def plot(self, ax: Axes) -> Axes:
         """Plot the family curves."""
-        [curve.plot(ax) for curve in self.curves]
+        [curve.plot_curve(ax) for curve in self.curves]
 
         # Curves family labelling
         if self.curves and self.family_label is not None:
-            style = self.curves[0].style or {}
             ax.plot(
                 [-1],
                 [-1],
                 label=self.family_label,
                 marker="D",
                 markersize=10,
-                **style,
+                **self.curves[0].style.dict(),
             )
 
         return ax
+
+
+class PsychroChartModel(BaseModel):
+    """Pydantic model to store all psychrometric curves for PsychroChart."""
+
+    unit_system_si: bool
+    altitude_m: int
+    pressure: float
+
+    saturation: PsychroCurves
+    constant_dry_temp_data: PsychroCurves | None = None
+    constant_humidity_data: PsychroCurves | None = None
+    constant_rh_data: PsychroCurves | None = None
+    constant_h_data: PsychroCurves | None = None
+    constant_v_data: PsychroCurves | None = None
+    constant_wbt_data: PsychroCurves | None = None
+    zones: list[PsychroCurves] = Field(default_factory=list)
+
+    class Config:
+        arbitrary_types_allowed = True
+        json_encoders = {np.ndarray: lambda x: x.tolist()}
