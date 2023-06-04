@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Tests objects to handle psychrometric curves
-
-"""
+"""Tests objects to handle psychrometric curves."""
 import json
 from unittest import TestCase
 

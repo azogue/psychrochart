@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Tests plotting
-
-"""
+"""Tests plotting."""
 from unittest import TestCase
 
 import numpy as np

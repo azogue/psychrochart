@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Test that Psychrochart object is pickable
-
-"""
+"""Test that Psychrochart object is pickable."""
 import pickle
 from unittest import TestCase
 

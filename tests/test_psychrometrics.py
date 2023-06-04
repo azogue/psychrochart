@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Test Cases for psychrometric equations
-
-"""
+"""Test Cases for psychrometric equations."""
 from unittest import TestCase
 
 import numpy as np

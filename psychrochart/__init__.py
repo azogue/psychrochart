@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """A library to make psychrometric charts and overlay information in them."""
 from .chart import PsychroChart
 from .psychrocurves import PsychroCurve, PsychroCurves

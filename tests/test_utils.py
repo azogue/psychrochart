@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Tests utilities
-
-"""
+"""Tests utilities."""
 import json
 from unittest import TestCase
 

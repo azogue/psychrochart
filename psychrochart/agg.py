@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 A python library to make psychrometric charts and overlay information in them.
 
