@@ -136,6 +136,7 @@ def test_generate_rsc_splash_chart():
                 "linewidth": 2,
                 "linestyle": ":",
             },
+            "label": "Ext->Int",
         },
     ]
     chart.plot_points_dbt_rh(points, connectors)

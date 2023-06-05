@@ -161,14 +161,16 @@ def plot_annots_dbt_rh(
     for series in annots.series.values():
         style = {k: v for k, v in series.style.items() if k not in forbidden}
         _handlers_annotations.append(
-            f_plot(series.x_data, series.y_data, **style)
+            f_plot(series.x_data, series.y_data, label=series.label, **style)
         )
 
     for point in annots.points.values():
         style = {k: v for k, v in point.style.items() if k not in forbidden}
-        _handlers_annotations.append(f_plot(point.xy[0], point.xy[1], **style))
+        _handlers_annotations.append(
+            f_plot(point.xy[0], point.xy[1], label=point.label, **style)
+        )
 
-    if ConvexHull is None:  # pragma: no cover
+    if ConvexHull is None or not annots.areas:
         return _handlers_annotations
 
     for convex_area in annots.areas:
