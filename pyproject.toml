@@ -37,12 +37,13 @@ minversion = 6.0
 testpaths = "tests"
 addopts = "-vv -s --cov psychrochart --cov-report term --cov-report html"
 log_level = "INFO"
+log_cli = true
 log_format = "%(asctime)s %(levelname)s: (%(filename)s:%(lineno)s): %(message)s"
 log_date_format = "%Y-%m-%d %H:%M:%S"
 
 [tool.poetry]
 name = "psychrochart"
-version = "0.4.0"
+version = "0.5.0"
 description = "A python 3 library to make psychrometric charts and overlay information on them"
 authors = ["Eugenio Panadero <eugenio.panadero@gmail.com>"]
 packages = [
@@ -73,8 +74,9 @@ python = ">=3.10,<3.12"
 matplotlib = ">=3.7"
 scipy = ">=1.10"
 psychrolib = ">=2.5"
+pydantic = ">=1.8"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pre-commit = ">=2.10.0"
 pytest = "*"
 pytest-cov = "*"

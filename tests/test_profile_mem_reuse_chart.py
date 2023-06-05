@@ -1,18 +1,12 @@
-# -*- coding: utf-8 -*-
-"""
-Tests plotting
-
-"""
-from unittest import TestCase
+"""Tests plotting."""
 
 from psychrochart.agg import PsychroChart
-from psychrochart.util import timeit
-from tests.conftest import TEST_BASEDIR
+from tests.conftest import TEST_BASEDIR, timeit
 
 
 @timeit("make_chart")
 def _make_chart(path_save=None):
-    chart = PsychroChart("minimal")
+    chart = PsychroChart.create("minimal")
     # Zones:
     zones_conf = {
         "zones": [
@@ -172,21 +166,20 @@ def _draw_chart(path_img, chart=None):
     chart.close_fig()
 
 
-class TestsPsychroReuseMem(TestCase):
-    """Unit Tests to check the re-utilization of psychrometric charts."""
+def test_reuse_psychrochart():
+    """Customize a chart with some additions"""
+    _make_charts(with_reuse=True)
 
-    def test_reuse_psychrochart(self):
-        """Customize a chart with some additions"""
-        _make_charts(with_reuse=True)
 
-    def test_no_reuse_psychrochart(self):
-        """Customize a chart with some additions"""
-        _make_charts(with_reuse=False)
+def test_no_reuse_psychrochart():
+    """Customize a chart with some additions"""
+    _make_charts(with_reuse=False)
 
-    def test_redraw_psychrochart(self):
-        """Test the workflow to redraw a chart."""
-        counter = 0
-        chart = _make_chart()
-        while counter < 10:
-            _draw_chart("test_redraw_chart_1.svg", chart)
-            counter += 1
+
+def test_redraw_psychrochart():
+    """Test the workflow to redraw a chart."""
+    counter = 0
+    chart = _make_chart()
+    while counter < 10:
+        _draw_chart("test_redraw_chart_1.svg", chart)
+        counter += 1
