@@ -1,11 +1,7 @@
 import pytest
 
 from psychrochart.agg import PsychroChart
-from tests.conftest import (
-    remove_date_metadata_from_svg,
-    RSC_EXAMPLES,
-    TEST_BASEDIR,
-)
+from tests.conftest import RSC_EXAMPLES, TEST_BASEDIR
 
 
 @pytest.mark.parametrize(
@@ -24,8 +20,7 @@ def test_generate_rsc_default_charts(
     chart = PsychroChart.create(config, use_unit_system_si=not ip_system)
     if legend:
         chart.plot_legend()
-    chart.save(path_svg)
-    remove_date_metadata_from_svg(path_svg)
+    chart.save(path_svg, metadata={"Date": None})
 
     # generate PNG variant
     chart.save(
@@ -154,9 +149,7 @@ def test_generate_rsc_splash_chart():
 
     # Save to disk
     path_svg = RSC_EXAMPLES / "chart_overlay_style_minimal.svg"
-    chart.save(path_svg)
-    # this file is in git and referenced on docs
-    remove_date_metadata_from_svg(path_svg)
+    chart.save(path_svg, metadata={"Date": None})
 
     # generate PNG variant
     chart.save(

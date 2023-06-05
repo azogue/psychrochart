@@ -3,7 +3,7 @@ import pickle
 
 from psychrochart import load_config
 from psychrochart.agg import PsychroChart
-from tests.conftest import remove_date_metadata_from_svg, TEST_BASEDIR
+from tests.conftest import TEST_BASEDIR
 
 
 def test_0_serialize_psychrochart():
@@ -47,7 +47,9 @@ def test_workflow_with_json_serializing():
     chart_config.limits.altitude_m = 3000
 
     custom_chart = PsychroChart.create(chart_config)
-    custom_chart.save(TEST_BASEDIR / "custom-chart-1.svg")
+    custom_chart.save(
+        TEST_BASEDIR / "custom-chart-1.svg", metadata={"Date": None}
+    )
     custom_chart.save(TEST_BASEDIR / "custom-chart-1.png")
 
     # serialize the config for future uses
@@ -60,18 +62,18 @@ def test_workflow_with_json_serializing():
     custom_2 = PsychroChart.create(
         (TEST_BASEDIR / "custom-chart-config.json").as_posix()
     )
-    custom_2.save(TEST_BASEDIR / "custom-chart-2.svg")
+    custom_2.save(TEST_BASEDIR / "custom-chart-2.svg", metadata={"Date": None})
     custom_2.save(TEST_BASEDIR / "custom-chart-2.png")
 
     # or reload chart from disk
     custom_3 = PsychroChart.parse_file(TEST_BASEDIR / "custom-chart.json")
-    custom_3.save(TEST_BASEDIR / "custom-chart-3.svg")
+    custom_3.save(TEST_BASEDIR / "custom-chart-3.svg", metadata={"Date": None})
     custom_3.save(TEST_BASEDIR / "custom-chart-3.png")
 
     # anyway it produces the same psychrochart
-    svg1 = remove_date_metadata_from_svg(TEST_BASEDIR / "custom-chart-1.svg")
-    svg2 = remove_date_metadata_from_svg(TEST_BASEDIR / "custom-chart-2.svg")
-    svg3 = remove_date_metadata_from_svg(TEST_BASEDIR / "custom-chart-3.svg")
+    svg1 = (TEST_BASEDIR / "custom-chart-1.svg").read_text()
+    svg2 = (TEST_BASEDIR / "custom-chart-2.svg").read_text()
+    svg3 = (TEST_BASEDIR / "custom-chart-3.svg").read_text()
     assert svg1 == svg2 == svg3
 
     png1 = (TEST_BASEDIR / "custom-chart-1.png").read_bytes()

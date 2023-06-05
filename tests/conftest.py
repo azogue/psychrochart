@@ -12,14 +12,6 @@ RSC_EXAMPLES = Path(__file__).parent / "charts"
 TEST_BASEDIR = Path(__file__).parent / "generated"
 
 
-def remove_date_metadata_from_svg(image: Path) -> str:
-    """Inplace removal of <dc:date> tag metadata in SVG."""
-    # todo finegrain control of svg metadata when saving as SVG
-    new_svg = _RG_SVGDATE.sub("\n", image.read_text())
-    image.write_text(new_svg)
-    return new_svg
-
-
 def timeit(msg_log: str) -> Callable:
     """Wrap a method to print the execution time of a method call."""
 
