@@ -319,6 +319,12 @@ class PsychroChart(PsychroChartModel):
         **params: Mapping[str, Any],
     ) -> None:
         """Write the chart to disk."""
+        # ensure destination path if folder does not exist
+        if (
+            isinstance(path_dest, (str, Path))
+            and not Path(path_dest).parent.exists()
+        ):
+            Path(path_dest).parent.mkdir()
         if self._axes is None:
             self.plot()
         assert self._fig is not None
