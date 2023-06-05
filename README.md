@@ -164,14 +164,14 @@ Run `poetry run pre-commit run --all-files` to apply linters for changes in the 
 
 <img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/test_default_psychrochart.svg" width="100%" height="100%">
 
-**ASHRAE Handbook black and white style**:
+**ASHRAE Handbook black and white style**: (preset: `ashrae`)
 
 <img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/test_ashrae_psychrochart.svg" width="100%" height="100%">
 
-**ASHRAE Handbook black and white style (IP units)**:
+**ASHRAE Handbook black and white style (IP units)**: (preset: `ashrae_ip`)
 
 <img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/test_ashrae_psychrochart_ip.svg" width="100%" height="100%">
 
-**Minimal style**:
+**Minimal style**: (preset: `minimal`)
 
 <img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/test_minimal_psychrochart.svg" width="100%" height="100%">

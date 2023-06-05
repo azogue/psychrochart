@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - ♻️ Full re-work on internals to use pydantic models - 2023-06-05
+
+🧹 Internal evolution to update the code style to the latest versions and de facto standards, with better typing, input validation, and serialization.
+Hardly any new features, but some bug fixes.
+
+### Changes
+
+- 🏗️ Add [`pydantic`](https://docs.pydantic.dev/latest/) models for chart + annotations styling and config, for better (de)serialization and parameter validation.
+
+  New models are:
+
+  - `CurveStyle`, `LabelStyle`, `TickStyle`, `ZoneStyle` := to parse & handle defaults for matplotlib styling parameters
+  - `ChartConfig` for the full chart configuration, including sub-models `ChartFigure`, `ChartLimits`, and `ChartParams`, to mirror the old obfuscated config, with the same default values as before
+  - `ChartPoint` and `ChartSeries` for styled single-point or array-data annotations
+  - `ChartLine` for styled connectors between named points (now without outline 'marker' by default)
+  - `ChartArea` for styled convex areas delimited by a list of named points
+  - `ChartAnnots` as container for all of the above
+  - `ChartZone` (and `ChartZones` as a list), for styled fixed areas (like the default winter/summer comfort zones)
+
+- ♻️ Evolve load methods to parse inputs into pydantic models with _near-zero_ (expected 🤞) breaks when reading old data
+- 💥 Rework `PsychroChart` class to work with pydantic `PsychroChartModel`. As the chart is now a pydantic model, there is a `chart.json(...)` method, and loading from serialized data is available with `PsychroChart.parse_file(` / `.validate(` / etc 🤩
+  > **BREAKING-CHANGE**: Now the chart creation from a configuration key/file/dict is done with **`PsychroChart.create(config)`**, instead of old `PsychroChart(config)`
+- ✨ Add `.make_svg()` method to produce a SVG file as text, and evolve `.save(...)` with optional `canvas_cls: Type[FigureCanvasBase]`, to select kind of matplotlib canvas where to print the chart
+- ✨ Support file creation in subfolders with chart.save(dest)
+- 🚚 rsc: Deterministic SVG output in tests, and README images without date metadata
+- ✅ tests: Adapt API changes in unit tests, remove usages of `unittest.TestCase`, add new tests for pydantic models, annotations, and serialization methods.
+
 ## [0.4.0] - ♻️ Maintenance update to upgrade used libraries
 
 ### Changes
