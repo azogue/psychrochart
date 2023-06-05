@@ -1,11 +1,15 @@
 """A library to make psychrometric charts and overlay information in them."""
 import gc
-from typing import Any, Iterable
+from io import StringIO
+from pathlib import Path
+from typing import Any, Iterable, Mapping, Type
 
 from matplotlib import figure
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.backend_bases import FigureCanvasBase
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.backends.backend_svg import FigureCanvasSVG
 from matplotlib.legend import Legend
 
 from psychrochart.chartdata import (
@@ -34,12 +38,25 @@ from psychrochart.process_logic import (
 from psychrochart.util import mod_color
 
 
+def _select_fig_canvas(
+    path_dest: Any, canvas_cls: Type[FigureCanvasBase] | None = None
+) -> Type[FigureCanvasBase]:
+    if (
+        canvas_cls is None
+        and isinstance(path_dest, (str, Path))
+        and str(path_dest).endswith(".svg")
+    ):
+        canvas_cls = FigureCanvasSVG
+    elif canvas_cls is None:
+        canvas_cls = FigureCanvasAgg
+    return canvas_cls
+
+
 class PsychroChart(PsychroChartModel):
     """Psychrometric chart object handler."""
 
     config: ChartConfig
     _fig: figure.Figure | None = None
-    _canvas: FigureCanvas | None = None
     _axes: Axes | None = None
     _legend: Legend | None = None
     _handlers_annotations: list[Artist | list[Artist]]
@@ -269,15 +286,16 @@ class PsychroChart(PsychroChartModel):
 
     def plot(self, ax: Axes | None = None) -> Axes:
         """Plot the psychrochart and return the matplotlib Axes instance."""
-        self._fig = figure.Figure(
-            figsize=self.config.figure.figsize, dpi=150, frameon=False
-        )
-        self._canvas = FigureCanvas(self._fig)
-        if ax is None:
+        if ax is not None:
+            self._fig = ax.get_figure()
+        else:
+            self._fig = figure.Figure(
+                figsize=self.config.figure.figsize, dpi=150, frameon=False
+            )
             ax = self._fig.add_subplot(position=self.config.figure.position)
         self._axes = ax
         apply_axis_styling(self.config, self._axes)
-        return plot_chart(self, ax)
+        return plot_chart(self, self._axes)
 
     def remove_annotations(self) -> None:
         """Remove the annotations made in the chart to reuse it."""
@@ -294,13 +312,26 @@ class PsychroChart(PsychroChartModel):
             self._legend.remove()
             self._legend = None
 
-    def save(self, path_dest: Any, **params: Any) -> None:
+    def save(
+        self,
+        path_dest: Any,
+        canvas_cls: Type[FigureCanvasBase] | None = None,
+        **params: Mapping[str, Any],
+    ) -> None:
         """Write the chart to disk."""
         if self._axes is None:
             self.plot()
-        assert self._canvas is not None
-        self._canvas.print_figure(path_dest, **params)
+        assert self._fig is not None
+        canvas_use = _select_fig_canvas(path_dest, canvas_cls)
+        canvas_use(self._fig).print_figure(path_dest, **params)
         gc.collect()
+
+    def make_svg(self, **params: Mapping[str, Any]) -> str:
+        """Generate chart as SVG and return as text."""
+        svg_io = StringIO()
+        self.save(svg_io, canvas_cls=FigureCanvasSVG, **params)
+        svg_io.seek(0)
+        return svg_io.read()
 
     def close_fig(self) -> None:
         """Close the figure plot."""
@@ -312,5 +343,4 @@ class PsychroChart(PsychroChartModel):
         self._axes = None
         self._fig.clear()
         self._fig = None
-        self._canvas = None
         gc.collect()

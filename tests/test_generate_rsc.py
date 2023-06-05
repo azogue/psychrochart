@@ -16,17 +16,15 @@ from tests.conftest import RSC_EXAMPLES, TEST_BASEDIR
 def test_generate_rsc_default_charts(
     config: str | None, svg_dest_file: str, legend: bool, ip_system: bool
 ):
-    path_svg = RSC_EXAMPLES / svg_dest_file
     chart = PsychroChart.create(config, use_unit_system_si=not ip_system)
     if legend:
         chart.plot_legend()
-    chart.save(path_svg, metadata={"Date": None})
 
-    # generate PNG variant
-    chart.save(
-        TEST_BASEDIR / path_svg.with_suffix(".png").name, facecolor="none"
-    )
-    chart.close_fig()
+    # generate SVG as text, save PNG image
+    path_svg = RSC_EXAMPLES / svg_dest_file
+    path_png = (TEST_BASEDIR / svg_dest_file).with_suffix(".png")
+    path_svg.write_text(chart.make_svg(metadata={"Date": None}))
+    chart.save(path_png, facecolor="none")
 
 
 def test_generate_rsc_splash_chart():
@@ -155,4 +153,3 @@ def test_generate_rsc_splash_chart():
     chart.save(
         TEST_BASEDIR / path_svg.with_suffix(".png").name, facecolor="none"
     )
-    chart.close_fig()
