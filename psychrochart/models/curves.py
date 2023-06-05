@@ -1,6 +1,6 @@
 import logging
 from math import atan2, degrees
-from typing import Any, AnyStr
+from typing import AbstractSet, Any, AnyStr, Mapping
 
 from matplotlib import patches
 from matplotlib.axes import Axes
@@ -69,6 +69,35 @@ class PsychroCurve(BaseModel):
     @root_validator(pre=True)
     def _parse_curve_data(cls, values):
         return parse_curve_arrays(values)
+
+    def dict(
+        self,
+        *,
+        include: AbstractSet[int | str]
+        | Mapping[int | str, Any]
+        | None = None,
+        exclude: AbstractSet[int | str]
+        | Mapping[int | str, Any]
+        | None = None,
+        by_alias: bool = False,
+        skip_defaults: bool | None = None,
+        exclude_unset: bool = False,
+        exclude_defaults: bool = False,
+        exclude_none: bool = False,
+    ) -> dict[str, Any]:
+        """Override pydantic.BaseModel.dict() to export arrays as list."""
+        plain_dict = super().dict(
+            include=include,
+            exclude=exclude,
+            by_alias=by_alias,
+            skip_defaults=skip_defaults,
+            exclude_unset=exclude_unset,
+            exclude_defaults=exclude_defaults,
+            exclude_none=exclude_none,
+        )
+        plain_dict["x_data"] = plain_dict["x_data"].tolist()
+        plain_dict["y_data"] = plain_dict["y_data"].tolist()
+        return plain_dict
 
     def __repr__(self) -> str:
         """Object string representation."""
