@@ -19,7 +19,7 @@ It implements a useful collection of psychrometric equations for moisture and hu
 
 **Psychrometric calculations to make the chart data are done with [`PsychroLib`](https://github.com/psychrometrics/psychrolib)** (summary paper in https://doi.org/10.21105/joss.01137).
 
-<img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/chart_overlay_style_minimal.svg" width="100%" height="100%">
+<img src="./tests/example-charts/chart_overlay_style_minimal.svg" width="100%" height="100%">
 
 ## Install
 
@@ -162,16 +162,16 @@ Run `poetry run pre-commit run --all-files` to apply linters for changes in the 
 
 **Default style**:
 
-<img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/test_default_psychrochart.svg" width="100%" height="100%">
+<img src="./tests/example-charts/test_default_psychrochart.svg" width="100%" height="100%">
 
 **ASHRAE Handbook black and white style**: (preset: `ashrae`)
 
-<img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/test_ashrae_psychrochart.svg" width="100%" height="100%">
+<img src="./tests/example-charts/test_ashrae_psychrochart.svg" width="100%" height="100%">
 
 **ASHRAE Handbook black and white style (IP units)**: (preset: `ashrae_ip`)
 
-<img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/test_ashrae_psychrochart_ip.svg" width="100%" height="100%">
+<img src="./tests/example-charts/test_ashrae_psychrochart_ip.svg" width="100%" height="100%">
 
 **Minimal style**: (preset: `minimal`)
 
-<img src="https://rawgit.com/azogue/psychrochart/master/tests/charts/test_minimal_psychrochart.svg" width="100%" height="100%">
+<img src="./tests/example-charts/test_minimal_psychrochart.svg" width="100%" height="100%">

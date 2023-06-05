@@ -8,7 +8,7 @@ from typing import Callable
 from matplotlib import rcParams
 
 _RG_SVGDATE = re.compile(r"(\s+?<dc:date>.*</dc:date>\s+?)")
-RSC_EXAMPLES = Path(__file__).parent / "charts"
+RSC_EXAMPLES = Path(__file__).parent / "example-charts"
 TEST_BASEDIR = Path(__file__).parent / "generated"
 
 
