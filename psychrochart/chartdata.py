@@ -370,6 +370,8 @@ def make_constant_wet_bulb_temperature_lines(
 
     curves = []
     for wbt, w_max in zip(wbt_values, w_max_constant_wbt):
+        if wbt >= dry_bulb_temp_max:
+            break
         pair_t = [wbt, dry_bulb_temp_max]
         pair_w = [
             _factor_out_w() * w_max,
