@@ -8,7 +8,7 @@ from psychrochart.models.parsers import load_config
 from tests.conftest import TEST_BASEDIR
 
 
-def test_custom_psychrochart_2():
+def test_chart_overlay_points_and_zones():
     """Customize a chart with some additions from a default style."""
     # 1x zone + 3 simple-points + convex-g
     # Load config
@@ -76,35 +76,34 @@ def test_custom_psychrochart_2():
     chart.save(path_svg)
 
 
-def test_minimal_psychrochart():
-    config = load_config("minimal")
+def test_chart_overlay_minimal():
+    # Creation from preset + customization
+    chart = PsychroChart.create("minimal")
+    chart.config.limits.pressure_kpa = 100.5
+    chart.config.figure.x_label = None
+    chart.config.figure.x_axis_ticks = None
+    chart.config.figure.y_label = None
+    chart.config.figure.y_axis_ticks = None
+    chart.config.saturation.linewidth = 3
+    chart.config.chart_params.constant_temp_label_step = -1
+    chart.config.chart_params.constant_humid_label_step = -1
+    chart.config.chart_params.with_constant_dry_temp = True
+    chart.config.chart_params.with_constant_humidity = True
+    chart.config.chart_params.with_constant_wet_temp = False
+    chart.config.chart_params.with_constant_h = False
+    chart.config.chart_params.with_constant_rh = False
 
-    # Customization
-    config.limits.pressure_kpa = 100.5
-    config.figure.x_label = None
-    config.figure.x_axis_ticks = None
-    config.figure.y_label = None
-    config.figure.y_axis_ticks = None
-    config.saturation.linewidth = 3
-    config.chart_params.constant_temp_label_step = -1
-    config.chart_params.constant_humid_label_step = -1
-    config.chart_params.with_constant_dry_temp = True
-    config.chart_params.with_constant_humidity = True
-    config.chart_params.with_constant_wet_temp = False
-    config.chart_params.with_constant_h = False
-    config.chart_params.with_constant_rh = False
-
-    # Chart creation
-    chart = PsychroChart.create(config)
+    # config changes are not processed until plot
+    assert 100500.0 != chart.pressure
+    chart.plot()
     assert 100500.0 == chart.pressure
 
-    chart.plot()
+    # annotate plot
     points = {
         "exterior": (31.06, 32.9),
         "exterior_estimated": (36.7, 25.0),
         "interior": (29.42, 52.34),
     }
-
     convex_groups = [
         (["exterior", "exterior_estimated", "interior"], {}, {}),
     ]
@@ -115,15 +114,10 @@ def test_minimal_psychrochart():
     chart.save(path_svg)
 
 
-def test_custom_psychrochart_3():
+def test_chart_overlay_arrows():
     """Customize a chart with some additions from a default style."""
-    # Load config
-    config = load_config("interior")
-
-    # Chart creation
-    chart = PsychroChart.create(config)
-
-    # Zones:
+    # Load default config
+    chart = PsychroChart.create("interior")
 
     # Plotting
     chart.plot()
@@ -179,20 +173,16 @@ def test_custom_psychrochart_3():
     chart.save(path_svg)
 
 
-def test_custom_psychrochart_4():
+def test_chart_overlay_convexhull():
     """Customize a chart with group of points."""
-    # Load config
-    config = load_config("minimal")
-
-    # Customization
-    config.limits.pressure_kpa = 90.5
-
-    # Chart creation
-    chart = PsychroChart.create(config)
-    assert 90500.0 == chart.pressure
+    # Load config & customize chart
+    chart = PsychroChart.create("minimal")
+    chart.config.limits.pressure_kpa = 90.5
+    assert 90500.0 != chart.pressure
 
     # Plotting
     chart.plot()
+    assert 90500.0 == chart.pressure
 
     points = {
         "exterior": (31.06, 32.9),
@@ -231,18 +221,14 @@ def test_custom_psychrochart_4():
 
 def test_overlay_a_lot_of_points_1():
     """Customize a chart with group of points."""
-    # Load config
-    config = load_config("minimal")
-
-    # Customization
-    config.limits.pressure_kpa = 90.5
-
-    # Chart creation
-    chart = PsychroChart.create(config)
-    assert 90500.0 == chart.pressure
+    # Load config & customize chart
+    chart = PsychroChart.create("minimal")
+    chart.config.limits.pressure_kpa = 90.5
+    assert 90500.0 != chart.pressure
 
     # Plotting
     chart.plot()
+    assert 90500.0 == chart.pressure
 
     # Create a lot of points
     num_samples = 50000
@@ -267,18 +253,14 @@ def test_overlay_a_lot_of_points_1():
 
 def test_overlay_a_lot_of_points_2():
     """Customize a chart with two cloud of points."""
-    # Load config
-    config = load_config("minimal")
-
-    # Customization
-    config.limits.pressure_kpa = 90.5
-
-    # Chart creation
-    chart = PsychroChart.create(config)
-    assert 90500.0 == chart.pressure
+    # Load config & customize chart
+    chart = PsychroChart.create("minimal")
+    chart.config.limits.pressure_kpa = 90.5
+    assert 90500.0 != chart.pressure
 
     # Plotting
     chart.plot()
+    assert 90500.0 == chart.pressure
 
     # Create a lot of points
     num_samples = 100000

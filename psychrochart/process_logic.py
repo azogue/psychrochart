@@ -22,7 +22,7 @@ from psychrochart.chartdata import (
     make_zone_curve,
 )
 from psychrochart.models.annots import ChartZones, DEFAULT_ZONES
-from psychrochart.models.config import ChartConfig
+from psychrochart.models.config import ChartConfig, ChartLimits
 from psychrochart.models.curves import PsychroChartModel, PsychroCurves
 from psychrochart.models.parsers import obj_loader
 
@@ -37,6 +37,15 @@ def set_unit_system(use_unit_system_si: bool = True) -> None:
     elif not use_unit_system_si and GetUnitSystem() != IP:
         SetUnitSystem(IP)
         logging.info("[IP units mode] ENABLED")
+
+
+def get_pressure_pa(limits: ChartLimits, unit_system_si: bool = True) -> float:
+    """Set unit system and process ChartLimits for base pressure for chart."""
+    set_unit_system(unit_system_si)
+    if limits.pressure_kpa is not None:
+        return limits.pressure_kpa * 1000.0  # to Pa
+    else:
+        return GetStandardAtmPressure(limits.altitude_m)
 
 
 def append_zones_to_chart(
@@ -59,35 +68,9 @@ def append_zones_to_chart(
     )
 
 
-def generate_psychrochart(
-    config: ChartConfig,
-    extra_zones: ChartZones | dict[str, Any] | str | None = None,
-    use_unit_system_si: bool = True,
-) -> PsychroChartModel:
-    """Create the PsychroChart object."""
-    # Set unit system for psychrolib and get standard pressure
-    altitude_m = -1
-    set_unit_system(use_unit_system_si)
-    if config.limits.pressure_kpa is not None:
-        pressure = config.limits.pressure_kpa * 1000.0  # to Pa
-    else:
-        altitude_m = config.limits.altitude_m
-        pressure = GetStandardAtmPressure(altitude_m)
-
-    # base chart with saturation line:
-    chart = PsychroChartModel(
-        unit_system_si=use_unit_system_si,
-        altitude_m=altitude_m,
-        pressure=pressure,
-        saturation=make_saturation_line(
-            config.dbt_min,
-            config.dbt_max,
-            config.limits.step_temp,
-            pressure,
-            style=config.saturation,
-        ),
-    )
-
+def _generate_chart_curves(
+    config: ChartConfig, chart: PsychroChartModel, pressure: float
+):
     # Dry bulb constant lines (vertical):
     if config.chart_params.with_constant_dry_temp:
         step = config.chart_params.constant_temp_step
@@ -98,6 +81,8 @@ def generate_psychrochart(
             style=config.constant_dry_temp,
             family_label=config.chart_params.constant_temp_label,
         )
+    else:
+        chart.constant_dry_temp_data = None
 
     # Absolute humidity constant lines (horizontal):
     if config.chart_params.with_constant_humidity:
@@ -113,6 +98,8 @@ def generate_psychrochart(
             style=config.constant_humidity,
             family_label=config.chart_params.constant_humid_label,
         )
+    else:
+        chart.constant_humidity_data = None
 
     # Constant relative humidity curves:
     if config.chart_params.with_constant_rh:
@@ -127,6 +114,8 @@ def generate_psychrochart(
             label_loc=config.chart_params.constant_rh_labels_loc,
             family_label=config.chart_params.constant_rh_label,
         )
+    else:
+        chart.constant_rh_data = None
 
     # Constant enthalpy lines:
     if config.chart_params.with_constant_h:
@@ -142,6 +131,8 @@ def generate_psychrochart(
             family_label=config.chart_params.constant_h_label,
             saturation_curve=chart.saturation.curves[0],
         )
+    else:
+        chart.constant_h_data = None
 
     # Constant specific volume lines:
     if config.chart_params.with_constant_v:
@@ -157,6 +148,8 @@ def generate_psychrochart(
             family_label=config.chart_params.constant_v_label,
             saturation_curve=chart.saturation.curves[0],
         )
+    else:
+        chart.constant_v_data = None
 
     # Constant wet bulb temperature lines:
     if config.chart_params.with_constant_wet_temp:
@@ -171,8 +164,57 @@ def generate_psychrochart(
             label_loc=config.chart_params.constant_wet_temp_labels_loc,
             family_label=config.chart_params.constant_wet_temp_label,
         )
+    else:
+        chart.constant_wbt_data = None
+
+
+def generate_psychrochart(
+    config: ChartConfig,
+    extra_zones: ChartZones | dict[str, Any] | str | None = None,
+    use_unit_system_si: bool = True,
+) -> PsychroChartModel:
+    """Create the PsychroChart object."""
+    # Set unit system for psychrolib and get standard pressure
+    pressure = get_pressure_pa(config.limits, use_unit_system_si)
+
+    # base chart with saturation line:
+    chart = PsychroChartModel(
+        unit_system_si=use_unit_system_si,
+        altitude_m=config.limits.altitude_m,
+        pressure=pressure,
+        saturation=make_saturation_line(
+            config.dbt_min,
+            config.dbt_max,
+            config.limits.step_temp,
+            pressure,
+            style=config.saturation,
+        ),
+    )
+    _generate_chart_curves(config, chart, pressure)
 
     if config.chart_params.with_zones:
         append_zones_to_chart(config, chart, extra_zones)
 
     return chart
+
+
+def update_psychrochart_data(
+    current_chart: PsychroChartModel, config: ChartConfig
+) -> None:
+    """Update the PsychroChart data with config changes."""
+    if config.limits.has_changed:
+        current_chart.altitude_m = config.limits.altitude_m
+        current_chart.pressure = get_pressure_pa(
+            config.limits, current_chart.unit_system_si
+        )
+
+    # regen all curves
+    current_chart.saturation = make_saturation_line(
+        config.dbt_min,
+        config.dbt_max,
+        config.limits.step_temp,
+        current_chart.pressure,
+        style=config.saturation,
+    )
+    _generate_chart_curves(config, current_chart, current_chart.pressure)
+    config.commit_changes()

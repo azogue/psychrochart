@@ -34,6 +34,7 @@ from psychrochart.plot_logic import (
 from psychrochart.process_logic import (
     append_zones_to_chart,
     generate_psychrochart,
+    update_psychrochart_data,
 )
 from psychrochart.util import mod_color
 
@@ -78,6 +79,7 @@ class PsychroChart(PsychroChartModel):
         use_unit_system_si: bool = True,
     ):
         chart_config = obj_loader(ChartConfig, config)
+        chart_config.commit_changes()
         chart_data = generate_psychrochart(
             chart_config, extra_zones, use_unit_system_si
         )
@@ -93,9 +95,14 @@ class PsychroChart(PsychroChartModel):
             f"->{self.config.w_max:g} gr/kg_da]>"
         )
 
+    def _ensure_updated_data(self):
+        if self.config.has_changed:
+            update_psychrochart_data(self, self.config)
+
     @property
     def axes(self) -> Axes:
         """Return the Axes object plotting the chart if necessary."""
+        self._ensure_updated_data()
         if self._axes is None:
             self.plot()
         assert isinstance(self._axes, Axes)
@@ -286,6 +293,7 @@ class PsychroChart(PsychroChartModel):
 
     def plot(self, ax: Axes | None = None) -> Axes:
         """Plot the psychrochart and return the matplotlib Axes instance."""
+        self._ensure_updated_data()
         if ax is not None:
             self._fig = ax.get_figure()
         else:
@@ -325,7 +333,7 @@ class PsychroChart(PsychroChartModel):
             and not Path(path_dest).parent.exists()
         ):
             Path(path_dest).parent.mkdir()
-        if self._axes is None:
+        if self._axes is None or self.config.has_changed:
             self.plot()
         assert self._fig is not None
         canvas_use = _select_fig_canvas(path_dest, canvas_cls)

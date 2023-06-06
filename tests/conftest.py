@@ -32,9 +32,9 @@ def pytest_sessionstart(session):
     rcParams["svg.hashsalt"] = "a0576956-8d4f-4e8b-bc5b-7c1effb98147"
 
 
+# comment to explore generated plots in tests
 def pytest_sessionfinish(session):
     from shutil import rmtree
 
-    # uncomment to explore generated plots in tests
     if TEST_BASEDIR.exists():
         rmtree(TEST_BASEDIR)
