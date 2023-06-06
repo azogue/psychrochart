@@ -1,5 +1,6 @@
 """A library to make psychrometric charts and overlay information in them."""
-from typing import Callable, Iterable
+import logging
+from typing import Sequence
 
 import numpy as np
 from psychrolib import (
@@ -66,20 +67,6 @@ def _make_vol_label(specific_vol: float) -> str:
     return f"{specific_vol:g} {unit}"
 
 
-def _gen_list_curves_range_temps(
-    func_curve: Callable,
-    curves_values: Iterable[float],
-    dbt_min: float,
-    dbt_max: float,
-    increment: float,
-    pressure: float,
-) -> tuple[np.array, list[np.array]]:
-    """Generate a curve from a range of temperatures."""
-    temps = np.arange(dbt_min, dbt_max + increment, increment)
-    curves = [func_curve(temps, value, pressure) for value in curves_values]
-    return temps, curves
-
-
 def _get_humid_ratio_in_saturation(
     dry_temps: np.ndarray, pressure: float
 ) -> np.array:
@@ -88,8 +75,8 @@ def _get_humid_ratio_in_saturation(
 
 
 def gen_points_in_constant_relative_humidity(
-    dry_temps: Iterable[float],
-    rh_percentage: float | Iterable[float],
+    dry_temps: Sequence[float],
+    rh_percentage: float | Sequence[float],
     pressure: float,
 ) -> np.array:
     """Generate a curve (numpy array) of constant humidity ratio."""
@@ -103,21 +90,18 @@ def make_constant_relative_humidity_lines(
     dbt_max: float,
     temp_step: float,
     pressure: float,
-    rh_perc_values: Iterable[float],
-    rh_label_values: Iterable[float],
+    rh_perc_values: list[int],
+    rh_label_values: list[float],
     style: CurveStyle,
     label_loc: float,
     family_label: str | None,
 ) -> PsychroCurves:
     """Generate curves of constant relative humidity for the chart."""
-    temps_ct_rh, curves_ct_rh = _gen_list_curves_range_temps(
-        gen_points_in_constant_relative_humidity,
-        rh_perc_values,
-        dbt_min,
-        dbt_max,
-        temp_step,
-        pressure,
-    )
+    temps_ct_rh = np.arange(dbt_min, dbt_max + temp_step, temp_step)
+    curves_ct_rh = [
+        gen_points_in_constant_relative_humidity(temps_ct_rh, rh, pressure)
+        for rh in rh_perc_values
+    ]
     return PsychroCurves(
         curves=[
             PsychroCurve(
@@ -186,7 +170,7 @@ def make_constant_dry_bulb_v_lines(
 def make_constant_humidity_ratio_h_lines(
     dbt_max: float,
     pressure: float,
-    ws_hl: Iterable[float],
+    ws_hl: np.ndarray,
     style: CurveStyle,
     family_label: str | None,
 ) -> PsychroCurves:
@@ -233,19 +217,14 @@ def make_saturation_line(
 def make_constant_enthalpy_lines(
     w_humidity_ratio_min: float,
     pressure: float,
-    enthalpy_values: Iterable[float],
-    h_label_values: Iterable[float],
+    enthalpy_values: np.ndarray,
+    h_label_values: list[float],
     style: CurveStyle,
     label_loc: float,
     family_label: str | None,
     saturation_curve: PsychroCurve,
-) -> PsychroCurves:
+) -> PsychroCurves | None:
     """Generate curves of constant enthalpy for the chart."""
-    enthalpy_objective = np.array(enthalpy_values)
-    temps_max_constant_h = f_vec_dry_temp_from_enthalpy(
-        enthalpy_objective * _factor_out_h(),
-        w_humidity_ratio_min / _factor_out_w(),
-    )
     h_in_sat = (
         f_vec_moist_air_enthalpy(
             saturation_curve.x_data, saturation_curve.y_data / _factor_out_w()
@@ -258,9 +237,33 @@ def make_constant_enthalpy_lines(
         fill_value="extrapolate",
         assume_sorted=True,
     )
+    h_min = (
+        GetMoistAirEnthalpy(
+            saturation_curve.x_data[0], w_humidity_ratio_min / _factor_out_w()
+        )
+        / _factor_out_h()
+    )
+    h_max = h_in_sat[-1]
+    h_objective = np.array([h for h in enthalpy_values if h_min < h < h_max])
+    if not h_objective.shape[0]:
+        logging.warning(
+            "All %d enthalpy curves are outside limits"
+            "(%g->%g not inside [%g, %g])",
+            len(enthalpy_values),
+            enthalpy_values[0],
+            enthalpy_values[-1],
+            h_min,
+            h_max,
+        )
+        return None
+
+    temps_max_constant_h = f_vec_dry_temp_from_enthalpy(
+        h_objective * _factor_out_h(),
+        w_humidity_ratio_min / _factor_out_w(),
+    )
     t_sat_points = solve_curves_with_iteration(
         "ENTHALPHY",
-        enthalpy_objective,
+        h_objective,
         lambda *x: t_sat_interpolator(x[0]),
         lambda x: GetMoistAirEnthalpy(
             x, GetHumRatioFromVapPres(GetSatVapPres(x), pressure)
@@ -284,7 +287,7 @@ def make_constant_enthalpy_lines(
                 ),
             )
             for t_sat, w_sat, t_max, h in zip(
-                t_sat_points, w_in_sat, temps_max_constant_h, enthalpy_values
+                t_sat_points, w_in_sat, temps_max_constant_h, h_objective
             )
         ],
         family_label=family_label,
@@ -295,20 +298,40 @@ def make_constant_specific_volume_lines(
     w_humidity_ratio_min: float,
     pressure: float,
     vol_values: np.ndarray,
-    v_label_values: Iterable[float],
+    v_label_values: list[float],
     style: CurveStyle,
     label_loc: float,
     family_label: str | None,
     saturation_curve: PsychroCurve,
-) -> PsychroCurves:
+) -> PsychroCurves | None:
     """Generate curves of constant specific volume for the chart."""
-    temps_max_constant_v = f_vec_dry_temp_from_spec_vol(
-        np.array(vol_values), w_humidity_ratio_min / _factor_out_w(), pressure
-    )
     v_in_sat = f_vec_moist_air_volume(
         saturation_curve.x_data,
         saturation_curve.y_data / _factor_out_w(),
         pressure,
+    )
+    v_min = GetMoistAirVolume(
+        saturation_curve.x_data[0],
+        w_humidity_ratio_min / _factor_out_w(),
+        pressure,
+    )
+    v_max = v_in_sat[-1]
+    valid_objectives = [h for h in vol_values if v_min < h < v_max]
+    if not valid_objectives:
+        logging.warning(
+            "All %d constant-volume curves are outside limits "
+            "(%g->%g not inside [%g, %g])",
+            len(vol_values),
+            vol_values[0],
+            vol_values[-1],
+            v_min,
+            v_max,
+        )
+        return None
+
+    v_objective = np.array(valid_objectives)
+    temps_max_constant_v = f_vec_dry_temp_from_spec_vol(
+        np.array(v_objective), w_humidity_ratio_min / _factor_out_w(), pressure
     )
     t_sat_interpolator = interp1d(
         v_in_sat,
@@ -318,7 +341,7 @@ def make_constant_specific_volume_lines(
     )
     t_sat_points = solve_curves_with_iteration(
         "CONSTANT VOLUME",
-        vol_values,
+        v_objective,
         lambda *x: t_sat_interpolator(x[0]),
         lambda x: GetMoistAirVolume(
             x, GetHumRatioFromVapPres(GetSatVapPres(x), pressure), pressure
@@ -341,7 +364,7 @@ def make_constant_specific_volume_lines(
                 ),
             )
             for t_sat, w_sat, t_max, vol in zip(
-                t_sat_points, w_in_sat, temps_max_constant_v, vol_values
+                t_sat_points, w_in_sat, temps_max_constant_v, v_objective
             )
         ],
         family_label=family_label,
@@ -352,7 +375,7 @@ def make_constant_wet_bulb_temperature_lines(
     dry_bulb_temp_max: float,
     pressure: float,
     wbt_values: np.ndarray,
-    wbt_label_values: Iterable[float],
+    wbt_label_values: list[float],
     style: CurveStyle,
     label_loc: float,
     family_label: str | None,
@@ -461,8 +484,8 @@ def make_zone_curve(
     else:
         # zone_type: 'xy-points'
         return PsychroCurve(
-            x_data=zone_conf.points_x,
-            y_data=zone_conf.points_y,
+            x_data=np.array(zone_conf.points_x),
+            y_data=np.array(zone_conf.points_y),
             style=zone_conf.style,
             type_curve="custom path",
             label=zone_conf.label,
