@@ -1,11 +1,11 @@
-from matplotlib.colors import to_rgb
+from matplotlib.colors import to_rgba
 import numpy as np
 
 
 def parse_color(raw_color) -> list[float]:
     """Pydantic validator for 'color' fields, stored as float values."""
     if isinstance(raw_color, str):
-        return list(to_rgb(raw_color))
+        return list(to_rgba(raw_color))
     return list(raw_color)
 
 
