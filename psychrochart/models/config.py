@@ -41,6 +41,7 @@ class ChartFigure(BaseConfig):
     """Psychrochart settings for matplotlib Figure."""
 
     figsize: tuple[float, float] = Field(default=(16, 9))
+    dpi: int = Field(default=150)
     fontsize: int = Field(default=10)
     title: str | None = Field(default="Psychrometric Chart")
     x_label: str | None = Field(default="Dry-bulb temperature, $°C$")

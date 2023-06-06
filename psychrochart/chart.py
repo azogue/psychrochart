@@ -298,7 +298,9 @@ class PsychroChart(PsychroChartModel):
             self._fig = ax.get_figure()
         else:
             self._fig = figure.Figure(
-                figsize=self.config.figure.figsize, dpi=150, frameon=False
+                figsize=self.config.figure.figsize,
+                dpi=self.config.figure.dpi,
+                frameon=False,
             )
             ax = self._fig.add_subplot(position=self.config.figure.position)
         self._axes = ax
