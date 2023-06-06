@@ -36,4 +36,5 @@ def pytest_sessionfinish(session):
     from shutil import rmtree
 
     # uncomment to explore generated plots in tests
-    rmtree(TEST_BASEDIR)
+    if TEST_BASEDIR.exists():
+        rmtree(TEST_BASEDIR)
