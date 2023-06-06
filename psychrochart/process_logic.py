@@ -3,7 +3,13 @@ from typing import Any
 
 import numpy as np
 import psychrolib as psy
-from psychrolib import GetStandardAtmPressure, IP, SetUnitSystem, SI
+from psychrolib import (
+    GetStandardAtmPressure,
+    GetUnitSystem,
+    IP,
+    SetUnitSystem,
+    SI,
+)
 
 from psychrochart.chartdata import (
     make_constant_dry_bulb_v_lines,
@@ -25,10 +31,10 @@ spec_vol_vec = np.vectorize(psy.GetMoistAirVolume)
 
 def set_unit_system(use_unit_system_si: bool = True) -> None:
     """Set unit system for psychrolib."""
-    if use_unit_system_si:
+    if use_unit_system_si and GetUnitSystem() != SI:
         SetUnitSystem(SI)
         logging.info("[SI units mode] ENABLED")
-    else:
+    elif not use_unit_system_si and GetUnitSystem() != IP:
         SetUnitSystem(IP)
         logging.info("[IP units mode] ENABLED")
 
