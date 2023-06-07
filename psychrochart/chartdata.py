@@ -411,6 +411,8 @@ def make_constant_wet_bulb_temperature_lines(
     wt_min = GetTWetBulbFromHumRatio(
         dry_bulb_temp_min, w_humidity_ratio_min / _factor_out_w(), pressure
     )
+    if -0.75 < wt_min < 0.0:  # slope change zone
+        wt_min = 0
     wt_bottom_right = GetTWetBulbFromHumRatio(dry_bulb_temp_max, 0, pressure)
     wt_top_right = GetTWetBulbFromHumRatio(
         dry_bulb_temp_max,
