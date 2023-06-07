@@ -10,6 +10,7 @@ from psychrolib import (
     SetUnitSystem,
     SI,
 )
+from scipy.interpolate import interp1d
 
 from psychrochart.chartdata import (
     get_rh_max_min_in_limits,
@@ -72,13 +73,28 @@ def append_zones_to_chart(
 def _generate_chart_curves(
     config: ChartConfig, chart: PsychroChartModel, pressure: float
 ):
+    # check chart limits are not fully above the saturation curve!
+    assert (chart.saturation.curves[0].y_data > config.w_min).any()
+    # check if sat curve cuts x-axis with T > config.dbt_min
+    dbt_min_seen: float | None = None
+    if chart.saturation.curves[0].y_data[0] < config.w_min:
+        temp_sat_interpolator = interp1d(
+            chart.saturation.curves[0].y_data,
+            chart.saturation.curves[0].x_data,
+            assume_sorted=True,
+        )
+        dbt_min_seen = temp_sat_interpolator(config.w_min)
+
     # Dry bulb constant lines (vertical):
     if config.chart_params.with_constant_dry_temp:
         step = config.chart_params.constant_temp_step
+        temps_vl = np.arange(config.dbt_min, config.dbt_max, step)
+        if dbt_min_seen:
+            temps_vl = temps_vl[temps_vl > dbt_min_seen]
         chart.constant_dry_temp_data = make_constant_dry_bulb_v_lines(
             config.w_min,
             pressure,
-            temps_vl=np.arange(config.dbt_min, config.dbt_max, step),
+            temps_vl=temps_vl,
             style=config.constant_dry_temp,
             family_label=config.chart_params.constant_temp_label,
         )
@@ -105,7 +121,7 @@ def _generate_chart_curves(
     # Constant relative humidity curves:
     if config.chart_params.with_constant_rh:
         rh_min, rh_max = get_rh_max_min_in_limits(
-            config.dbt_min,
+            dbt_min_seen or config.dbt_min,
             config.dbt_max,
             config.w_min,
             config.w_max,
@@ -116,8 +132,13 @@ def _generate_chart_curves(
             for rh in config.chart_params.constant_rh_curves
             if rh_min < rh < rh_max
         )
+        start = (
+            config.limits.step_temp * (dbt_min_seen // config.limits.step_temp)
+            if dbt_min_seen
+            else config.dbt_min
+        )
         chart.constant_rh_data = make_constant_relative_humidity_lines(
-            config.dbt_min,
+            start,
             config.dbt_max,
             config.limits.step_temp,
             pressure,
@@ -143,6 +164,7 @@ def _generate_chart_curves(
             label_loc=config.chart_params.constant_h_labels_loc,
             family_label=config.chart_params.constant_h_label,
             saturation_curve=chart.saturation.curves[0],
+            dbt_min_seen=dbt_min_seen,
         )
     else:
         chart.constant_h_data = None
@@ -160,6 +182,7 @@ def _generate_chart_curves(
             label_loc=config.chart_params.constant_v_labels_loc,
             family_label=config.chart_params.constant_v_label,
             saturation_curve=chart.saturation.curves[0],
+            dbt_min_seen=dbt_min_seen,
         )
     else:
         chart.constant_v_data = None
@@ -169,7 +192,7 @@ def _generate_chart_curves(
         step = config.chart_params.constant_wet_temp_step
         start, end = config.chart_params.range_wet_temp
         chart.constant_wbt_data = make_constant_wet_bulb_temperature_lines(
-            config.dbt_min,
+            dbt_min_seen or config.dbt_min,
             config.dbt_max,
             config.w_min,
             config.w_max,

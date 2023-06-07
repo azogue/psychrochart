@@ -90,7 +90,7 @@ def get_rh_max_min_in_limits(
     rh_max = GetRelHumFromHumRatio(
         dbt_min, w_humidity_ratio_max / _factor_out_w(), pressure
     )
-    return rh_min * 100.0, min(rh_max * 100.0, 100)
+    return max(rh_min * 100.0, 0), min(rh_max * 100.0, 100)
 
 
 def gen_points_in_constant_relative_humidity(
@@ -244,6 +244,7 @@ def make_constant_enthalpy_lines(
     label_loc: float,
     family_label: str | None,
     saturation_curve: PsychroCurve,
+    dbt_min_seen: float | None = None,
 ) -> PsychroCurves | None:
     """Generate curves of constant enthalpy for the chart."""
     h_in_sat = (
@@ -260,7 +261,8 @@ def make_constant_enthalpy_lines(
     )
     h_min = (
         GetMoistAirEnthalpy(
-            saturation_curve.x_data[0], w_humidity_ratio_min / _factor_out_w()
+            dbt_min_seen or saturation_curve.x_data[0],
+            w_humidity_ratio_min / _factor_out_w(),
         )
         / _factor_out_h()
     )
@@ -324,6 +326,7 @@ def make_constant_specific_volume_lines(
     label_loc: float,
     family_label: str | None,
     saturation_curve: PsychroCurve,
+    dbt_min_seen: float | None = None,
 ) -> PsychroCurves | None:
     """Generate curves of constant specific volume for the chart."""
     v_in_sat = f_vec_moist_air_volume(
@@ -332,7 +335,7 @@ def make_constant_specific_volume_lines(
         pressure,
     )
     v_min = GetMoistAirVolume(
-        saturation_curve.x_data[0],
+        dbt_min_seen or saturation_curve.x_data[0],
         w_humidity_ratio_min / _factor_out_w(),
         pressure,
     )
