@@ -12,6 +12,7 @@ from psychrolib import (
 )
 
 from psychrochart.chartdata import (
+    get_rh_max_min_in_limits,
     make_constant_dry_bulb_v_lines,
     make_constant_enthalpy_lines,
     make_constant_humidity_ratio_h_lines,
@@ -103,12 +104,24 @@ def _generate_chart_curves(
 
     # Constant relative humidity curves:
     if config.chart_params.with_constant_rh:
+        rh_min, rh_max = get_rh_max_min_in_limits(
+            config.dbt_min,
+            config.dbt_max,
+            config.w_min,
+            config.w_max,
+            pressure,
+        )
+        rh_values = sorted(
+            rh
+            for rh in config.chart_params.constant_rh_curves
+            if rh_min < rh < rh_max
+        )
         chart.constant_rh_data = make_constant_relative_humidity_lines(
             config.dbt_min,
             config.dbt_max,
             config.limits.step_temp,
             pressure,
-            rh_perc_values=config.chart_params.constant_rh_curves,
+            rh_perc_values=rh_values,
             rh_label_values=config.chart_params.constant_rh_labels,
             style=config.constant_rh,
             label_loc=config.chart_params.constant_rh_labels_loc,

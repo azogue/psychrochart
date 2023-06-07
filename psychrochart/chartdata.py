@@ -8,6 +8,7 @@ from psychrolib import (
     GetMoistAirEnthalpy,
     GetMoistAirVolume,
     GetRelHumFromTWetBulb,
+    GetRelHumFromHumRatio,
     GetSatVapPres,
     GetTDewPointFromVapPres,
     GetTDryBulbFromEnthalpyAndHumRatio,
@@ -74,6 +75,23 @@ def _get_humid_ratio_in_saturation(
     return _factor_out_w() * f_vec_hum_ratio_from_vap_press(sat_p, pressure)
 
 
+def get_rh_max_min_in_limits(
+    dbt_min: float,
+    dbt_max: float,
+    w_humidity_ratio_min: float,
+    w_humidity_ratio_max: float,
+    pressure: float,
+) -> tuple[float, float]:
+    """Get max range for constant rel. humidity lines inside chart limits."""
+    rh_min = GetRelHumFromHumRatio(
+        dbt_max, w_humidity_ratio_min / _factor_out_w(), pressure
+    )
+    rh_max = GetRelHumFromHumRatio(
+        dbt_min, w_humidity_ratio_max / _factor_out_w(), pressure
+    )
+    return rh_min * 100.0, min(rh_max * 100.0, 100)
+
+
 def gen_points_in_constant_relative_humidity(
     dry_temps: Sequence[float],
     rh_percentage: float | Sequence[float],
@@ -81,7 +99,10 @@ def gen_points_in_constant_relative_humidity(
 ) -> np.array:
     """Generate a curve (numpy array) of constant humidity ratio."""
     return _factor_out_w() * f_vec_hum_ratio_from_vap_press(
-        f_vec_sat_press(dry_temps) * np.array(rh_percentage) / 100.0, pressure
+        f_vec_sat_press(dry_temps)
+        * np.array(rh_percentage).clip(0, 100)
+        / 100.0,
+        pressure,
     )
 
 
@@ -91,16 +112,17 @@ def make_constant_relative_humidity_lines(
     temp_step: float,
     pressure: float,
     rh_perc_values: list[int],
-    rh_label_values: list[float],
+    rh_label_values: list[int],
     style: CurveStyle,
     label_loc: float,
     family_label: str | None,
 ) -> PsychroCurves:
     """Generate curves of constant relative humidity for the chart."""
+    rh_values = sorted(rh for rh in rh_perc_values if 0 <= rh <= 100)
     temps_ct_rh = np.arange(dbt_min, dbt_max + temp_step, temp_step)
     curves_ct_rh = [
         gen_points_in_constant_relative_humidity(temps_ct_rh, rh, pressure)
-        for rh in rh_perc_values
+        for rh in rh_values
     ]
     return PsychroCurves(
         curves=[
@@ -110,11 +132,9 @@ def make_constant_relative_humidity_lines(
                 style=style,
                 type_curve="constant_rh_data",
                 label_loc=label_loc,
-                label=(
-                    f"RH {rh:g} %" if round(rh, 1) in rh_label_values else None
-                ),
+                label=f"RH {rh:g} %" if rh in rh_label_values else None,
             )
-            for rh, curve_ct_rh in zip(rh_perc_values, curves_ct_rh)
+            for rh, curve_ct_rh in zip(rh_values, curves_ct_rh)
         ],
         family_label=family_label,
     )
@@ -203,7 +223,7 @@ def make_saturation_line(
     """Generate line of saturation for the psychrochart."""
     temps_sat_line = np.arange(dbt_min, dbt_max + temp_step, temp_step)
     w_sat = gen_points_in_constant_relative_humidity(
-        temps_sat_line, 100.0, pressure
+        temps_sat_line, 100, pressure
     )
     sat_c = PsychroCurve(
         x_data=temps_sat_line,
@@ -441,6 +461,7 @@ def _make_zone_dbt_rh(
 ) -> PsychroCurve:
     """Generate points for zone between constant dry bulb temps and RH."""
     temps = np.arange(t_min, t_max + increment, increment)
+    assert rh_min >= 0.0 and rh_max <= 100.0
     curve_rh_up = gen_points_in_constant_relative_humidity(
         temps, rh_max, pressure
     )

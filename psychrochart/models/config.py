@@ -76,9 +76,7 @@ class ChartParams(BaseConfig):
     with_constant_rh: bool = Field(default=True)
     constant_rh_label: str | None = Field(default="Constant relative humidity")
     constant_rh_curves: list[int] = Field(default=_DEFAULT_RH_CURVES)
-    constant_rh_labels: list[float] = Field(
-        default=_DEFAULT_CONSTANT_RH_LABELS
-    )
+    constant_rh_labels: list[int] = Field(default=_DEFAULT_CONSTANT_RH_LABELS)
     constant_rh_labels_loc: float = Field(default=0.85)
 
     with_constant_v: bool = Field(default=True)
