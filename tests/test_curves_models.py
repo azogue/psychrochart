@@ -62,7 +62,7 @@ def test_string_representation_for_psychrochart_objs():
     )
     assert (
         repr(data_chart.constant_wbt_data)
-        == "<10 PsychroCurves (label: Constant wet bulb temperature)>"
+        == "<9 PsychroCurves (label: Constant wet bulb temperature)>"
     )
     assert (
         repr(data_chart.constant_h_data)

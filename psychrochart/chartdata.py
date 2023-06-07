@@ -4,15 +4,16 @@ from typing import Sequence
 
 import numpy as np
 from psychrolib import (
+    GetHumRatioFromTWetBulb,
     GetHumRatioFromVapPres,
     GetMoistAirEnthalpy,
     GetMoistAirVolume,
-    GetRelHumFromTWetBulb,
     GetRelHumFromHumRatio,
     GetSatVapPres,
     GetTDewPointFromVapPres,
     GetTDryBulbFromEnthalpyAndHumRatio,
     GetTDryBulbFromMoistAirVolumeAndHumRatio,
+    GetTWetBulbFromHumRatio,
     GetVapPresFromHumRatio,
     isIP,
 )
@@ -392,53 +393,78 @@ def make_constant_specific_volume_lines(
 
 
 def make_constant_wet_bulb_temperature_lines(
+    dry_bulb_temp_min: float,
     dry_bulb_temp_max: float,
+    w_humidity_ratio_min: float,
+    w_humidity_ratio_max: float,
     pressure: float,
     wbt_values: np.ndarray,
     wbt_label_values: list[float],
     style: CurveStyle,
     label_loc: float,
     family_label: str | None,
-) -> PsychroCurves:
+) -> PsychroCurves | None:
     """Generate curves of constant wet bulb temperature for the chart."""
-    w_max_constant_wbt = f_vec_hum_ratio_from_vap_press(
-        f_vec_sat_press(np.array(wbt_values)), pressure
+    wt_min = GetTWetBulbFromHumRatio(
+        dry_bulb_temp_min, w_humidity_ratio_min / _factor_out_w(), pressure
     )
-
-    def _hum_ratio_for_constant_wet_temp_at_dry_temp(db_t, wb_t, p_atm):
-        return _factor_out_w() * GetHumRatioFromVapPres(
-            GetSatVapPres(db_t) * GetRelHumFromTWetBulb(db_t, wb_t, p_atm),
-            p_atm,
+    wt_bottom_right = GetTWetBulbFromHumRatio(dry_bulb_temp_max, 0, pressure)
+    wt_top_right = GetTWetBulbFromHumRatio(
+        dry_bulb_temp_max,
+        min(
+            w_humidity_ratio_max / _factor_out_w(),
+            GetHumRatioFromVapPres(GetSatVapPres(dry_bulb_temp_max), pressure),
+        ),
+        pressure,
+    )
+    wbt_objective = np.array(
+        [wt for wt in wbt_values if wt_min < wt < wt_top_right]
+    )
+    if wbt_objective.shape[0] == 0:
+        logging.warning(
+            "All %d wetbulb-temp curves are outside limits "
+            "(%g->%g not inside [%g, %g])",
+            len(wbt_values),
+            wbt_values[0],
+            wbt_values[-1],
+            wt_min,
+            dry_bulb_temp_max,
         )
+        return None
 
+    w_max_constant_wbt = f_vec_hum_ratio_from_vap_press(
+        f_vec_sat_press(wbt_objective), pressure
+    )
     curves = []
-    for wbt, w_max in zip(wbt_values, w_max_constant_wbt):
-        if wbt >= dry_bulb_temp_max:
-            break
-        pair_t = [wbt, dry_bulb_temp_max]
-        pair_w = [
-            _factor_out_w() * w_max,
-            _hum_ratio_for_constant_wet_temp_at_dry_temp(
-                pair_t[1], wbt, pressure
-            ),
-        ]
-        while pair_w[1] <= 0.01:
-            pair_t[1] -= 0.5 * (pair_t[1] - wbt)
-            pair_w[1] = _hum_ratio_for_constant_wet_temp_at_dry_temp(
-                pair_t[1], wbt, pressure
+    for wbt, w_max in zip(wbt_objective, w_max_constant_wbt):
+        dbt_objective = dry_bulb_temp_max
+        w_left = _factor_out_w() * w_max
+        if wbt >= wt_bottom_right:
+            # on vertical y-axis
+            w_right = _factor_out_w() * GetHumRatioFromTWetBulb(
+                dbt_objective, wbt, pressure
             )
-
-            if pair_w[1] > 0.01:
-                # extend curve to the bottom axis
-                slope = (pair_t[1] - pair_t[0]) / (pair_w[1] - pair_w[0])
-                new_dbt = wbt - slope * pair_w[0]
-                pair_t[1] = new_dbt
-                pair_w[1] = 0.0
-                break
+        else:
+            # on horizontal x-axis
+            dbt_objective = dry_bulb_temp_max
+            w_right = _factor_out_w() * GetHumRatioFromTWetBulb(
+                dbt_objective, wbt, pressure
+            )
+            while w_right <= 0.01:
+                dbt_objective -= 0.5 * (dbt_objective - wbt)
+                w_right = _factor_out_w() * GetHumRatioFromTWetBulb(
+                    dbt_objective, wbt, pressure
+                )
+                if w_right > 0.01:
+                    # extend curve to the bottom axis
+                    slope = (dbt_objective - wbt) / (w_right - w_left)
+                    dbt_objective = wbt - slope * w_left
+                    w_right = 0.0
+                    break
 
         c = PsychroCurve(
-            x_data=np.array(pair_t),
-            y_data=np.array(pair_w),
+            x_data=np.array([wbt, dbt_objective]),
+            y_data=np.array([w_left, w_right]),
             style=style,
             type_curve="constant_wbt_data",
             label_loc=label_loc,

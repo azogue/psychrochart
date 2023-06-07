@@ -169,7 +169,10 @@ def _generate_chart_curves(
         step = config.chart_params.constant_wet_temp_step
         start, end = config.chart_params.range_wet_temp
         chart.constant_wbt_data = make_constant_wet_bulb_temperature_lines(
+            config.dbt_min,
             config.dbt_max,
+            config.w_min,
+            config.w_max,
             pressure,
             wbt_values=np.arange(start, end, step),
             wbt_label_values=config.chart_params.constant_wet_temp_labels,
