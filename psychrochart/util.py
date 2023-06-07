@@ -11,7 +11,7 @@ TESTING_MODE = os.getenv("PYTEST_CURRENT_TEST") is not None
 def _iter_solver(
     initial_value: np.ndarray,
     objective_value: np.ndarray,
-    func_eval: Callable,
+    func_eval: Callable[[np.ndarray | float], float],
     initial_increment: float = 4.0,
     num_iters_max: int = NUM_ITERS_MAX,
     precision: float = 0.01,
@@ -53,8 +53,8 @@ def _iter_solver(
 def solve_curves_with_iteration(
     family_name,
     objective_values: np.ndarray,
-    func_init: Callable,
-    func_eval: Callable,
+    func_init: Callable[[np.ndarray], float],
+    func_eval: Callable[[np.ndarray | float], float],
 ) -> np.ndarray:
     """Run the iteration solver for a list of objective values
     for the three types of curves solved with this method."""

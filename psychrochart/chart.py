@@ -334,7 +334,7 @@ class PsychroChart(PsychroChartModel):
             isinstance(path_dest, (str, Path))
             and not Path(path_dest).parent.exists()
         ):
-            Path(path_dest).parent.mkdir()
+            Path(path_dest).parent.mkdir(parents=True)
         if self._axes is None or self.config.has_changed:
             self.plot()
         assert self._fig is not None

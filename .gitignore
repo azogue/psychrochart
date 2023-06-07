@@ -215,3 +215,4 @@ fabric.properties
 
 # generated plots in tests
 tests/generated
+notebooks/nb-charts
