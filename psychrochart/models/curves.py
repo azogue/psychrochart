@@ -120,8 +120,8 @@ class PsychroCurve(BaseModel):
                 self.x_data, self.y_data, xmin, xmax, ymin, ymax
             )
         ):
-            logging.debug(
-                "%s (label:%s) Not between limits ([%.2g, %.2g, %.2g, %.2g]) "
+            logging.info(
+                "%s (label:%s) not between limits ([%.2g, %.2g, %.2g, %.2g]) "
                 "-> x:%s, y:%s",
                 self.type_curve,
                 self.label or "unnamed",

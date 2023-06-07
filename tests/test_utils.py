@@ -1,6 +1,7 @@
 """Tests utilities."""
 import json
 
+from psychrochart.__main__ import main
 from psychrochart.models.parsers import DEFAULT_CHART_CONFIG_FILE, load_config
 from psychrochart.util import mod_color
 from tests.conftest import TEST_BASEDIR
@@ -38,10 +39,6 @@ def test_load_plot_config():
 
 def test_cli_main():
     """Unit test for the CLI entry point."""
-    from psychrochart.__main__ import main
-
-    # import psychrochart.agg  # noqa F401
-
     main()
 
 

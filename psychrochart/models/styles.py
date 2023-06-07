@@ -1,9 +1,10 @@
-from pydantic import BaseModel, Extra, Field, root_validator, validator
+from pydantic import Extra, Field, root_validator, validator
 
+from psychrochart.models.base import BaseConfig
 from psychrochart.models.validators import parse_color, reduce_field_abrs
 
 
-class CurveStyle(BaseModel):
+class CurveStyle(BaseConfig):
     """Container for matplotlib styling of psychro curve."""
 
     color: list[float] = Field(default=[0.2, 0.2, 0.2])
@@ -22,7 +23,7 @@ class CurveStyle(BaseModel):
         return reduce_field_abrs(values)
 
 
-class LabelStyle(BaseModel):
+class LabelStyle(BaseConfig):
     """Container for matplotlib styling of labels."""
 
     color: list[float] = Field(default=[0.2, 0.2, 0.2])
@@ -36,7 +37,7 @@ class LabelStyle(BaseModel):
         return parse_color(v)
 
 
-class TickStyle(BaseModel):
+class TickStyle(BaseConfig):
     """Container for matplotlib tick axes styling."""
 
     direction: str = Field(default="out")
@@ -50,7 +51,7 @@ class TickStyle(BaseModel):
         return parse_color(v)
 
 
-class ZoneStyle(BaseModel):
+class ZoneStyle(BaseConfig):
     """Container for matplotlib patch styling of zones in psychrochart."""
 
     edgecolor: list[float]

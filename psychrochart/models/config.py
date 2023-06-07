@@ -1,6 +1,11 @@
-from pydantic import BaseModel, Extra, Field
+from pydantic import Extra, Field
 
-from psychrochart.models.styles import CurveStyle, LabelStyle, TickStyle
+from psychrochart.models.styles import (
+    BaseConfig,
+    CurveStyle,
+    LabelStyle,
+    TickStyle,
+)
 
 _DEFAULT_RANGE_VOL_M3_KG = (0.78, 0.98)
 _DEFAULT_RANGE_ENTALPHY = (5, 155)
@@ -32,10 +37,11 @@ _DEFAULT_STYLE_HUMID = CurveStyle(
 )
 
 
-class ChartFigure(BaseModel):
+class ChartFigure(BaseConfig):
     """Psychrochart settings for matplotlib Figure."""
 
     figsize: tuple[float, float] = Field(default=(16, 9))
+    dpi: int = Field(default=150)
     fontsize: int = Field(default=10)
     title: str | None = Field(default="Psychrometric Chart")
     x_label: str | None = Field(default="Dry-bulb temperature, $°C$")
@@ -54,7 +60,7 @@ class ChartFigure(BaseModel):
     )
 
 
-class ChartLimits(BaseModel):
+class ChartLimits(BaseConfig):
     """Psychrochart temperature + humidity + pressure limits."""
 
     range_temp_c: tuple[float, float] = Field(default=(0, 50))
@@ -64,15 +70,13 @@ class ChartLimits(BaseModel):
     step_temp: float = Field(default=1)
 
 
-class ChartParams(BaseModel):
+class ChartParams(BaseConfig):
     """Psychrochart plotting parameters."""
 
     with_constant_rh: bool = Field(default=True)
     constant_rh_label: str | None = Field(default="Constant relative humidity")
     constant_rh_curves: list[int] = Field(default=_DEFAULT_RH_CURVES)
-    constant_rh_labels: list[float] = Field(
-        default=_DEFAULT_CONSTANT_RH_LABELS
-    )
+    constant_rh_labels: list[int] = Field(default=_DEFAULT_CONSTANT_RH_LABELS)
     constant_rh_labels_loc: float = Field(default=0.85)
 
     with_constant_v: bool = Field(default=True)
@@ -118,7 +122,7 @@ class ChartParams(BaseModel):
     with_zones: bool = Field(default=True)
 
 
-class ChartConfig(BaseModel):
+class ChartConfig(BaseConfig):
     """
     Psychrochart configuration model.
 

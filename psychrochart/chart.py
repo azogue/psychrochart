@@ -34,6 +34,7 @@ from psychrochart.plot_logic import (
 from psychrochart.process_logic import (
     append_zones_to_chart,
     generate_psychrochart,
+    update_psychrochart_data,
 )
 from psychrochart.util import mod_color
 
@@ -78,6 +79,7 @@ class PsychroChart(PsychroChartModel):
         use_unit_system_si: bool = True,
     ):
         chart_config = obj_loader(ChartConfig, config)
+        chart_config.commit_changes()
         chart_data = generate_psychrochart(
             chart_config, extra_zones, use_unit_system_si
         )
@@ -93,9 +95,14 @@ class PsychroChart(PsychroChartModel):
             f"->{self.config.w_max:g} gr/kg_da]>"
         )
 
+    def _ensure_updated_data(self):
+        if self.config.has_changed:
+            update_psychrochart_data(self, self.config)
+
     @property
     def axes(self) -> Axes:
         """Return the Axes object plotting the chart if necessary."""
+        self._ensure_updated_data()
         if self._axes is None:
             self.plot()
         assert isinstance(self._axes, Axes)
@@ -286,11 +293,14 @@ class PsychroChart(PsychroChartModel):
 
     def plot(self, ax: Axes | None = None) -> Axes:
         """Plot the psychrochart and return the matplotlib Axes instance."""
+        self._ensure_updated_data()
         if ax is not None:
             self._fig = ax.get_figure()
         else:
             self._fig = figure.Figure(
-                figsize=self.config.figure.figsize, dpi=150, frameon=False
+                figsize=self.config.figure.figsize,
+                dpi=self.config.figure.dpi,
+                frameon=False,
             )
             ax = self._fig.add_subplot(position=self.config.figure.position)
         self._axes = ax
@@ -324,8 +334,8 @@ class PsychroChart(PsychroChartModel):
             isinstance(path_dest, (str, Path))
             and not Path(path_dest).parent.exists()
         ):
-            Path(path_dest).parent.mkdir()
-        if self._axes is None:
+            Path(path_dest).parent.mkdir(parents=True)
+        if self._axes is None or self.config.has_changed:
             self.plot()
         assert self._fig is not None
         canvas_use = _select_fig_canvas(path_dest, canvas_cls)

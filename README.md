@@ -59,8 +59,16 @@ from psychrochart import PsychroChart
 
 # Load default style:
 chart_default = PsychroChart.create()
+# customize anything
+chart_default.limits.range_temp_c = (15.0, 35.0)
+chart_default.limits.range_humidity_g_kg = (5, 25)
+chart_default.config.saturation.linewidth = 1
+chart_default.config.constant_wet_temp.color = "darkblue"
+# plot
 axes = chart_default.plot()
 axes.get_figure()
+# or store on disk
+chart_default.save("my-custom-chart.svg")
 ```
 
 Called from the terminal (`python psychrochart`), it plots and shows the default chart using the default matplotlib backend, equivalent to this python script:
@@ -76,7 +84,7 @@ plt.show()
 ### Chart customization
 
 The default styling for charts is defined in JSON files that you can change, or you can pass a path of a file in JSON, or a dict, when you create the psychrometric chart object.
-Included styles are: `default`, `ashrae`, `interior` and `minimal`.
+Included styles are: `default`, `ashrae`, `ashrae_ip` (adjusted for IP units), `interior`, and `minimal`.
 
 ```python
 from pathlib import Path

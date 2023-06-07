@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - ✨ Chart config auto-refresh + bugfixes - 2023-06-07
+
+Before, chart customize was done by creating a new `Psychrochart` object based on some modified chart configuration,
+so creating custom plots, or even changing chart limits, was _challenging_ 😓
+
+**Now**, when `chart.config` changes, any call to `chart.save()`, `chart.make_svg()`, or `chart.plot()`
+will regenerate the chart data (limits, enabled curves, styling, etc.) before plotting, with only the visible curves inside limits,
+(no more 0-size artifacts in SVGs, and most errors because some var is out of range should be gone now 🤞)
+
+##### Changes
+
+- ♻️ Update example notebook with API changes, and using `chart.make_svg()` as the recommended method to generate SVGs
+- 💄 **Parse colors into RGBA values**, so "red", "#FF0000", "#FF0000FF" produce the same float repr [1., 0., 0., 1.]
+- 🏗️ Add **mutation control for configuration models**, and use it to check if there is any config change before creating a chart, triggering a chart-data regeneration if necessary
+- 🔧 Add new field `ChartFigure.dpi` to chart config, for easy customization of matplotlib Figure DPI
+- ⚡️ Optimize generation of psychrometric curves inside plot limits
+
 ## [0.5.0] - ♻️ Full re-work on internals to use pydantic models - 2023-06-05
 
 🧹 Internal evolution to update the code style to the latest versions and de facto standards, with better typing, input validation, and serialization.

@@ -1,6 +1,7 @@
 {
   "figure": {
     "figsize": [16, 9],
+    "dpi": 150,
     "fontsize": 10,
     "title": "Psychrometric Chart",
     "x_label": "Dry-bulb temperature, $°C$",

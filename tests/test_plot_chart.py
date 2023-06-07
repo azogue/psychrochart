@@ -1,7 +1,7 @@
 """Tests plotting."""
 import numpy as np
 
-from psychrochart.agg import PsychroChart
+from psychrochart import PsychroChart
 from tests.conftest import TEST_BASEDIR
 
 # fmt: off
