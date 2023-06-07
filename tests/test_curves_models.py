@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from psychrochart.agg import PsychroChart
+from psychrochart import PsychroChart
 from psychrochart.models.curves import PsychroCurve
 from psychrochart.models.styles import CurveStyle
 

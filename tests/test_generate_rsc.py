@@ -1,6 +1,6 @@
 import pytest
 
-from psychrochart.agg import PsychroChart
+from psychrochart import PsychroChart
 from tests.conftest import RSC_EXAMPLES, TEST_BASEDIR
 
 

@@ -1,8 +1,7 @@
 """Test that Psychrochart object is serializable."""
 import pickle
 
-from psychrochart import load_config
-from psychrochart.agg import PsychroChart
+from psychrochart import load_config, PsychroChart
 from tests.conftest import TEST_BASEDIR
 
 

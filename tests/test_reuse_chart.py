@@ -1,4 +1,4 @@
-from psychrochart.agg import PsychroChart
+from psychrochart import PsychroChart
 from tests.conftest import TEST_BASEDIR, timeit
 
 

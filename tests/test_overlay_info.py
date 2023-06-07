@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from psychrochart.agg import PsychroChart
+from psychrochart import PsychroChart
 from psychrochart.models.annots import ChartZone
 from psychrochart.models.parsers import load_config
 from tests.conftest import TEST_BASEDIR
