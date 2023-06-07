@@ -31,13 +31,13 @@ def _iter_solver(
             if not decreasing:
                 increment /= 2
                 decreasing = True
-            increment = max(precision / 10, increment)
+            increment = max(precision / 20, increment)
             value_calc -= increment
         else:
             if decreasing:
                 increment /= 2
                 decreasing = False
-            increment = max(precision / 10, increment)
+            increment = max(precision / 20, increment)
             value_calc += increment
         num_iter += 1
 
