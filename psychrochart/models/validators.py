@@ -49,4 +49,7 @@ def parse_curve_arrays(values):
         values["x_data"] = np.array(values["x_data"])
     if "y_data" in values and not isinstance(values["y_data"], np.ndarray):
         values["y_data"] = np.array(values["y_data"])
+    shape = values["x_data"].shape[0], values["y_data"].shape[0]
+    if shape[0] == 0 or shape[1] == 0 or shape[0] != shape[1]:
+        raise ValueError(f"Invalid shape: {shape}")
     return values
