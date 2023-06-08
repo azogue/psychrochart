@@ -42,7 +42,7 @@ log_date_format = "%Y-%m-%d %H:%M:%S"
 
 [tool.poetry]
 name = "psychrochart"
-version = "0.6.0"
+version = "0.7.0"
 description = "A python 3 library to make psychrometric charts and overlay information on them"
 authors = ["Eugenio Panadero <eugenio.panadero@gmail.com>"]
 packages = [
@@ -74,6 +74,7 @@ matplotlib = ">=3.7"
 scipy = ">=1.10"
 psychrolib = ">=2.5"
 pydantic = ">=1.8"
+python-slugify = ">=8.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = ">=2.10.0"
