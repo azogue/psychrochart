@@ -2,7 +2,7 @@
 import numpy as np
 
 from psychrochart import PsychroChart
-from tests.conftest import TEST_BASEDIR
+from tests.conftest import store_test_chart
 
 # fmt: off
 TEST_EXAMPLE_ZONES = [
@@ -101,10 +101,7 @@ def test_custom_style_psychrochart():
     chart = PsychroChart.create(custom_style)
     chart.plot()
     chart.plot_legend()
-
-    path_png = TEST_BASEDIR / "test_custom_psychrochart.png"
-    chart.save(path_png, facecolor="none")
-    chart.close_fig()
+    store_test_chart(chart, "test_custom_psychrochart.svg")
 
 
 def test_custom_style_psychrochart_2():
@@ -188,11 +185,7 @@ def test_custom_style_psychrochart_2():
         },
     }
     chart = PsychroChart.create(custom_style)
-    chart.plot()
-
-    path_png = TEST_BASEDIR / "test_custom_psychrochart_2.png"
-    chart.save(path_png, facecolor="none")
-    chart.close_fig()
+    store_test_chart(chart, "test_custom_psychrochart_2.svg")
 
     for p in np.arange(90.0, 105.0):
         custom_style["limits"]["pressure_kpa"] = p
@@ -281,11 +274,7 @@ def test_custom_style_psychrochart_3():
         "zones": TEST_EXAMPLE_ZONES,
     }
     chart = PsychroChart.create(custom_style)
-    chart.plot()
-
-    path_png = TEST_BASEDIR / "test_custom_psychrochart_3.png"
-    chart.save(path_png, facecolor="none")
-    chart.close_fig()
+    store_test_chart(chart, "test_custom_psychrochart_3.svg")
 
     for p in np.arange(90.0, 105.0):
         custom_style["limits"]["pressure_kpa"] = p
@@ -294,11 +283,9 @@ def test_custom_style_psychrochart_3():
 
 def test_default_styles_psychrochart():
     """Test the plot custom styling with other preset styles."""
-    path_svg = TEST_BASEDIR / "test_interior_psychrochart.svg"
     chart = PsychroChart.create("interior")
     chart.plot()
     chart.plot_legend(
         markerscale=0.7, frameon=False, fontsize=10, labelspacing=1.2
     )
-    chart.save(path_svg)
-    chart.close_fig()
+    store_test_chart(chart, "test_interior_psychrochart.svg")

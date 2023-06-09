@@ -6,6 +6,7 @@ from time import time
 from typing import Callable
 
 from matplotlib import rcParams
+
 from psychrochart import PsychroChart
 
 _RG_SVGDATE = re.compile(r"(\s+?<dc:date>.*</dc:date>\s+?)")
@@ -14,7 +15,10 @@ TEST_BASEDIR = Path(__file__).parent / "generated"
 
 
 def store_test_chart(
-    chart: PsychroChart, name_svg: str, png: bool = True, svg_rsc: bool = False
+    chart: PsychroChart,
+    name_svg: str,
+    png: bool = False,
+    svg_rsc: bool = False,
 ) -> None:
     """Helper method to store test charts."""
     p_svg = TEST_BASEDIR / name_svg

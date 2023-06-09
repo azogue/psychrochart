@@ -2,7 +2,7 @@
 import gc
 from io import StringIO
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Type
+from typing import Any, Iterable, Type
 
 from matplotlib import figure
 from matplotlib.artist import Artist
@@ -326,7 +326,7 @@ class PsychroChart(PsychroChartModel):
         self,
         path_dest: Any,
         canvas_cls: Type[FigureCanvasBase] | None = None,
-        **params: Mapping[str, Any],
+        **params,
     ) -> None:
         """Write the chart to disk."""
         # ensure destination path if folder does not exist
@@ -342,7 +342,7 @@ class PsychroChart(PsychroChartModel):
         canvas_use(self._fig).print_figure(path_dest, **params)
         gc.collect()
 
-    def make_svg(self, **params: Mapping[str, Any]) -> str:
+    def make_svg(self, **params) -> str:
         """Generate chart as SVG and return as text."""
         svg_io = StringIO()
         self.save(svg_io, canvas_cls=FigureCanvasSVG, **params)

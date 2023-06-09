@@ -5,7 +5,7 @@ import pytest
 from psychrochart import PsychroChart
 from psychrochart.models.annots import ChartZone
 from psychrochart.models.parsers import load_config
-from tests.conftest import TEST_BASEDIR
+from tests.conftest import store_test_chart, TEST_BASEDIR
 
 
 def test_chart_overlay_points_and_zones():
@@ -72,8 +72,7 @@ def test_chart_overlay_points_and_zones():
     chart.plot_legend(markerscale=1.0, fontsize=11, labelspacing=1.3)
 
     # Save to disk
-    path_svg = TEST_BASEDIR / "chart_overlay_test.svg"
-    chart.save(path_svg)
+    store_test_chart(chart, "chart_overlay_test.svg")
 
 
 def test_chart_overlay_minimal():
@@ -110,8 +109,7 @@ def test_chart_overlay_minimal():
     chart.plot_points_dbt_rh(points, convex_groups=convex_groups)
 
     # Save to disk
-    path_svg = TEST_BASEDIR / "chart_overlay_minimal.svg"
-    chart.save(path_svg)
+    store_test_chart(chart, "chart_overlay_minimal.svg")
 
 
 def test_chart_overlay_arrows():
@@ -133,8 +131,7 @@ def test_chart_overlay_arrows():
     chart.plot_legend(markerscale=1.0, fontsize=11, labelspacing=1.3)
 
     # Save to disk
-    path_svg = TEST_BASEDIR / "test_chart_overlay_arrows_1.svg"
-    chart.save(path_svg)
+    store_test_chart(chart, "test_chart_overlay_arrows_1.svg")
 
     chart.remove_annotations()
     points_arrows = {
@@ -169,8 +166,7 @@ def test_chart_overlay_arrows():
     chart.plot_arrows_dbt_rh(points_arrows)
 
     # Save to disk
-    path_svg = TEST_BASEDIR / "test_chart_overlay_arrows_2.svg"
-    chart.save(path_svg)
+    store_test_chart(chart, "test_chart_overlay_arrows_2.svg")
 
 
 def test_chart_overlay_convexhull():
@@ -215,8 +211,7 @@ def test_chart_overlay_convexhull():
     chart.plot_legend(markerscale=1.0, fontsize=11, labelspacing=1.3)
 
     # Save to disk
-    path_svg = TEST_BASEDIR / "chart_overlay_test_convexhull.svg"
-    chart.save(path_svg)
+    store_test_chart(chart, "chart_overlay_test_convexhull.svg")
 
 
 def test_overlay_a_lot_of_points_1():
@@ -247,8 +242,7 @@ def test_overlay_a_lot_of_points_1():
     chart.plot_points_dbt_rh(points, scatter_style=scatter_style)
 
     # Save to disk
-    path_png = TEST_BASEDIR / "chart_overlay_test_lot_of_points_1.png"
-    chart.save(path_png)
+    store_test_chart(chart, "chart_overlay_test_lot_of_points_1.svg", png=True)
 
 
 def test_overlay_a_lot_of_points_2():
@@ -294,5 +288,4 @@ def test_overlay_a_lot_of_points_2():
     chart.plot_legend(markerscale=1.0, fontsize=11, labelspacing=1.3)
 
     # Save to disk
-    path_png = TEST_BASEDIR / "chart_overlay_test_lot_of_points.png"
-    chart.save(path_png)
+    chart.save(TEST_BASEDIR / "chart_overlay_test_lot_of_points.png")

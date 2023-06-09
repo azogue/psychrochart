@@ -1,5 +1,5 @@
 from psychrochart import PsychroChart
-from tests.conftest import TEST_BASEDIR
+from tests.conftest import store_test_chart
 
 _TEST_POINTS = {
     "exterior": {
@@ -121,6 +121,7 @@ _TEST_AREA = {
 
 def _make_base_chart():
     chart = PsychroChart.create("minimal")
+    chart.config.figure.dpi = 72
     chart.append_zones(_TEST_ZONES)
     chart.plot()
 
@@ -156,31 +157,34 @@ def _store_chart(
         chart.plot_legend(
             markerscale=0.7, frameon=False, fontsize=10, labelspacing=1.2
         )
-    chart.save(TEST_BASEDIR / chart_name)
+    # store_test_chart(chart, chart_name, png=True)
+    store_test_chart(chart, chart_name)
+    # chart.save(TEST_BASEDIR / chart_name)
+    # store_test_chart(custom_2, "custom-chart-2.svg")
 
 
 def test_base_chart():
     chart = _make_base_chart()
-    _store_chart(chart, "testchart_overlay_base.png", add_legend=False)
+    _store_chart(chart, "testchart_overlay_base.svg", add_legend=False)
 
 
 def test_overlay_single_points():
     chart = _make_base_chart()
     chart.plot_points_dbt_rh(_TEST_POINTS)
-    _store_chart(chart, "testchart_plot_points.png")
+    _store_chart(chart, "testchart_plot_points.svg")
 
     chart = _make_base_chart()
     chart.plot_points_dbt_rh(
         _TEST_POINTS,
         scatter_style={"s": 300, "alpha": 0.7, "color": "darkorange"},
     )
-    _store_chart(chart, "testchart_scatter_points.png")
+    _store_chart(chart, "testchart_scatter_points.svg")
 
 
 def test_connected_points():
     chart = _make_base_chart()
     chart.plot_points_dbt_rh(_TEST_POINTS, _TEST_CONNECTORS)
-    _store_chart(chart, "testchart_connected_points.png", add_legend=False)
+    _store_chart(chart, "testchart_connected_points.svg", add_legend=False)
 
 
 def test_marked_connected_points():
@@ -189,13 +193,13 @@ def test_marked_connected_points():
     connectors[0]["outline_marker_width"] = 50
     connectors[1]["outline_marker_width"] = 50
     chart.plot_points_dbt_rh(_TEST_POINTS, connectors)
-    _store_chart(chart, "testchart_marked_connected_points.png")
+    _store_chart(chart, "testchart_marked_connected_points.svg")
 
 
 def test_connected_array():
     chart = _make_base_chart()
     chart.plot_points_dbt_rh(_TEST_SERIES)
-    _store_chart(chart, "testchart_connected_array.png", add_legend=False)
+    _store_chart(chart, "testchart_connected_array.svg", add_legend=False)
 
 
 def test_convex_hull():
@@ -205,7 +209,7 @@ def test_convex_hull():
         points=_TEST_POINTS | _TEST_SERIES,
         convex_groups=[_TEST_AREA],
     )
-    _store_chart(chart, "testchart_convex_hull.png", add_legend=False)
+    _store_chart(chart, "testchart_convex_hull.svg", add_legend=False)
 
 
 def test_all_annots():
@@ -215,4 +219,4 @@ def test_all_annots():
         connectors=[_TEST_CONNECTORS[0] | {"outline_marker_width": 25}],
         convex_groups=[_TEST_AREA],
     )
-    _store_chart(chart, "testchart_all_annots.png")
+    _store_chart(chart, "testchart_all_annots.svg")

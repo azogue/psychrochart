@@ -164,4 +164,3 @@ def test_redraw_psychrochart():
     chart.close_fig()
 
     _add_points(chart, False, "test_redraw_chart_2.svg")
-    chart.close_fig()
