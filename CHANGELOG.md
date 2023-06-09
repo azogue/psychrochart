@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - ♻️ Testing suite refactor + model changes - 2023-06-09
+
+Maintenance-only update, without new features.
+
+##### Changes
+
+- 💥 Remove plotting methods from `PsychroCurve`/`PsychroCurves` for a more functional approach, using methods in `plot_logic.py`
+- 💥 Add `PsychroCurve.internal_value` field, to identify the trigger value for each curve (constant H/V/RH...), and evolve validation of data arrays
+- ✅ tests: Increase test coverage and optimize tests for faster run (~2x)
+- 📦️ env: Add slugify to deps and bump version
+
 ## [0.6.0] - ✨ Chart config auto-refresh + bugfixes - 2023-06-07
 
 Before, chart customize was done by creating a new `Psychrochart` object based on some modified chart configuration,
