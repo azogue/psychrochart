@@ -1,10 +1,52 @@
 """Tests objects to handle psychrometric curves."""
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 
 from psychrochart import PsychroChart
 from psychrochart.models.curves import PsychroCurve
 from psychrochart.models.styles import CurveStyle
+
+
+def test_curve_validation():
+    x_data = np.arange(0, 50, 1)
+    y_data = np.arange(0, 50, 1)
+    raw_style = {"color": "blue", "lw": 0.5}
+
+    # pydantic validation for raw dicts
+    curve = PsychroCurve.validate(
+        {"x_data": x_data, "y_data": y_data, "style": raw_style, "label": "T1"}
+    )
+    assert (curve.x_data == x_data).all()
+    assert curve.label == "T1"
+    assert isinstance(curve.style, CurveStyle)
+    assert isinstance(curve.style, CurveStyle)
+    # TODO assert curve.curve_id == "T1"
+
+    # also for styling
+    style = CurveStyle.validate(raw_style)
+    assert style.color[2] == 1.0
+    assert style.linewidth == 0.5
+
+    # with pytest.raises(ValueError):
+    #     # TODO curves need a label or an internal value
+    #     PsychroCurve(x_data=x_data, y_data=y_data, style=style)
+
+    with pytest.raises(ValueError):
+        # data should have the same length
+        PsychroCurve(x_data=x_data[:-1], y_data=y_data, style=style, label="T")
+
+    with pytest.raises(ValueError):
+        # and not be empty!
+        PsychroCurve(
+            x_data=np.array([]), y_data=np.array([]), style=style, label="T"
+        )
+
+    # todo no label (:=no presence on legend if enabled), but an internal value
+    # curve = PsychroCurve(
+    #     x_data=x_data, y_data=y_data, style=style, internal_value=42
+    # )
+    # assert curve.curve_id == "42"
 
 
 def test_curve_serialization():
@@ -12,7 +54,6 @@ def test_curve_serialization():
     x_data = np.arange(0, 50, 1)
     y_data = np.arange(0, 50, 1)
     style = CurveStyle(color="k", linewidth=0.5)
-
     curve = PsychroCurve(x_data=x_data, y_data=y_data, style=style)
 
     # Dict export and import:
@@ -33,7 +74,7 @@ def test_plot_single_curves():
     x_data = np.arange(0, 50, 1)
     y_data = np.arange(0, 50, 1)
     style = CurveStyle(color="k", linewidth=0.5)
-    curve = PsychroCurve(x_data=x_data, y_data=y_data, style=style)
+    curve = PsychroCurve(x_data=x_data, y_data=y_data, style=style, label="T1")
 
     # Plotting
     ax = plt.subplot()
