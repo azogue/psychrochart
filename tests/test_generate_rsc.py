@@ -1,7 +1,7 @@
 import pytest
 
 from psychrochart import PsychroChart
-from tests.conftest import RSC_EXAMPLES, TEST_BASEDIR
+from tests.conftest import store_test_chart
 
 
 @pytest.mark.parametrize(
@@ -21,10 +21,7 @@ def test_generate_rsc_default_charts(
         chart.plot_legend()
 
     # generate SVG as text, save PNG image
-    path_svg = RSC_EXAMPLES / svg_dest_file
-    path_png = (TEST_BASEDIR / svg_dest_file).with_suffix(".png")
-    path_svg.write_text(chart.make_svg(metadata={"Date": None}))
-    chart.save(path_png, facecolor="none")
+    store_test_chart(chart, svg_dest_file, svg_rsc=True)
 
 
 def test_generate_rsc_splash_chart():
@@ -147,10 +144,4 @@ def test_generate_rsc_splash_chart():
     )
 
     # Save to disk
-    path_svg = RSC_EXAMPLES / "chart_overlay_style_minimal.svg"
-    chart.save(path_svg, metadata={"Date": None})
-
-    # generate PNG variant
-    chart.save(
-        TEST_BASEDIR / path_svg.with_suffix(".png").name, facecolor="none"
-    )
+    store_test_chart(chart, "chart_overlay_style_minimal.svg", svg_rsc=True)

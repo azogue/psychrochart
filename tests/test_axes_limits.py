@@ -3,7 +3,7 @@ import logging
 from psychrochart import PsychroChart
 from psychrochart.models.annots import DEFAULT_ZONES
 from psychrochart.process_logic import set_unit_system
-from tests.conftest import TEST_BASEDIR
+from tests.conftest import store_test_chart
 
 
 def test_constant_wetbulb_temp_lines(caplog):
@@ -28,26 +28,22 @@ def test_constant_wetbulb_temp_lines(caplog):
         chart.config.chart_params.constant_wet_temp_labels = list(
             range(-25, 60)
         )
-        chart.save(TEST_BASEDIR / "chart-wbt-layout-normal.png")
-        chart.save(TEST_BASEDIR / "chart-wbt-layout-normal.svg")
+        store_test_chart(chart, "chart-wbt-layout-normal.svg")
 
         # example of saturation crossing x-axis
         chart.config.limits.range_humidity_g_kg = (10, 50)
-        chart.save(TEST_BASEDIR / "chart-wbt-layout-cut-xaxis.png")
-        chart.save(TEST_BASEDIR / "chart-wbt-layout-cut-xaxis.svg")
+        store_test_chart(chart, "chart-wbt-layout-cut-xaxis.svg")
 
         # example of saturation crossing both axis
         chart.config.limits.range_humidity_g_kg = (15, 120)
-        chart.save(TEST_BASEDIR / "chart-wbt-layout-cut-both.png")
-        chart.save(TEST_BASEDIR / "chart-wbt-layout-cut-both.svg")
+        store_test_chart(chart, "chart-wbt-layout-cut-both.svg")
 
         assert len(caplog.messages) == 0, caplog.messages
 
         # check plot in limits with 2 zones outside visible limits
         chart.close_fig()
         chart.append_zones(DEFAULT_ZONES)
-        chart.save(TEST_BASEDIR / "chart-wbt-layout-cut-both-no-zones.png")
-        chart.save(TEST_BASEDIR / "chart-wbt-layout-cut-both-no-zones.svg")
+        store_test_chart(chart, "chart-wbt-layout-cut-both-no-zones.svg")
 
         assert len(caplog.messages) == 2, caplog.messages
         assert "not between limits" in caplog.messages[0]
@@ -85,6 +81,5 @@ def test_wetbulb_temp_slope_change(caplog):
         chart.config.chart_params.constant_wet_temp_labels = wbt_labels
         chart.config.chart_params.constant_wet_temp_labels_loc = 0.01
 
-        chart.save(TEST_BASEDIR / "chart-wbt-discontinuity.png")
-        chart.save(TEST_BASEDIR / "chart-wbt-discontinuity.svg")
+        store_test_chart(chart, "chart-wbt-discontinuity.svg")
         assert len(caplog.messages) == 0, caplog.messages
