@@ -139,14 +139,13 @@ def plot_annots_dbt_rh(
                 **d_con.style.dict(),
             )
         )
-        # TODO document fix for issue #14: removing marker by default
         if d_con.outline_marker_width:
             _handlers_annotations.append(
                 ax.plot(
                     x_line,
                     y_line,
                     color=[*d_con.style.color[:3], 0.15],
-                    lw=d_con.outline_marker_width,  # lw=50,
+                    lw=d_con.outline_marker_width,
                     solid_capstyle="round",
                 )
             )

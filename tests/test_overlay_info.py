@@ -214,41 +214,11 @@ def test_chart_overlay_convexhull():
     store_test_chart(chart, "chart_overlay_test_convexhull.svg")
 
 
-def test_overlay_a_lot_of_points_1():
-    """Customize a chart with group of points."""
-    # Load config & customize chart
-    chart = PsychroChart.create("minimal")
-    chart.config.limits.pressure_kpa = 90.5
-    assert 90500.0 != chart.pressure
-
-    # Plotting
-    chart.plot()
-    assert 90500.0 == chart.pressure
-
-    # Create a lot of points
-    num_samples = 50000
-    theta = np.linspace(0, 2 * np.pi, num_samples)
-    r = np.random.rand(num_samples)
-    x, y = 7 * r * np.cos(theta) + 25, 20 * r * np.sin(theta) + 50
-
-    points = {"test_series_1": (x, y)}
-    scatter_style = {
-        "s": 5,
-        "alpha": 0.1,
-        "color": "darkorange",
-        "marker": "+",
-    }
-
-    chart.plot_points_dbt_rh(points, scatter_style=scatter_style)
-
-    # Save to disk
-    store_test_chart(chart, "chart_overlay_test_lot_of_points_1.svg", png=True)
-
-
-def test_overlay_a_lot_of_points_2():
+def test_overlay_a_lot_of_points():
     """Customize a chart with two cloud of points."""
     # Load config & customize chart
     chart = PsychroChart.create("minimal")
+    chart.config.figure.dpi = 100
     chart.config.limits.pressure_kpa = 90.5
     assert 90500.0 != chart.pressure
 
@@ -282,10 +252,12 @@ def test_overlay_a_lot_of_points_2():
             "style": scatter_style_1,
             "xy": (x, y),
         },
-        "test_displaced": {"label": "Displaced", "xy": (x2, y2)},
+        "test_displaced": (x2, y2),
     }
     chart.plot_points_dbt_rh(points, scatter_style=scatter_style_2)
     chart.plot_legend(markerscale=1.0, fontsize=11, labelspacing=1.3)
 
     # Save to disk
     chart.save(TEST_BASEDIR / "chart_overlay_test_lot_of_points.png")
+    # uncomment to generate a BIG SVG file
+    # store_test_chart(chart, "chart_overlay_test_lot_of_points.svg", png=True)
