@@ -19,9 +19,10 @@ from psychrolib import (
 )
 from scipy.interpolate import interp1d
 
+from psychrochart.chart_entities import random_internal_value
 from psychrochart.models.annots import ChartZone
 from psychrochart.models.curves import PsychroCurve, PsychroCurves
-from psychrochart.models.styles import CurveStyle, ZoneStyle
+from psychrochart.models.styles import CurveStyle
 from psychrochart.util import solve_curves_with_iteration
 
 f_vec_hum_ratio_from_vap_press = np.vectorize(GetHumRatioFromVapPres)
@@ -134,6 +135,7 @@ def make_constant_relative_humidity_lines(
                 type_curve="constant_rh_data",
                 label_loc=label_loc,
                 label=f"RH {rh:g} %" if rh in rh_label_values else None,
+                internal_value=float(rh),
             )
             for rh, curve_ct_rh in zip(rh_values, curves_ct_rh)
         ],
@@ -162,6 +164,7 @@ def make_constant_dry_bulb_v_line(
         y_data=np.array(path_y),
         style=style,
         type_curve=type_curve,
+        internal_value=temp,
     )
 
 
@@ -181,6 +184,7 @@ def make_constant_dry_bulb_v_lines(
                 y_data=np.array([w_humidity_ratio_min, w_max]),
                 style=style,
                 type_curve="constant_dry_temp_data",
+                internal_value=temp,
             )
             for temp, w_max in zip(temps_vl, w_max_vec)
         ],
@@ -207,6 +211,7 @@ def make_constant_humidity_ratio_h_lines(
                 y_data=np.array([w, w]),
                 style=style,
                 type_curve="constant_humidity_data",
+                internal_value=w,
             )
             for w, t_dp in zip(ws_hl, dew_points)
         ],
@@ -231,6 +236,7 @@ def make_saturation_line(
         y_data=w_sat,
         style=style,
         type_curve="saturation",
+        internal_value=100.0,
     )
     return PsychroCurves(curves=[sat_c])
 
@@ -308,6 +314,7 @@ def make_constant_enthalpy_lines(
                     if round(h, 3) in h_label_values
                     else None
                 ),
+                internal_value=round(h, 3),
             )
             for t_sat, w_sat, t_max, h in zip(
                 t_sat_points, w_in_sat, temps_max_constant_h, h_objective
@@ -386,6 +393,7 @@ def make_constant_specific_volume_lines(
                     if round(vol, 3) in v_label_values
                     else None
                 ),
+                internal_value=round(vol, 3),
             )
             for t_sat, w_sat, t_max, vol in zip(
                 t_sat_points, w_in_sat, temps_max_constant_v, v_objective
@@ -474,25 +482,40 @@ def make_constant_wet_bulb_temperature_lines(
             type_curve="constant_wbt_data",
             label_loc=label_loc,
             label=(_make_temp_label(wbt) if wbt in wbt_label_values else None),
+            internal_value=wbt,
         )
         curves.append(c)
 
     return PsychroCurves(curves=curves, family_label=family_label)
 
 
-def _make_zone_dbt_rh(
-    t_min: float,
-    t_max: float,
-    increment: float,
-    rh_min: float,
-    rh_max: float,
-    pressure: float,
-    style: ZoneStyle,
-    label: str | None = None,
+def make_zone_curve(
+    zone_conf: ChartZone, increment: float, pressure: float
 ) -> PsychroCurve:
-    """Generate points for zone between constant dry bulb temps and RH."""
-    temps = np.arange(t_min, t_max + increment, increment)
+    """Generate plot-points for zone."""
+    # todo better id for overlay zones if no label
+    zone_value = random_internal_value() if zone_conf.label is None else None
+    if zone_conf.zone_type == "xy-points":
+        # expect points in plot coordinates!
+        return PsychroCurve(
+            x_data=np.array(zone_conf.points_x),
+            y_data=np.array(zone_conf.points_y),
+            style=zone_conf.style,
+            type_curve="xy-points",
+            label=zone_conf.label,
+            internal_value=zone_value,
+        )
+
+    assert zone_conf.zone_type == "dbt-rh"
+    # points for zone between constant dry bulb temps and RH
+    t_min = zone_conf.points_x[0]
+    t_max = zone_conf.points_x[-1]
+    rh_min = zone_conf.points_y[0]
+    rh_max = zone_conf.points_y[-1]
     assert rh_min >= 0.0 and rh_max <= 100.0
+    assert t_min < t_max
+
+    temps = np.arange(t_min, t_max + increment, increment)
     curve_rh_up = gen_points_in_constant_relative_humidity(
         temps, rh_max, pressure
     )
@@ -506,39 +529,8 @@ def _make_zone_dbt_rh(
     return PsychroCurve(
         x_data=np.array(temps_zone),
         y_data=np.array(abs_humid),
-        style=style,
-        type_curve="constant_rh_data",
-        label=label,
+        style=zone_conf.style,
+        type_curve="dbt-rh",
+        label=zone_conf.label,
+        internal_value=zone_value,
     )
-
-
-def make_zone_curve(
-    zone_conf: ChartZone, increment: float, pressure: float
-) -> PsychroCurve:
-    """Generate points for zone between constant dry bulb temps and RH."""
-    # TODO make conversion rh -> w and new zone_type: "dbt-rh-points"
-    assert isinstance(zone_conf.style, ZoneStyle)
-    if zone_conf.zone_type == "dbt-rh":
-        t_min = zone_conf.points_x[0]
-        t_max = zone_conf.points_x[-1]
-        rh_min = zone_conf.points_y[0]
-        rh_max = zone_conf.points_y[-1]
-        return _make_zone_dbt_rh(
-            t_min,
-            t_max,
-            increment,
-            rh_min,
-            rh_max,
-            pressure,
-            zone_conf.style,
-            label=zone_conf.label,
-        )
-    else:
-        # zone_type: 'xy-points'
-        return PsychroCurve(
-            x_data=np.array(zone_conf.points_x),
-            y_data=np.array(zone_conf.points_y),
-            style=zone_conf.style,
-            type_curve="custom path",
-            label=zone_conf.label,
-        )

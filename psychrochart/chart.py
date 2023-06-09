@@ -2,7 +2,7 @@
 import gc
 from io import StringIO
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Type
+from typing import Any, Iterable, Type
 
 from matplotlib import figure
 from matplotlib.artist import Artist
@@ -27,9 +27,11 @@ from psychrochart.models.parsers import (
 )
 from psychrochart.models.styles import CurveStyle
 from psychrochart.plot_logic import (
+    add_label_to_curve,
     apply_axis_styling,
     plot_annots_dbt_rh,
     plot_chart,
+    plot_curve,
 )
 from psychrochart.process_logic import (
     append_zones_to_chart,
@@ -263,10 +265,12 @@ class PsychroChart(PsychroChartModel):
             temp,
             self.pressure,
             style=style_curve,
+            type_curve="constant-dbt",
             reverse=reverse,
         )
-        if curve.plot_curve(self.axes) and label is not None:
-            curve.add_label(self.axes, label, **label_params)
+
+        if plot_curve(curve, self.axes) and label is not None:
+            add_label_to_curve(curve, self.axes, label, **label_params)
 
     def plot_legend(
         self,
@@ -326,7 +330,7 @@ class PsychroChart(PsychroChartModel):
         self,
         path_dest: Any,
         canvas_cls: Type[FigureCanvasBase] | None = None,
-        **params: Mapping[str, Any],
+        **params,
     ) -> None:
         """Write the chart to disk."""
         # ensure destination path if folder does not exist
@@ -342,7 +346,7 @@ class PsychroChart(PsychroChartModel):
         canvas_use(self._fig).print_figure(path_dest, **params)
         gc.collect()
 
-    def make_svg(self, **params: Mapping[str, Any]) -> str:
+    def make_svg(self, **params) -> str:
         """Generate chart as SVG and return as text."""
         svg_io = StringIO()
         self.save(svg_io, canvas_cls=FigureCanvasSVG, **params)

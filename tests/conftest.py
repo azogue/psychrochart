@@ -7,9 +7,27 @@ from typing import Callable
 
 from matplotlib import rcParams
 
+from psychrochart import PsychroChart
+
 _RG_SVGDATE = re.compile(r"(\s+?<dc:date>.*</dc:date>\s+?)")
 RSC_EXAMPLES = Path(__file__).parent / "example-charts"
 TEST_BASEDIR = Path(__file__).parent / "generated"
+
+
+def store_test_chart(
+    chart: PsychroChart,
+    name_svg: str,
+    png: bool = False,
+    svg_rsc: bool = False,
+) -> None:
+    """Helper method to store test charts."""
+    p_svg = TEST_BASEDIR / name_svg
+    if png:
+        chart.save(p_svg.with_suffix(".png"), facecolor="none")
+    if svg_rsc:
+        chart.save(RSC_EXAMPLES / name_svg, metadata={"Date": None})
+    else:
+        chart.save(p_svg, metadata={"Date": None})
 
 
 def timeit(msg_log: str) -> Callable:
