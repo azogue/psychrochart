@@ -6,6 +6,7 @@ import pytest
 from psychrochart import PsychroChart
 from psychrochart.models.curves import PsychroCurve
 from psychrochart.models.styles import CurveStyle
+from psychrochart.plot_logic import add_label_to_curve, plot_curve
 
 
 def test_curve_validation():
@@ -80,16 +81,16 @@ def test_plot_single_curves():
 
     # Plotting
     ax = plt.subplot()
-    curve.plot_curve(ax)
+    plot_curve(curve, ax)
 
     # Vertical line
     vertical_curve = PsychroCurve(
         x_data=[25, 25], y_data=[2, 48], style=style, internal_value=25
     )
-    vertical_curve.plot_curve(ax)
+    plot_curve(vertical_curve, ax)
 
     # Add label
-    vertical_curve.add_label(ax, "TEST", va="baseline", ha="center")
+    add_label_to_curve(vertical_curve, ax, "TEST", va="baseline", ha="center")
 
 
 def test_string_representation_for_psychrochart_objs():

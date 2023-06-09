@@ -27,9 +27,11 @@ from psychrochart.models.parsers import (
 )
 from psychrochart.models.styles import CurveStyle
 from psychrochart.plot_logic import (
+    add_label_to_curve,
     apply_axis_styling,
     plot_annots_dbt_rh,
     plot_chart,
+    plot_curve,
 )
 from psychrochart.process_logic import (
     append_zones_to_chart,
@@ -266,8 +268,9 @@ class PsychroChart(PsychroChartModel):
             type_curve="constant-dbt",
             reverse=reverse,
         )
-        if curve.plot_curve(self.axes) and label is not None:
-            curve.add_label(self.axes, label, **label_params)
+
+        if plot_curve(curve, self.axes) and label is not None:
+            add_label_to_curve(curve, self.axes, label, **label_params)
 
     def plot_legend(
         self,

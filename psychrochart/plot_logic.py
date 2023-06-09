@@ -1,14 +1,205 @@
 """A library to make psychrometric charts and overlay information in them."""
 import logging
+from math import atan2, degrees
+from typing import Any, AnyStr
 
+from matplotlib import patches
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
+from matplotlib.path import Path
+from matplotlib.text import Annotation
 import numpy as np
 from scipy.spatial import ConvexHull, QhullError
 
 from psychrochart.models.annots import ChartAnnots
 from psychrochart.models.config import ChartConfig
-from psychrochart.models.curves import PsychroChartModel
+from psychrochart.models.curves import (
+    PsychroChartModel,
+    PsychroCurve,
+    PsychroCurves,
+)
+from psychrochart.models.styles import ZoneStyle
+from psychrochart.util import mod_color
+
+
+def _annotate_label(
+    ax: Axes,
+    label: AnyStr,
+    text_x: float,
+    text_y: float,
+    rotation: float,
+    text_style: dict[str, Any],
+) -> Annotation:
+    if abs(rotation) > 0:
+        text_loc = np.array((text_x, text_y))
+        text_style["rotation"] = ax.transData.transform_angles(
+            np.array((rotation,)), text_loc.reshape((1, 2))
+        )[0]
+        text_style["rotation_mode"] = "anchor"
+    return ax.annotate(label, (text_x, text_y), **text_style)
+
+
+def add_label_to_curve(
+    curve: PsychroCurve,
+    ax: Axes,
+    text_label: str | None = None,
+    va: str | None = None,
+    ha: str | None = None,
+    loc: float | None = None,
+    **params,
+) -> Annotation:
+    """Annotate the curve with its label."""
+    num_samples = len(curve.x_data)
+    assert num_samples > 1
+    text_style = {"va": "bottom", "ha": "left", "color": [0.0, 0.0, 0.0]}
+    loc_f: float = curve.label_loc if loc is None else loc
+    label: str = (
+        (curve.label if curve.label is not None else "")
+        if text_label is None
+        else text_label
+    )
+
+    def _tilt_params(x_data, y_data, idx_0, idx_f):
+        delta_x = x_data[idx_f] - curve.x_data[idx_0]
+        delta_y = y_data[idx_f] - curve.y_data[idx_0]
+        rotation_deg = degrees(atan2(delta_y, delta_x))
+        if delta_x == 0:
+            tilt_curve = 1e12
+        else:
+            tilt_curve = delta_y / delta_x
+        return rotation_deg, tilt_curve
+
+    if num_samples == 2:
+        xmin, xmax = ax.get_xlim()
+        rotation, tilt = _tilt_params(curve.x_data, curve.y_data, 0, 1)
+        if abs(rotation) == 90:
+            text_x = curve.x_data[0]
+            text_y = curve.y_data[0] + loc_f * (
+                curve.y_data[1] - curve.y_data[0]
+            )
+        elif loc_f == 1.0:
+            if curve.x_data[1] > xmax:
+                text_x = xmax
+                text_y = curve.y_data[0] + tilt * (xmax - curve.x_data[0])
+            else:
+                text_x, text_y = curve.x_data[1], curve.y_data[1]
+            label += "    "
+            text_style["ha"] = "right"
+        else:
+            text_x = curve.x_data[0] + loc_f * (xmax - xmin)
+            if text_x < xmin:
+                text_x = xmin + loc_f * (xmax - xmin)
+            text_y = curve.y_data[0] + tilt * (text_x - curve.x_data[0])
+    else:
+        idx = min(num_samples - 2, int(num_samples * loc_f))
+        rotation, tilt = _tilt_params(curve.x_data, curve.y_data, idx, idx + 1)
+        text_x, text_y = curve.x_data[idx], curve.y_data[idx]
+        text_style["ha"] = "center"
+
+    text_style["color"] = mod_color(curve.style.color, -25)
+    if ha is not None:
+        text_style["ha"] = ha
+    if va is not None:
+        text_style["va"] = va
+    if params:
+        text_style.update(params)
+
+    return _annotate_label(ax, label, text_x, text_y, rotation, text_style)
+
+
+def plot_curve(
+    curve: PsychroCurve, ax: Axes, label_prefix: str | None = None
+) -> list[Artist]:
+    """Plot the curve, if it's between chart limits."""
+    xmin, xmax = ax.get_xlim()
+    ymin, ymax = ax.get_ylim()
+    if (
+        curve.x_data is None
+        or curve.y_data is None
+        or max(curve.y_data) < ymin
+        or max(curve.x_data) < xmin
+        or min(curve.y_data) > ymax
+        or min(curve.x_data) > xmax
+    ):
+        logging.info(
+            "%s (label:%s) not between limits ([%.2g, %.2g, %.2g, %.2g]) "
+            "-> x:%s, y:%s",
+            curve.type_curve,
+            curve.label or "unnamed",
+            xmin,
+            xmax,
+            ymin,
+            ymax,
+            curve.x_data,
+            curve.y_data,
+        )
+        return []
+
+    artists = []
+    if isinstance(curve.style, ZoneStyle):
+        assert len(curve.y_data) > 2
+        verts = list(zip(curve.x_data, curve.y_data))
+        codes = (
+            [Path.MOVETO]
+            + [Path.LINETO] * (len(curve.y_data) - 2)
+            + [Path.CLOSEPOLY]
+        )
+        path = Path(verts, codes)
+        patch = patches.PathPatch(path, **curve.style.dict())
+        ax.add_patch(patch)
+        artists.append(patch)
+
+        if curve.label is not None:
+            bbox_p = path.get_extents()
+            text_x = 0.5 * (bbox_p.x0 + bbox_p.x1)
+            text_y = 0.5 * (bbox_p.y0 + bbox_p.y1)
+            style_params = {
+                "ha": "center",
+                "va": "center",
+                "backgroundcolor": [1, 1, 1, 0.4],
+            }
+            assert isinstance(curve.style, ZoneStyle)
+            style_params["color"] = mod_color(curve.style.edgecolor, -25)
+            artist_label = _annotate_label(
+                ax, curve.label, text_x, text_y, 0, style_params
+            )
+            artists.append(artist_label)
+    else:
+        artist_line = ax.plot(curve.x_data, curve.y_data, **curve.style.dict())
+        artists.append(artist_line)
+        if curve.label is not None:
+            artists.append(add_label_to_curve(curve, ax))
+
+    return artists
+
+
+def plot_curves_family(family: PsychroCurves | None, ax: Axes) -> list[Artist]:
+    """Plot all curves in the family."""
+    artists: list[Artist] = []
+    if family is None:
+        return artists
+
+    [
+        plot_curve(curve, ax, label_prefix=family.family_label)
+        for curve in family.curves
+    ]
+    # Curves family labelling
+    if family.curves and family.family_label is not None:
+        artist_fam_label = ax.plot(
+            [-1],
+            [-1],
+            label=family.family_label,
+            marker="D",
+            markersize=10,
+            **family.curves[0].style.dict(),
+        )
+        artists.append(artist_fam_label)
+
+    # return [
+    #     art for art in artist_curves + artist_labels if art is not None
+    # ]
+    # TODO collect artists from plot_curve
+    return []
 
 
 def _apply_spines_style(axes, style, location="right") -> None:
@@ -100,23 +291,17 @@ def apply_axis_styling(config: ChartConfig, ax: Axes) -> None:
 def plot_chart(chart: PsychroChartModel, ax: Axes) -> Axes:
     """Plot the psychrochart curves on given Axes."""
     # Plot curves:
-    if chart.constant_dry_temp_data is not None:
-        chart.constant_dry_temp_data.plot(ax)
-    if chart.constant_humidity_data is not None:
-        chart.constant_humidity_data.plot(ax)
-    if chart.constant_h_data is not None:
-        chart.constant_h_data.plot(ax)
-    if chart.constant_v_data is not None:
-        chart.constant_v_data.plot(ax)
-    if chart.constant_rh_data is not None:
-        chart.constant_rh_data.plot(ax)
-    if chart.constant_wbt_data is not None:
-        chart.constant_wbt_data.plot(ax)
-    chart.saturation.plot(ax)
+    plot_curves_family(chart.constant_dry_temp_data, ax)
+    plot_curves_family(chart.constant_humidity_data, ax)
+    plot_curves_family(chart.constant_h_data, ax)
+    plot_curves_family(chart.constant_v_data, ax)
+    plot_curves_family(chart.constant_rh_data, ax)
+    plot_curves_family(chart.constant_wbt_data, ax)
+    plot_curves_family(chart.saturation, ax)
 
     # Plot zones:
     for zone in chart.zones:
-        zone.plot(ax=ax)
+        plot_curves_family(zone, ax)
     return ax
 
 
