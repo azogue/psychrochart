@@ -263,6 +263,7 @@ class PsychroChart(PsychroChartModel):
             temp,
             self.pressure,
             style=style_curve,
+            type_curve="constant-dbt",
             reverse=reverse,
         )
         if curve.plot_curve(self.axes) and label is not None:

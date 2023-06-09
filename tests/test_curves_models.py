@@ -21,16 +21,16 @@ def test_curve_validation():
     assert curve.label == "T1"
     assert isinstance(curve.style, CurveStyle)
     assert isinstance(curve.style, CurveStyle)
-    # TODO assert curve.curve_id == "T1"
+    assert curve.curve_id == "T1"
 
     # also for styling
     style = CurveStyle.validate(raw_style)
     assert style.color[2] == 1.0
     assert style.linewidth == 0.5
 
-    # with pytest.raises(ValueError):
-    #     # TODO curves need a label or an internal value
-    #     PsychroCurve(x_data=x_data, y_data=y_data, style=style)
+    with pytest.raises(ValueError):
+        # curves need a label or an internal value
+        PsychroCurve(x_data=x_data, y_data=y_data, style=style)
 
     with pytest.raises(ValueError):
         # data should have the same length
@@ -42,11 +42,11 @@ def test_curve_validation():
             x_data=np.array([]), y_data=np.array([]), style=style, label="T"
         )
 
-    # todo no label (:=no presence on legend if enabled), but an internal value
-    # curve = PsychroCurve(
-    #     x_data=x_data, y_data=y_data, style=style, internal_value=42
-    # )
-    # assert curve.curve_id == "42"
+    # no label (:=no presence on legend if enabled), but an internal value
+    curve = PsychroCurve(
+        x_data=x_data, y_data=y_data, style=style, internal_value=42
+    )
+    assert curve.curve_id == "42"
 
 
 def test_curve_serialization():
@@ -54,7 +54,9 @@ def test_curve_serialization():
     x_data = np.arange(0, 50, 1)
     y_data = np.arange(0, 50, 1)
     style = CurveStyle(color="k", linewidth=0.5)
-    curve = PsychroCurve(x_data=x_data, y_data=y_data, style=style)
+    curve = PsychroCurve(
+        x_data=x_data, y_data=y_data, style=style, internal_value=2
+    )
 
     # Dict export and import:
     d_curve = curve.dict()
@@ -81,7 +83,9 @@ def test_plot_single_curves():
     curve.plot_curve(ax)
 
     # Vertical line
-    vertical_curve = PsychroCurve(x_data=[25, 25], y_data=[2, 48], style=style)
+    vertical_curve = PsychroCurve(
+        x_data=[25, 25], y_data=[2, 48], style=style, internal_value=25
+    )
     vertical_curve.plot_curve(ax)
 
     # Add label

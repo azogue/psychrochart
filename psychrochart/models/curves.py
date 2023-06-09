@@ -3,8 +3,10 @@ from math import atan2, degrees
 from typing import AbstractSet, Any, AnyStr, Mapping
 
 from matplotlib import patches
+from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.path import Path
+from matplotlib.text import Annotation
 import numpy as np
 from pydantic import BaseModel, Field, root_validator
 
@@ -20,14 +22,14 @@ def _annotate_label(
     text_y: float,
     rotation: float,
     text_style: dict[str, Any],
-) -> None:
+) -> Annotation:
     if abs(rotation) > 0:
         text_loc = np.array((text_x, text_y))
         text_style["rotation"] = ax.transData.transform_angles(
             np.array((rotation,)), text_loc.reshape((1, 2))
         )[0]
         text_style["rotation_mode"] = "anchor"
-    ax.annotate(label, (text_x, text_y), **text_style)
+    return ax.annotate(label, (text_x, text_y), **text_style)
 
 
 class PsychroCurve(BaseModel):
@@ -39,6 +41,7 @@ class PsychroCurve(BaseModel):
     type_curve: str | None = None
     label: str | None = None
     label_loc: float = 0.75
+    internal_value: float | None = None
 
     class Config:
         arbitrary_types_allowed = True
@@ -46,7 +49,22 @@ class PsychroCurve(BaseModel):
 
     @root_validator(pre=True)
     def _parse_curve_data(cls, values):
+        if (
+            values.get("label") is None
+            and values.get("internal_value") is None
+        ):
+            raise ValueError(
+                "PsychroCurve should have a 'label' or an 'internal_value'"
+            )
         return parse_curve_arrays(values)
+
+    @property
+    def curve_id(self) -> str:
+        """Get Curve identifier (value or label)."""
+        if self.internal_value is not None:
+            return f"{self.internal_value:g}"
+        assert self.label is not None
+        return self.label
 
     def dict(
         self,
@@ -87,7 +105,7 @@ class PsychroCurve(BaseModel):
         extra = f" (label: {self.label})" if self.label else ""
         return f"<{name} {len(self.x_data)} values{extra}>"
 
-    def plot_curve(self, ax: Axes) -> bool:
+    def plot_curve(self, ax: Axes, label_prefix: str | None = None) -> bool:
         """Plot the curve, if it's between chart limits."""
         xmin, xmax = ax.get_xlim()
         ymin, ymax = ax.get_ylim()
@@ -153,7 +171,7 @@ class PsychroCurve(BaseModel):
         ha: str | None = None,
         loc: float | None = None,
         **params,
-    ) -> Axes:
+    ) -> Annotation:
         """Annotate the curve with its label."""
         num_samples = len(self.x_data)
         assert num_samples > 1
@@ -212,9 +230,7 @@ class PsychroCurve(BaseModel):
         if params:
             text_style.update(params)
 
-        _annotate_label(ax, label, text_x, text_y, rotation, text_style)
-
-        return ax
+        return _annotate_label(ax, label, text_x, text_y, rotation, text_style)
 
 
 class PsychroCurves(BaseModel):
@@ -228,10 +244,12 @@ class PsychroCurves(BaseModel):
         extra = f" (label: {self.family_label})" if self.family_label else ""
         return f"<{len(self.curves)} PsychroCurves{extra}>"
 
-    def plot(self, ax: Axes) -> Axes:
+    def plot(self, ax: Axes) -> list[Artist]:
         """Plot the family curves."""
-        [curve.plot_curve(ax) for curve in self.curves]
-
+        [
+            curve.plot_curve(ax, label_prefix=self.family_label)
+            for curve in self.curves
+        ]
         # Curves family labelling
         if self.curves and self.family_label is not None:
             ax.plot(
