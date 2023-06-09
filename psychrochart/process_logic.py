@@ -56,18 +56,15 @@ def append_zones_to_chart(
     zones: ChartZones | dict[str, Any] | str | None = None,
 ) -> None:
     """Append zones as patches to the psychrometric chart data-container."""
-    chart.zones.append(
-        PsychroCurves(
+    zones_use = obj_loader(ChartZones, zones, default_obj=DEFAULT_ZONES).zones
+    if zones_use:
+        curves = PsychroCurves(
             curves=[
-                make_zone_curve(
-                    zone_conf, config.limits.step_temp, chart.pressure
-                )
-                for zone_conf in obj_loader(
-                    ChartZones, zones, default_obj=DEFAULT_ZONES
-                ).zones
+                make_zone_curve(zone, config.limits.step_temp, chart.pressure)
+                for zone in zones_use
             ]
         )
-    )
+        chart.zones.append(curves)
 
 
 def _generate_chart_curves(

@@ -13,28 +13,6 @@ from psychrochart.models.validators import parse_curve_arrays
 from psychrochart.util import mod_color
 
 
-def _between_limits(
-    x_data: np.ndarray,
-    y_data: np.ndarray,
-    xmin: float,
-    xmax: float,
-    ymin: float,
-    ymax: float,
-) -> bool:
-    data_xmin = min(x_data)
-    data_xmax = max(x_data)
-    data_ymin = min(y_data)
-    data_ymax = max(y_data)
-    if (
-        (data_ymax < ymin)
-        or (data_xmax < xmin)
-        or (data_ymin > ymax)
-        or (data_xmin > xmax)
-    ):
-        return False
-    return True
-
-
 def _annotate_label(
     ax: Axes,
     label: AnyStr,
@@ -116,9 +94,10 @@ class PsychroCurve(BaseModel):
         if (
             self.x_data is None
             or self.y_data is None
-            or not _between_limits(
-                self.x_data, self.y_data, xmin, xmax, ymin, ymax
-            )
+            or max(self.y_data) < ymin
+            or max(self.x_data) < xmin
+            or min(self.y_data) > ymax
+            or min(self.x_data) > xmax
         ):
             logging.info(
                 "%s (label:%s) not between limits ([%.2g, %.2g, %.2g, %.2g]) "

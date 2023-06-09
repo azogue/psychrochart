@@ -28,8 +28,7 @@ def apply_axis_styling(config: ChartConfig, ax: Axes) -> None:
     ax.yaxis.set_label_position("right")
     ax.set_xlim(config.dbt_min, config.dbt_max)
     ax.set_ylim(config.w_min, config.w_max)
-    ax.grid(False)
-    ax.grid(False, which="minor")
+    ax.grid(False, which="both")
     # Apply axis styles
     if config.figure.x_label is not None:
         style_axis = config.figure.x_axis_labels.dict()
