@@ -44,6 +44,7 @@ def test_constant_wetbulb_temp_lines(caplog):
         assert len(caplog.messages) == 0, caplog.messages
 
         # check plot in limits with 2 zones outside visible limits
+        chart.close_fig()
         chart.append_zones(DEFAULT_ZONES)
         chart.save(TEST_BASEDIR / "chart-wbt-layout-cut-both-no-zones.png")
         chart.save(TEST_BASEDIR / "chart-wbt-layout-cut-both-no-zones.svg")
