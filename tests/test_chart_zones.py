@@ -85,12 +85,28 @@ def test_rh_delimited_zones():
         config,
         extra_zones={"zones": [hrh_zone1, hrh_zone2, hrh_zone3, vrh_zone1]},
     )
+    chart.plot_legend()
     store_test_chart(chart, "chart-zones-enthalpy-volume-rh.svg")
+    assert "chart_legend" in chart.artists.layout
+    assert chart.artists.zones
 
     # zoom out to include full zones inside limits
     config.limits.range_temp_c = (-5, 50)
     config.limits.range_humidity_g_kg = (0, 25)
+    chart.plot_legend()
     store_test_chart(chart, "chart-zones-enthalpy-volume-rh-zoom-out.svg")
+    assert "chart_legend" in chart.artists.layout
+    assert chart.artists.zones
+
+    # remove zones and legend
+    chart.remove_zones()
+    chart.remove_legend()
+    svg_no_annot = chart.make_svg()
+    assert not chart.artists.zones
+    assert "chart_legend" not in chart.artists.layout
+    assert "chart_legend" not in svg_no_annot
+    assert "enthalpy-rh" not in svg_no_annot
+    assert "volume-rh" not in svg_no_annot
 
 
 def test_invisible_zones(caplog):
@@ -127,6 +143,7 @@ def test_invisible_zones(caplog):
     assert '<g id="zone_enthalpy_rh_test_hidden_hrh"' in svg_out
     assert '<g id="zone_volume_rh_test_hidden_vrh"' in svg_out
     assert len(caplog.messages) == 0
+    assert chart.artists.zones
 
     # zoom in to make zones invisible in plot
     chart.config.limits.range_temp_c = (15, 35)
@@ -135,3 +152,4 @@ def test_invisible_zones(caplog):
     assert '<g id="zone_enthalpy_rh_test_hidden_hrh"' not in svg_zoom
     assert '<g id="zone_volume_rh_test_hidden_vrh"' not in svg_zoom
     assert len(caplog.messages) >= 2
+    assert not chart.artists.zones

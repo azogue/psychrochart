@@ -357,6 +357,12 @@ class PsychroChart(PsychroChartModel):
         plot_chart(self, self._axes, self._artists)
         return self._axes
 
+    def remove_zones(self) -> None:
+        """Remove the zones in the chart to reuse it."""
+        for patch in self._artists.zones.values():
+            patch.remove()
+        self._artists.zones = {}
+
     def remove_annotations(self) -> None:
         """Remove the annotations made in the chart to reuse it."""
         for line in self._artists.annotations.values():
