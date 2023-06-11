@@ -80,6 +80,17 @@ class PsychroCurve(BaseModel):
         extra = f" (label: {self.label})" if self.label else ""
         return f"<{name} {len(self.x_data)} values{extra}>"
 
+    def outside_limits(
+        self, xmin: float, xmax: float, ymin: float, ymax: float
+    ) -> bool:
+        """Test if curve is invisible (outside box)."""
+        return (
+            max(self.y_data) < ymin
+            or max(self.x_data) < xmin
+            or min(self.y_data) > ymax
+            or min(self.x_data) > xmax
+        )
+
 
 class PsychroCurves(BaseModel):
     """Pydantic model to store a list of psychrometric curves for plotting."""

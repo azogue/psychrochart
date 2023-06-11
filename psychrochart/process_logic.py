@@ -47,7 +47,7 @@ def get_pressure_pa(limits: ChartLimits, unit_system_si: bool = True) -> float:
         return GetStandardAtmPressure(limits.altitude_m)
 
 
-def _generate_chart_curves(config: ChartConfig, chart: PsychroChartModel):
+def _gen_interior_lines(config: ChartConfig, chart: PsychroChartModel) -> None:
     # check chart limits are not fully above the saturation curve!
     assert (chart.saturation.y_data > config.w_min).any()
     # check if sat curve cuts x-axis with T > config.dbt_min
@@ -200,7 +200,7 @@ def update_psychrochart_data(
         current_chart.pressure,
         style=config.saturation,
     )
-    _generate_chart_curves(config, current_chart)
+    _gen_interior_lines(config, current_chart)
     # regen all zones
     if config.chart_params.with_zones and not config.chart_params.zones:
         # add default zones
