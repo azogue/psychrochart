@@ -1,40 +1,39 @@
 from psychrochart import PsychroChart
 from tests.conftest import TEST_BASEDIR, timeit
 
+_TEST_ZONES_DEFINITION = {
+    "zones": [
+        {
+            "zone_type": "dbt-rh",
+            "style": {
+                "edgecolor": [1.0, 0.749, 0.0, 0.8],
+                "facecolor": [1.0, 0.749, 0.0, 0.2],
+                "linewidth": 2,
+                "linestyle": "--",
+            },
+            "points_x": [23, 28],
+            "points_y": [40, 60],
+            "label": "Summer",
+        },
+        {
+            "zone_type": "dbt-rh",
+            "style": {
+                "edgecolor": [0.498, 0.624, 0.8],
+                "facecolor": [0.498, 0.624, 1.0, 0.2],
+                "linewidth": 2,
+                "linestyle": "--",
+            },
+            "points_x": [18, 23],
+            "points_y": [35, 55],
+            "label": "Winter",
+        },
+    ]
+}
+
 
 @timeit("make_chart")
 def _make_chart(path_save=None):
-    chart = PsychroChart.create("minimal")
-    # Zones:
-    zones_conf = {
-        "zones": [
-            {
-                "zone_type": "dbt-rh",
-                "style": {
-                    "edgecolor": [1.0, 0.749, 0.0, 0.8],
-                    "facecolor": [1.0, 0.749, 0.0, 0.2],
-                    "linewidth": 2,
-                    "linestyle": "--",
-                },
-                "points_x": [23, 28],
-                "points_y": [40, 60],
-                "label": "Summer",
-            },
-            {
-                "zone_type": "dbt-rh",
-                "style": {
-                    "edgecolor": [0.498, 0.624, 0.8],
-                    "facecolor": [0.498, 0.624, 1.0, 0.2],
-                    "linewidth": 2,
-                    "linestyle": "--",
-                },
-                "points_x": [18, 23],
-                "points_y": [35, 55],
-                "label": "Winter",
-            },
-        ]
-    }
-    chart.append_zones(zones_conf)
+    chart = PsychroChart.create("minimal", extra_zones=_TEST_ZONES_DEFINITION)
     # Plotting
     chart.plot()
     # Vertical lines

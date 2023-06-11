@@ -87,7 +87,7 @@ class ChartZone(BaseConfig):
     @root_validator
     def _validate_zone_definition(cls, values):
         shape = len(values["points_x"]), len(values["points_y"])
-        if shape[0] == 0 or shape[1] == 0 or shape[0] != shape[1]:
+        if shape[0] < 2 or shape[1] < 2 or shape[0] != shape[1]:
             raise ValueError(f"Invalid shape: {shape}")
         if values["zone_type"] != "xy-points" and (
             shape != (2, 2)
