@@ -97,6 +97,7 @@ def test_string_representation_for_psychrochart_objs():
     """Check the string representation of objects."""
     obj_repr = "<PsychroChart [0->50 °C, 0->40 gr/kg_da]>"
     data_chart = PsychroChart.create()
+    data_chart.process_chart()
     assert repr(data_chart) == obj_repr
     assert (
         repr(data_chart.constant_rh_data)
@@ -118,5 +119,4 @@ def test_string_representation_for_psychrochart_objs():
         repr(data_chart.constant_dry_temp_data)
         == "<50 PsychroCurves (label: Dry bulb temperature)>"
     )
-    assert repr(data_chart.saturation) == "<1 PsychroCurves>"
-    assert repr(data_chart.saturation.curves[0]) == "<PsychroCurve 51 values>"
+    assert repr(data_chart.saturation) == "<PsychroCurve 51 values>"

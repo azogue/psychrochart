@@ -1,7 +1,7 @@
 import logging
 
 from psychrochart import PsychroChart
-from psychrochart.models.annots import DEFAULT_ZONES
+from psychrochart.models.config import DEFAULT_ZONES
 from psychrochart.process_logic import set_unit_system
 from tests.conftest import store_test_chart
 

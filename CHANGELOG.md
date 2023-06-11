@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - ✨ Lazy generation of chart data, 'Artist' registry, and better SVG export - 2023-06-11
+
+Now all chart-data parameters, including the overlayed zones, are included in the `ChartConfig`,
+and generation of curves only happens when chart is plotted (or saved to disk).
+
+Any change in the chart configuration will trigger a data-regen for all items before plotting.
+
+When plotting over some matplotlib `Axes`, all objects created have meaningful (and deterministic) ids,
+and are tracked and accessible under `chart.artists`, for easier customization of single matplotlib objects,
+also adding a **recognizable hierarchy** in generated SVGs, (enabling potential for **CSS over SVG charts** 🌈)
+
+##### Changes
+
+- ✨ Name each matplotlib `Artist` obj in plot with custom readable IDs, for easier recognition and **readable object hierarchy in SVGs**, and maintain a registry of all objects in plot to access them by kind under `chart.artists` property, allowing fine-grain control to customize all details in the psychrochart
+- ♻️ Refactor chart 'zones' and store zone definitions in ChartConfig, to regenerate plot patches (closed `PsychroCurve`, with `ZoneStyle`) on-demand, same as the other chart curves, generating new 'xy' points when config is changed. If `ChartParams.with_zones` is enabled, but there are no zones in config when chart is created, the default winter/summer 'dbt-rh' zones are added.
+- ⚡️ Add **lazy generation** of psychro curves to avoid updating the chart data until it's needed to plot, and add a `chart.process_chart()` method to trigger data regeneration if the chart config has changed or there is no chart data yet
+- 💥 Make `chart.saturation` a single `PsychroCurve`, instead of a collection of curves
+- ✅ tests: Add unit tests for new ChartRegistry and adapt to behaviour changes and readable hierarchy in SVG output
+- 📝 Update example notebook showing `chart.artists` usage
+- 🚀 env: Update deps, bump version, and update CHANGELOG
+
 ## [0.7.0] - ♻️ Testing suite refactor + model changes - 2023-06-09
 
 Maintenance-only update, without new features.

@@ -1,10 +1,13 @@
-from pydantic import Extra, Field
+from typing import Literal
+
+from pydantic import Extra, Field, root_validator
 
 from psychrochart.models.styles import (
     BaseConfig,
     CurveStyle,
     LabelStyle,
     TickStyle,
+    ZoneStyle,
 )
 
 _DEFAULT_RANGE_VOL_M3_KG = (0.78, 0.98)
@@ -35,6 +38,8 @@ _DEFAULT_STYLE_DRY_TEMP = CurveStyle(
 _DEFAULT_STYLE_HUMID = CurveStyle(
     color=[0.0, 0.125, 0.376], linewidth=0.75, linestyle=":"
 )
+
+ZoneKind = Literal["dbt-rh", "xy-points"]
 
 
 class ChartFigure(BaseConfig):
@@ -68,6 +73,37 @@ class ChartLimits(BaseConfig):
     altitude_m: int = Field(default=0)
     pressure_kpa: float | None = Field(default=None)
     step_temp: float = Field(default=1)
+
+
+class ChartZone(BaseConfig):
+    """Pydantic model for styled fixed areas on the psychrochart."""
+
+    points_x: list[float]
+    points_y: list[float]
+    label: str | None = Field(default=None)
+    zone_type: ZoneKind = Field(default="xy-points")
+    style: ZoneStyle = Field(default_factory=ZoneStyle)
+
+    @root_validator
+    def _validate_zone_definition(cls, values):
+        shape = len(values["points_x"]), len(values["points_y"])
+        if shape[0] < 2 or shape[1] < 2 or shape[0] != shape[1]:
+            raise ValueError(f"Invalid shape: {shape}")
+        if values["zone_type"] != "xy-points" and (
+            shape != (2, 2)
+            or (values["points_x"][1] < values["points_x"][0])
+            or (values["points_y"][1] < values["points_y"][0])
+        ):
+            raise ValueError(
+                f"Invalid shape for {values['zone_type']}: {shape}"
+            )
+        return values
+
+
+class ChartZones(BaseConfig):
+    """Container model for a list of ChartZone items."""
+
+    zones: list[ChartZone] = Field(default_factory=list)
 
 
 class ChartParams(BaseConfig):
@@ -120,6 +156,7 @@ class ChartParams(BaseConfig):
     constant_humid_label_include_limits: bool = Field(default=True)
 
     with_zones: bool = Field(default=True)
+    zones: list[ChartZone] = Field(default_factory=list)
 
 
 class ChartConfig(BaseConfig):
@@ -168,3 +205,30 @@ class ChartConfig(BaseConfig):
     def w_max(self) -> float:
         """Top limit for chart."""
         return self.limits.range_humidity_g_kg[1]
+
+
+# default fixed areas for winter/summer comfort zones
+DEFAULT_ZONES = ChartZones(
+    zones=[
+        ChartZone(
+            label="Summer",
+            zone_type="dbt-rh",
+            points_x=[23, 25],
+            points_y=[45, 60],
+            style=ZoneStyle(
+                edgecolor=[1.0, 0.749, 0.0, 0.8],
+                facecolor=[1.0, 0.749, 0.0, 0.5],
+            ),
+        ),
+        ChartZone(
+            label="Winter",
+            zone_type="dbt-rh",
+            points_x=[21, 23],
+            points_y=[40, 50],
+            style=ZoneStyle(
+                edgecolor=[0.498, 0.624, 0.8],
+                facecolor=[0.498, 0.624, 1.0, 0.5],
+            ),
+        ),
+    ]
+)

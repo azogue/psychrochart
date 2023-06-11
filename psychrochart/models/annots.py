@@ -1,9 +1,9 @@
-from typing import Any, Literal
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, Field, root_validator
 
-from psychrochart.models.styles import CurveStyle, ZoneStyle
+from psychrochart.models.styles import CurveStyle
 from psychrochart.models.validators import (
     check_connector_and_areas_by_point_name,
     parse_curve_arrays,
@@ -13,7 +13,7 @@ ConvexGroupTuple = tuple[list[str], dict[str, Any], dict[str, Any]]
 
 
 class ChartPoint(BaseModel):
-    """Pydantic model for single point annotation."""
+    """Input model for single point annotations."""
 
     xy: tuple[float | int, float | int]
     label: str | None = Field(default=None)
@@ -21,7 +21,7 @@ class ChartPoint(BaseModel):
 
 
 class ChartSeries(BaseModel):
-    """Pydantic model for data-series point array annotation."""
+    """Input model for data-series point array annotation."""
 
     # TODO fusion with PsychroCurve, + pandas ready
     x_data: np.ndarray
@@ -103,46 +103,3 @@ class ChartAnnots(BaseModel):
         else:
             assert key in self.series
             return self.series[key].x_data[0], self.series[key].y_data[0]
-
-
-class ChartZone(BaseModel):
-    """Pydantic model for styled fixed areas on the psychrochart."""
-
-    label: str | None
-    zone_type: Literal["dbt-rh", "xy-points"]
-    points_x: list[float]
-    points_y: list[float]
-    style: ZoneStyle
-
-
-class ChartZones(BaseModel):
-    """Container model for a list of ChartZone items."""
-
-    zones: list[ChartZone]
-
-
-# default fixed areas for winter/summer comfort zones
-DEFAULT_ZONES = ChartZones(
-    zones=[
-        ChartZone(
-            label="Summer",
-            zone_type="dbt-rh",
-            points_x=[23, 25],
-            points_y=[45, 60],
-            style=ZoneStyle(
-                edgecolor=[1.0, 0.749, 0.0, 0.8],
-                facecolor=[1.0, 0.749, 0.0, 0.5],
-            ),
-        ),
-        ChartZone(
-            label="Winter",
-            zone_type="dbt-rh",
-            points_x=[21, 23],
-            points_y=[40, 50],
-            style=ZoneStyle(
-                edgecolor=[0.498, 0.624, 0.8],
-                facecolor=[0.498, 0.624, 1.0, 0.5],
-            ),
-        ),
-    ]
-)

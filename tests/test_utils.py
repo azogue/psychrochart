@@ -1,7 +1,9 @@
 """Tests utilities."""
 import json
+import logging
 
 from psychrochart.__main__ import main
+from psychrochart.chart_entities import make_item_gid
 from psychrochart.models.parsers import DEFAULT_CHART_CONFIG_FILE, load_config
 from psychrochart.util import mod_color
 from tests.conftest import TEST_BASEDIR
@@ -61,3 +63,22 @@ def test_color_palette():
 
     color_alpha_08 = mod_color(color_base, 0.8)
     assert _to_8bit_color(color_alpha_08) == (121, 156, 19, 0.8)
+
+
+def test_gid_generator(caplog):
+    with caplog.at_level(logging.WARNING):
+        assert make_item_gid("kind", name="name") == make_item_gid(
+            "kind", name="name"
+        )
+        assert len(caplog.messages) == 0
+        # unnamed items have random suffixes (and emit logging warnings)
+        assert make_item_gid("kind", "family_label") != make_item_gid(
+            "kind", "family_label"
+        )
+        assert len(caplog.messages) == 2
+        caplog.clear()
+
+    # !note: even different names can generate same gid
+    gid1 = make_item_gid("kind", name=f"{-5.1}")
+    gid2 = make_item_gid("kind", name=f"{5.1}")
+    assert gid1 == gid2

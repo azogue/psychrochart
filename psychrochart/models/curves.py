@@ -37,7 +37,7 @@ class PsychroCurve(BaseModel):
     def curve_id(self) -> str:
         """Get Curve identifier (value or label)."""
         if self.internal_value is not None:
-            return f"{self.internal_value:g}"
+            return f"{self.internal_value:g}".replace("-", "minus")
         assert self.label is not None
         return self.label
 
@@ -100,11 +100,11 @@ class PsychroChartModel(BaseModel):
     altitude_m: int
     pressure: float
 
-    saturation: PsychroCurves
+    saturation: PsychroCurve
     constant_dry_temp_data: PsychroCurves | None = None
     constant_humidity_data: PsychroCurves | None = None
     constant_rh_data: PsychroCurves | None = None
     constant_h_data: PsychroCurves | None = None
     constant_v_data: PsychroCurves | None = None
     constant_wbt_data: PsychroCurves | None = None
-    zones: list[PsychroCurves] = Field(default_factory=list)
+    zones: list[PsychroCurve] = Field(default_factory=list)

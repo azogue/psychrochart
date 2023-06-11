@@ -17,10 +17,10 @@ def test_default_config():
     assert not config_json.has_changed
 
     config_style_none = PsychroChart.create().config
-    assert not config_style_none.has_changed
+    assert config_style_none.has_changed
 
     config_style = PsychroChart.create("default").config
-    assert not config_style.has_changed
+    assert config_style.has_changed
 
     assert config_default == config_style
     assert config_style_none == config_style

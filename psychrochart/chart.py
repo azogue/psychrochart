@@ -5,19 +5,23 @@ from pathlib import Path
 from typing import Any, Iterable, Type
 
 from matplotlib import figure
-from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backends.backend_svg import FigureCanvasSVG
-from matplotlib.legend import Legend
 
+from psychrochart.chart_entities import (
+    ChartRegistry,
+    make_item_gid,
+    reg_artist,
+)
 from psychrochart.chartdata import (
     gen_points_in_constant_relative_humidity,
     make_constant_dry_bulb_v_line,
+    make_saturation_line,
 )
-from psychrochart.models.annots import ChartAnnots, ChartZones
-from psychrochart.models.config import ChartConfig
+from psychrochart.models.annots import ChartAnnots
+from psychrochart.models.config import ChartConfig, ChartZones
 from psychrochart.models.curves import PsychroChartModel
 from psychrochart.models.parsers import (
     ConvexGroupTuple,
@@ -34,8 +38,7 @@ from psychrochart.plot_logic import (
     plot_curve,
 )
 from psychrochart.process_logic import (
-    append_zones_to_chart,
-    generate_psychrochart,
+    get_pressure_pa,
     update_psychrochart_data,
 )
 from psychrochart.util import mod_color
@@ -61,16 +64,16 @@ class PsychroChart(PsychroChartModel):
     config: ChartConfig
     _fig: figure.Figure | None = None
     _axes: Axes | None = None
-    _legend: Legend | None = None
-    _handlers_annotations: list[Artist | list[Artist]]
+    _artists: ChartRegistry
 
     class Config:
         arbitrary_types_allowed = True
         underscore_attrs_are_private = True
 
     def _init_private_attributes(self) -> None:
-        self._handlers_annotations = []
+        self._artists = ChartRegistry()
         super()._init_private_attributes()
+        self.config._has_changed = True
 
     @classmethod
     def create(
@@ -81,12 +84,24 @@ class PsychroChart(PsychroChartModel):
         use_unit_system_si: bool = True,
     ):
         chart_config = obj_loader(ChartConfig, config)
-        chart_config.commit_changes()
-        chart_data = generate_psychrochart(
-            chart_config, extra_zones, use_unit_system_si
+        if extra_zones is not None:
+            zones_use = obj_loader(ChartZones, extra_zones).zones
+            chart_config.chart_params.with_zones = True
+            chart_config.chart_params.zones = zones_use
+        pressure = get_pressure_pa(chart_config.limits, use_unit_system_si)
+        return cls(
+            config=chart_config,
+            unit_system_si=use_unit_system_si,
+            altitude_m=chart_config.limits.altitude_m,
+            pressure=pressure,
+            saturation=make_saturation_line(
+                chart_config.dbt_min,
+                chart_config.dbt_max,
+                chart_config.limits.step_temp,
+                pressure,
+                style=chart_config.saturation,
+            ),
         )
-        chart = cls(config=chart_config, **chart_data.dict())
-        return chart
 
     def __repr__(self) -> str:
         """Return a string representation of the PsychroChart object."""
@@ -97,24 +112,40 @@ class PsychroChart(PsychroChartModel):
             f"->{self.config.w_max:g} gr/kg_da]>"
         )
 
-    def _ensure_updated_data(self):
+    def process_chart(self) -> bool:
+        """Apply chart config on limits to generate all curves for plot."""
         if self.config.has_changed:
             update_psychrochart_data(self, self.config)
+            return True
+        return False
+
+    @property
+    def rendered(self) -> bool:
+        """Check if Axes object is assigned."""
+        return self._axes is not None
 
     @property
     def axes(self) -> Axes:
         """Return the Axes object plotting the chart if necessary."""
-        self._ensure_updated_data()
-        if self._axes is None:
+        self.process_chart()
+        if not self.rendered:
             self.plot()
         assert isinstance(self._axes, Axes)
         return self._axes
+
+    @property
+    def artists(self) -> ChartRegistry:
+        """Access to registry of all matplotlib Artists in plot."""
+        return self._artists
 
     def append_zones(
         self, zones: ChartZones | dict[str, Any] | str | None = None
     ) -> None:
         """Append zones as patches to the psychrometric chart."""
-        append_zones_to_chart(self.config, self, zones)
+        zones_use = obj_loader(ChartZones, zones).zones
+        self.config.chart_params.with_zones = True
+        self.config.chart_params.zones += zones_use
+        assert self.config.has_changed
 
     def plot_points_dbt_rh(
         self,
@@ -201,9 +232,7 @@ class PsychroChart(PsychroChartModel):
             areas=data_areas,
             use_scatter=scatter_style is not None,
         )
-        self._handlers_annotations.extend(
-            plot_annots_dbt_rh(self.axes, annots)
-        )
+        self._artists.annotations.update(plot_annots_dbt_rh(self.axes, annots))
         return annots
 
     def plot_arrows_dbt_rh(
@@ -234,16 +263,16 @@ class PsychroChart(PsychroChartModel):
             w_g_ka2 = gen_points_in_constant_relative_humidity(
                 [temp2], point2[1], self.pressure
             )[0]
-
-            self._handlers_annotations.append(
-                self.axes.annotate(
-                    "",
-                    (temp2, w_g_ka2),
-                    xytext=(temp1, w_g_ka1),
-                    arrowprops=plot_params,
-                )
+            arrow = self.axes.annotate(
+                "",
+                (temp2, w_g_ka2),
+                xytext=(temp1, w_g_ka1),
+                arrowprops=plot_params,
             )
-
+            arrow_gid = make_item_gid(
+                f"arrow_{key}", name=f"{temp1}_{w_g_ka1}__{temp2}_{w_g_ka2}"
+            )
+            reg_artist(arrow_gid, arrow, self._artists.annotations)
             points_plot[key] = (temp1, w_g_ka1), (temp2, w_g_ka2), plot_params
 
         return points_plot
@@ -268,9 +297,16 @@ class PsychroChart(PsychroChartModel):
             type_curve="constant-dbt",
             reverse=reverse,
         )
-
-        if plot_curve(curve, self.axes) and label is not None:
-            add_label_to_curve(curve, self.axes, label, **label_params)
+        new_artists = plot_curve(curve, self.axes)
+        self._artists.annotations.update(new_artists)
+        if new_artists and label is not None:
+            reg_artist(
+                make_item_gid(
+                    "label-vline", family_label="constant-dbt", name=label
+                ),
+                add_label_to_curve(curve, self.axes, label, **label_params),
+                self._artists.annotations,
+            )
 
     def plot_legend(
         self,
@@ -284,20 +320,24 @@ class PsychroChart(PsychroChartModel):
         **params,
     ) -> None:
         """Append a legend to the psychrochart plot."""
-        self._legend = self.axes.legend(
-            loc=loc,
-            markerscale=markerscale,
-            frameon=frameon,
-            edgecolor=edgecolor,
-            fontsize=fontsize,
-            fancybox=fancybox,
-            labelspacing=labelspacing,
-            **params,
+        reg_artist(
+            "chart_legend",
+            self.axes.legend(
+                loc=loc,
+                markerscale=markerscale,
+                frameon=frameon,
+                edgecolor=edgecolor,
+                fontsize=fontsize,
+                fancybox=fancybox,
+                labelspacing=labelspacing,
+                **params,
+            ),
+            self._artists.layout,
         )
 
     def plot(self, ax: Axes | None = None) -> Axes:
         """Plot the psychrochart and return the matplotlib Axes instance."""
-        self._ensure_updated_data()
+        self.process_chart()
         if ax is not None:
             self._fig = ax.get_figure()
         else:
@@ -306,25 +346,27 @@ class PsychroChart(PsychroChartModel):
                 dpi=self.config.figure.dpi,
                 frameon=False,
             )
+            self._fig.set_gid("figure_psychrochart")
             ax = self._fig.add_subplot(position=self.config.figure.position)
+            ax.set_gid("chart_axes")
+            reg_artist("chart_background", ax.patch, self._artists.layout)
         self._axes = ax
-        apply_axis_styling(self.config, self._axes)
-        return plot_chart(self, self._axes)
+        self._artists.layout.update(
+            apply_axis_styling(self.config, self._axes)
+        )
+        plot_chart(self, self._axes, self._artists)
+        return self._axes
 
     def remove_annotations(self) -> None:
         """Remove the annotations made in the chart to reuse it."""
-        for line in self._handlers_annotations:
-            if isinstance(line, list):
-                line[0].remove()
-            else:
-                line.remove()
-        self._handlers_annotations = []
+        for line in self._artists.annotations.values():
+            line.remove()
+        self._artists.annotations = {}
 
     def remove_legend(self) -> None:
         """Remove the legend of the chart."""
-        if self._legend is not None:
-            self._legend.remove()
-            self._legend = None
+        if "chart_legend" in self._artists.layout:
+            self._artists.layout.pop("chart_legend").remove()
 
     def save(
         self,
@@ -339,7 +381,7 @@ class PsychroChart(PsychroChartModel):
             and not Path(path_dest).parent.exists()
         ):
             Path(path_dest).parent.mkdir(parents=True)
-        if self._axes is None or self.config.has_changed:
+        if not self.rendered or self.config.has_changed:
             self.plot()
         assert self._fig is not None
         canvas_use = _select_fig_canvas(path_dest, canvas_cls)

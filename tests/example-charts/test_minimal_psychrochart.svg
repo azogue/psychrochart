@@ -18,9 +18,9 @@
  <defs>
   <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
  </defs>
- <g id="figure_1">
-  <g id="axes_1">
-   <g id="patch_1">
+ <g id="figure_psychrochart">
+  <g id="chart_axes">
+   <g id="chart_background">
     <path d="M 0 720 
 L 1152 720 
 L 1152 0 
@@ -28,7 +28,7 @@ L 0 0
 z
 " style="fill: #ffffff"/>
    </g>
-   <g id="matplotlib.axis_1">
+   <g id="chart_x_axis">
     <g id="xtick_1">
      <g id="line2d_1">
       <defs>
@@ -99,7 +99,7 @@ z
       </g>
      </g>
     </g>
-    <g id="text_2">
+    <g id="chart_x_axis_label">
      <!-- Dry-bulb temperature ($°C$) -->
      <g style="fill: #da251d" transform="translate(488.616 734.032) scale(0.132 -0.132)">
       <defs>
@@ -457,8 +457,8 @@ z
      </g>
     </g>
    </g>
-   <g id="matplotlib.axis_2">
-    <g id="text_3">
+   <g id="chart_y_axis">
+    <g id="chart_y_axis_label">
      <!-- Humidity ratio ($g_w / kg_{da}$) -->
      <g style="fill: #002060" transform="translate(1165.12 431.7) rotate(-90) scale(0.12 -0.12)">
       <defs>
@@ -709,37 +709,37 @@ z
      </g>
     </g>
    </g>
-   <g id="line2d_2">
+   <g id="dry_bulb_temperature_10">
     <path d="M 0 720 
 L 0 485.156567 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke-dasharray: 0.75,1.2375; stroke-dashoffset: 0; stroke: #da251d; stroke-width: 0.75"/>
    </g>
-   <g id="line2d_3">
+   <g id="dry_bulb_temperature_15">
     <path d="M 192 720 
 L 192 392.176801 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke-dasharray: 0.75,1.2375; stroke-dashoffset: 0; stroke: #da251d; stroke-width: 0.75"/>
    </g>
-   <g id="line2d_4">
+   <g id="dry_bulb_temperature_20">
     <path d="M 384 720 
 L 384 267.355844 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke-dasharray: 0.75,1.2375; stroke-dashoffset: 0; stroke: #da251d; stroke-width: 0.75"/>
    </g>
-   <g id="line2d_5">
+   <g id="dry_bulb_temperature_25">
     <path d="M 576 720 
 L 576 101.087383 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke-dasharray: 0.75,1.2375; stroke-dashoffset: 0; stroke: #da251d; stroke-width: 0.75"/>
    </g>
-   <g id="line2d_6">
+   <g id="dry_bulb_temperature_30">
     <path d="M 768 720 
 L 768 -1 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke-dasharray: 0.75,1.2375; stroke-dashoffset: 0; stroke: #da251d; stroke-width: 0.75"/>
    </g>
-   <g id="line2d_7">
+   <g id="dry_bulb_temperature_35">
     <path d="M 960 720 
 L 960 -1 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke-dasharray: 0.75,1.2375; stroke-dashoffset: 0; stroke: #da251d; stroke-width: 0.75"/>
    </g>
-   <g id="line2d_8">
+   <g id="label_legend_dry_bulb_temperature">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke-dasharray: 0.75,1.2375; stroke-dashoffset: 0; stroke: #da251d; stroke-width: 0.75"/>
     <defs>
      <path id="m96863f8e12" d="M -0 7.071068 
@@ -751,22 +751,22 @@ z
     </defs>
     <g clip-path="url(#pc0e6066e52)"/>
    </g>
-   <g id="line2d_9">
+   <g id="constant_enthalpy_20">
     <path d="M -1 605.626184 
 L 379.409795 720 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #400080; stroke-width: 2; stroke-linecap: square"/>
    </g>
-   <g id="line2d_10">
+   <g id="constant_enthalpy_60">
     <path d="M 383.865776 267.456318 
 L 1153 496.089258 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #400080; stroke-width: 2; stroke-linecap: square"/>
    </g>
-   <g id="line2d_11">
+   <g id="constant_enthalpy_100">
     <path d="M 991.28382 -1 
 L 1153 46.750514 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #400080; stroke-width: 2; stroke-linecap: square"/>
    </g>
-   <g id="line2d_12">
+   <g id="label_legend_constant_enthalpy">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #400080; stroke-width: 2; stroke-linecap: square"/>
     <defs>
      <path id="mca71176ed7" d="M -0 7.071068 
@@ -778,22 +778,22 @@ z
     </defs>
     <g clip-path="url(#pc0e6066e52)"/>
    </g>
-   <g id="line2d_13">
+   <g id="constant_specific_volume_0_86">
     <path d="M -1 644.344498 
 L 44.055059 720 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #008056; stroke-width: 2; stroke-linecap: square"/>
    </g>
-   <g id="line2d_14">
+   <g id="constant_specific_volume_0_9">
     <path d="M 304.410555 323.522432 
 L 551.823201 720 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #008056; stroke-width: 2; stroke-linecap: square"/>
    </g>
-   <g id="line2d_15">
+   <g id="constant_specific_volume_0_94">
     <path d="M 627.831196 47.566891 
 L 1059.591343 720 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #008056; stroke-width: 2; stroke-linecap: square"/>
    </g>
-   <g id="line2d_16">
+   <g id="label_legend_constant_specific_volume">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #008056; stroke-width: 2; stroke-linecap: square"/>
     <defs>
      <path id="m3c54779707" d="M -0 7.071068 
@@ -805,7 +805,7 @@ z
     </defs>
     <g clip-path="url(#pc0e6066e52)"/>
    </g>
-   <g id="line2d_17">
+   <g id="constant_relative_humidity_20">
     <path d="M 0 673.518843 
 L 9.6 672.732457 
 L 19.2 671.934334 
@@ -929,7 +929,7 @@ L 1142.4 440.654755
 L 1152 436.843624 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #007fff; stroke-width: 2; stroke-linecap: square"/>
    </g>
-   <g id="line2d_18">
+   <g id="constant_relative_humidity_40">
     <path d="M 0 626.795824 
 L 9.6 625.214787 
 L 19.2 623.610011 
@@ -1053,7 +1053,7 @@ L 1142.4 152.458467
 L 1152 144.591079 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #007fff; stroke-width: 2; stroke-linecap: square"/>
    </g>
-   <g id="line2d_19">
+   <g id="constant_relative_humidity_60">
     <path d="M 0 579.82905 
 L 9.6 577.445001 
 L 19.2 575.02494 
@@ -1164,7 +1164,7 @@ L 1017.6 -0.052562
 L 1018.482272 -1 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #007fff; stroke-width: 2; stroke-linecap: square"/>
    </g>
-   <g id="line2d_20">
+   <g id="constant_relative_humidity_80">
     <path d="M 0 532.616608 
 L 9.6 529.421086 
 L 19.2 526.177002 
@@ -1254,7 +1254,7 @@ L 816 3.785904
 L 820.3093 -1 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #007fff; stroke-width: 2; stroke-linecap: square"/>
    </g>
-   <g id="line2d_21">
+   <g id="label_legend_constant_relative_humidity">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #007fff; stroke-width: 2; stroke-linecap: square"/>
     <defs>
      <path id="m3ad1b69498" d="M -0 7.071068 
@@ -1266,37 +1266,37 @@ z
     </defs>
     <g clip-path="url(#pc0e6066e52)"/>
    </g>
-   <g id="line2d_22">
+   <g id="constant_wet_bulb_temperature_5">
     <path d="M -1 611.903118 
 L 354.192286 720 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #7fdfff; stroke-linecap: square"/>
    </g>
-   <g id="line2d_23">
+   <g id="constant_wet_bulb_temperature_10">
     <path d="M 0 485.156567 
 L 768.314573 720 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #7fdfff; stroke-linecap: square"/>
    </g>
-   <g id="line2d_24">
+   <g id="constant_wet_bulb_temperature_15">
     <path d="M 192 392.176801 
 L 1152 686.517657 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #7fdfff; stroke-linecap: square"/>
    </g>
-   <g id="line2d_25">
+   <g id="constant_wet_bulb_temperature_20">
     <path d="M 384 267.355844 
 L 1152 506.670027 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #7fdfff; stroke-linecap: square"/>
    </g>
-   <g id="line2d_26">
+   <g id="constant_wet_bulb_temperature_25">
     <path d="M 576 101.087383 
 L 1152 283.970986 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #7fdfff; stroke-linecap: square"/>
    </g>
-   <g id="line2d_27">
+   <g id="constant_wet_bulb_temperature_30">
     <path d="M 1131.719419 -1 
 L 1152 5.582498 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #7fdfff; stroke-linecap: square"/>
    </g>
-   <g id="line2d_28">
+   <g id="label_legend_constant_wet_bulb_temperature">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #7fdfff; stroke-linecap: square"/>
     <defs>
      <path id="med92be201a" d="M -0 7.071068 
@@ -1308,7 +1308,7 @@ z
     </defs>
     <g clip-path="url(#pc0e6066e52)"/>
    </g>
-   <g id="line2d_29">
+   <g id="saturation_100">
     <path d="M 0 485.156567 
 L 9.6 481.141009 
 L 19.2 477.06406 
@@ -1382,17 +1382,17 @@ L 662.4 9.560111
 L 671.70279 -1 
 " clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #da251d; stroke-width: 5; stroke-linecap: square"/>
    </g>
-   <g id="patch_2">
+   <g id="chart_y_axis_right_line">
     <path d="M 1152 720 
 L 1152 0 
 " style="fill: none; stroke: #002060; stroke-width: 2; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
-   <g id="patch_3">
+   <g id="chart_x_axis_bottom_line">
     <path d="M 0 720 
 L 1152 720 
 " style="fill: none; stroke: #da251d; stroke-width: 2; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
-   <g id="text_4">
+   <g id="label_constant_wet_bulb_temperature_10">
     <!-- 10 °C -->
     <g style="fill: #5fa7bf" transform="translate(58.207914 500.773759) rotate(-343.003676) scale(0.1 -0.1)">
      <defs>
@@ -1460,7 +1460,7 @@ z
      <use xlink:href="#DejaVuSans-43" x="209.033203"/>
     </g>
    </g>
-   <g id="text_5">
+   <g id="label_constant_wet_bulb_temperature_20">
     <!-- 20 °C -->
     <g style="fill: #5fa7bf" transform="translate(442.218703 283.318884) rotate(-342.6926) scale(0.1 -0.1)">
      <use xlink:href="#DejaVuSans-32"/>
@@ -1470,8 +1470,8 @@ z
      <use xlink:href="#DejaVuSans-43" x="209.033203"/>
     </g>
    </g>
-   <g id="legend_1">
-    <g id="patch_4">
+   <g id="chart_legend">
+    <g id="patch_1">
      <path d="M 10.5 182.085938 
 L 294.607031 182.085938 
 Q 297.607031 182.085938 297.607031 179.085938 
@@ -1484,7 +1484,7 @@ Q 7.5 182.085938 10.5 182.085938
 z
 " style="fill: #ffffff; opacity: 0.8; stroke: #a9a9a9; stroke-linejoin: miter"/>
     </g>
-    <g id="line2d_30">
+    <g id="line2d_2">
      <path d="M 13.5 19.647656 
 L 28.5 19.647656 
 L 43.5 19.647656 
@@ -1501,7 +1501,7 @@ z
       <use xlink:href="#me7a81889da" x="28.5" y="19.647656" style="fill: #da251d; stroke: #da251d; stroke-linejoin: miter"/>
      </g>
     </g>
-    <g id="text_6">
+    <g id="text_2">
      <!-- Dry bulb temperature -->
      <g transform="translate(55.5 24.897656) scale(0.15 -0.15)">
       <use xlink:href="#DejaVuSans-44"/>
@@ -1526,7 +1526,7 @@ z
       <use xlink:href="#DejaVuSans-65" x="1025.972656"/>
      </g>
     </g>
-    <g id="line2d_31">
+    <g id="line2d_3">
      <path d="M 13.5 56.664844 
 L 28.5 56.664844 
 L 43.5 56.664844 
@@ -1543,7 +1543,7 @@ z
       <use xlink:href="#m5765b293f6" x="28.5" y="56.664844" style="fill: #400080; stroke: #400080; stroke-linejoin: miter"/>
      </g>
     </g>
-    <g id="text_7">
+    <g id="text_3">
      <!-- Constant enthalpy -->
      <g transform="translate(55.5 61.914844) scale(0.15 -0.15)">
       <defs>
@@ -1636,7 +1636,7 @@ z
       <use xlink:href="#DejaVuSans-79" x="861.376953"/>
      </g>
     </g>
-    <g id="line2d_32">
+    <g id="line2d_4">
      <path d="M 13.5 93.682031 
 L 28.5 93.682031 
 L 43.5 93.682031 
@@ -1653,7 +1653,7 @@ z
       <use xlink:href="#ma07c87bda7" x="28.5" y="93.682031" style="fill: #008056; stroke: #008056; stroke-linejoin: miter"/>
      </g>
     </g>
-    <g id="text_8">
+    <g id="text_4">
      <!-- Constant specific volume -->
      <g transform="translate(55.5 98.932031) scale(0.15 -0.15)">
       <defs>
@@ -1736,7 +1736,7 @@ z
       <use xlink:href="#DejaVuSans-65" x="1199.902344"/>
      </g>
     </g>
-    <g id="line2d_33">
+    <g id="line2d_5">
      <path d="M 13.5 130.699219 
 L 28.5 130.699219 
 L 43.5 130.699219 
@@ -1753,7 +1753,7 @@ z
       <use xlink:href="#m7a941eb10b" x="28.5" y="130.699219" style="fill: #007fff; stroke: #007fff; stroke-linejoin: miter"/>
      </g>
     </g>
-    <g id="text_9">
+    <g id="text_5">
      <!-- Constant relative humidity -->
      <g transform="translate(55.5 135.949219) scale(0.15 -0.15)">
       <use xlink:href="#DejaVuSans-43"/>
@@ -1784,7 +1784,7 @@ z
       <use xlink:href="#DejaVuSans-79" x="1272.701172"/>
      </g>
     </g>
-    <g id="line2d_34">
+    <g id="line2d_6">
      <path d="M 13.5 167.716406 
 L 28.5 167.716406 
 L 43.5 167.716406 
@@ -1801,7 +1801,7 @@ z
       <use xlink:href="#m15cdf44b73" x="28.5" y="167.716406" style="fill: #7fdfff; stroke: #7fdfff; stroke-linejoin: miter"/>
      </g>
     </g>
-    <g id="text_10">
+    <g id="text_6">
      <!-- Constant wet bulb temperature -->
      <g transform="translate(55.5 172.966406) scale(0.15 -0.15)">
       <defs>

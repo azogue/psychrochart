@@ -5,14 +5,13 @@ from typing import Any
 from pydantic import parse_obj_as
 import pytest
 
-from psychrochart.models.annots import (
-    ChartAnnots,
-    ChartArea,
-    ChartPoint,
+from psychrochart.models.annots import ChartAnnots, ChartArea, ChartPoint
+from psychrochart.models.config import (
+    ChartConfig,
+    ChartZone,
     ChartZones,
     DEFAULT_ZONES,
 )
-from psychrochart.models.config import ChartConfig
 from psychrochart.models.parsers import (
     DEFAULT_CHART_CONFIG_FILE,
     load_extra_annots,
@@ -133,6 +132,47 @@ def test_style_parsing():
     assert style.linewidth == 5
     assert not hasattr(style, "lw")
     assert not hasattr(style, "c")
+
+
+def test_chart_zone_definition():
+    style = {
+        "style": {
+            "edgecolor": "red",
+            "facecolor": "blue",
+            "linewidth": 1,
+            "linestyle": ":",
+        }
+    }
+
+    z1 = {
+        "points_x": [23.0, 25.0, 24.0],
+        "points_y": [45.0, 60.0, 25.0],
+        **style,
+    }
+    zone1 = ChartZone.validate(z1)
+    assert zone1.zone_type == "xy-points"
+    assert zone1.label is None
+
+    # invalid number of points
+    with pytest.raises(ValueError):
+        ChartZone.validate({"points_x": [], "points_y": [], **style})
+    with pytest.raises(ValueError):
+        ChartZone.validate({"points_x": [25.0], "points_y": [25.0], **style})
+    with pytest.raises(ValueError):
+        ChartZone.validate(
+            {"points_x": [25.0, 25.0], "points_y": [25.0, 25.0, 25.0], **style}
+        )
+
+    # dbt-rh zones have 2 points: (dbt-min, RH-min),  (dbt-max, RH-max)
+    z1["zone_type"] = "dbt-rh"
+    with pytest.raises(ValueError):
+        ChartZone.validate(z1)
+
+    z1["points_x"] = [23.0, 25.0]
+    z1["points_y"] = [45.0, 60.0]
+    zone2 = ChartZone.validate(z1)
+    assert zone2.zone_type == "dbt-rh"
+    assert zone2.label is None
 
 
 def test_chart_area_schema():
