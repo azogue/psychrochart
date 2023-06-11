@@ -338,6 +338,8 @@ class PsychroChart(PsychroChartModel):
     def plot(self, ax: Axes | None = None) -> Axes:
         """Plot the psychrochart and return the matplotlib Axes instance."""
         self.process_chart()
+        # instantiate a new artist registry for the new plot
+        self._artists = ChartRegistry()
         if ax is not None:
             self._fig = ax.get_figure()
         else:
