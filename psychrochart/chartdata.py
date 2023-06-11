@@ -227,21 +227,20 @@ def make_saturation_line(
     dbt_max: float,
     temp_step: float,
     pressure: float,
-    style: CurveStyle,
-) -> PsychroCurves:
+    style: CurveStyle | None = None,
+) -> PsychroCurve:
     """Generate line of saturation for the psychrochart."""
     temps_sat_line = np.arange(dbt_min, dbt_max + temp_step, temp_step)
     w_sat = gen_points_in_constant_relative_humidity(
         temps_sat_line, 100, pressure
     )
-    sat_c = PsychroCurve(
+    return PsychroCurve(
         x_data=temps_sat_line,
         y_data=w_sat,
-        style=style,
+        style=style if style is not None else CurveStyle(),
         type_curve="saturation",
         internal_value=100.0,
     )
-    return PsychroCurves(curves=[sat_c])
 
 
 def make_constant_enthalpy_lines(

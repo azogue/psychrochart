@@ -100,7 +100,7 @@ class PsychroChartModel(BaseModel):
     altitude_m: int
     pressure: float
 
-    saturation: PsychroCurves
+    saturation: PsychroCurve
     constant_dry_temp_data: PsychroCurves | None = None
     constant_humidity_data: PsychroCurves | None = None
     constant_rh_data: PsychroCurves | None = None

@@ -346,7 +346,7 @@ def plot_chart(
         registry.constant_rh = data
     if data := plot_curves_family(chart.constant_wbt_data, ax):
         registry.constant_wbt = data
-    registry.saturation = plot_curves_family(chart.saturation, ax)
+    registry.saturation = plot_curve(chart.saturation, ax)
 
     # Plot zones:
     for zone in chart.zones:
@@ -354,9 +354,7 @@ def plot_chart(
     return registry
 
 
-def plot_annots_dbt_rh(
-    ax: Axes, annots: ChartAnnots
-) -> dict[str, Artist]:
+def plot_annots_dbt_rh(ax: Axes, annots: ChartAnnots) -> dict[str, Artist]:
     """Plot chat annotations in given matplotlib Axes, return `Artist` objs."""
     annot_artists: dict[str, Artist] = {}
     for d_con in annots.connectors:

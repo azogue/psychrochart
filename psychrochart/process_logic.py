@@ -49,13 +49,13 @@ def get_pressure_pa(limits: ChartLimits, unit_system_si: bool = True) -> float:
 
 def _generate_chart_curves(config: ChartConfig, chart: PsychroChartModel):
     # check chart limits are not fully above the saturation curve!
-    assert (chart.saturation.curves[0].y_data > config.w_min).any()
+    assert (chart.saturation.y_data > config.w_min).any()
     # check if sat curve cuts x-axis with T > config.dbt_min
     dbt_min_seen: float | None = None
-    if chart.saturation.curves[0].y_data[0] < config.w_min:
+    if chart.saturation.y_data[0] < config.w_min:
         temp_sat_interpolator = interp1d(
-            chart.saturation.curves[0].y_data,
-            chart.saturation.curves[0].x_data,
+            chart.saturation.y_data,
+            chart.saturation.x_data,
             assume_sorted=True,
         )
         dbt_min_seen = temp_sat_interpolator(config.w_min)
@@ -138,7 +138,7 @@ def _generate_chart_curves(config: ChartConfig, chart: PsychroChartModel):
             style=config.constant_h,
             label_loc=config.chart_params.constant_h_labels_loc,
             family_label=config.chart_params.constant_h_label,
-            saturation_curve=chart.saturation.curves[0],
+            saturation_curve=chart.saturation,
             dbt_min_seen=dbt_min_seen,
         )
     else:
@@ -156,7 +156,7 @@ def _generate_chart_curves(config: ChartConfig, chart: PsychroChartModel):
             style=config.constant_v,
             label_loc=config.chart_params.constant_v_labels_loc,
             family_label=config.chart_params.constant_v_label,
-            saturation_curve=chart.saturation.curves[0],
+            saturation_curve=chart.saturation,
             dbt_min_seen=dbt_min_seen,
         )
     else:
