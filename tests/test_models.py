@@ -5,14 +5,8 @@ from typing import Any
 from pydantic import parse_obj_as
 import pytest
 
-from psychrochart.models.annots import (
-    ChartAnnots,
-    ChartArea,
-    ChartPoint,
-    ChartZones,
-    DEFAULT_ZONES,
-)
-from psychrochart.models.config import ChartConfig
+from psychrochart.models.annots import ChartAnnots, ChartArea, ChartPoint
+from psychrochart.models.config import ChartConfig, ChartZones, DEFAULT_ZONES
 from psychrochart.models.parsers import (
     DEFAULT_CHART_CONFIG_FILE,
     load_extra_annots,

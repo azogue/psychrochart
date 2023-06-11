@@ -111,6 +111,7 @@
     "constant_humid_step": 1,
     "constant_humid_label_step": 2,
     "constant_humid_label_include_limits": true,
-    "with_zones": true
+    "with_zones": true,
+    "zones": []
   }
 }

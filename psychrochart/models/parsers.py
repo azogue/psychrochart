@@ -10,11 +10,9 @@ from psychrochart.models.annots import (
     ChartLine,
     ChartPoint,
     ChartSeries,
-    ChartZones,
     ConvexGroupTuple,
-    DEFAULT_ZONES,
 )
-from psychrochart.models.config import ChartConfig
+from psychrochart.models.config import ChartConfig, ChartZones, DEFAULT_ZONES
 
 PATH_STYLES = Path(__file__).absolute().parents[1] / "chart_styles"
 DEFAULT_CHART_CONFIG_FILE = str(PATH_STYLES / "default_chart_config.json")

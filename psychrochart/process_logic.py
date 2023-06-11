@@ -1,5 +1,4 @@
 import logging
-from typing import Any
 
 import numpy as np
 import psychrolib as psy
@@ -21,12 +20,10 @@ from psychrochart.chartdata import (
     make_constant_specific_volume_lines,
     make_constant_wet_bulb_temperature_lines,
     make_saturation_line,
-    make_zone_curve,
 )
-from psychrochart.models.annots import ChartZones, DEFAULT_ZONES
-from psychrochart.models.config import ChartConfig, ChartLimits
-from psychrochart.models.curves import PsychroChartModel, PsychroCurves
-from psychrochart.models.parsers import obj_loader
+from psychrochart.chartzones import make_zone_curve
+from psychrochart.models.config import ChartConfig, ChartLimits, DEFAULT_ZONES
+from psychrochart.models.curves import PsychroChartModel
 
 spec_vol_vec = np.vectorize(psy.GetMoistAirVolume)
 
@@ -50,26 +47,7 @@ def get_pressure_pa(limits: ChartLimits, unit_system_si: bool = True) -> float:
         return GetStandardAtmPressure(limits.altitude_m)
 
 
-def append_zones_to_chart(
-    config: ChartConfig,
-    chart: PsychroChartModel,
-    zones: ChartZones | dict[str, Any] | str | None = None,
-) -> None:
-    """Append zones as patches to the psychrometric chart data-container."""
-    zones_use = obj_loader(ChartZones, zones, default_obj=DEFAULT_ZONES).zones
-    if zones_use:
-        curves = PsychroCurves(
-            curves=[
-                make_zone_curve(zone, config.limits.step_temp, chart.pressure)
-                for zone in zones_use
-            ]
-        )
-        chart.zones.append(curves)
-
-
-def _generate_chart_curves(
-    config: ChartConfig, chart: PsychroChartModel, pressure: float
-):
+def _generate_chart_curves(config: ChartConfig, chart: PsychroChartModel):
     # check chart limits are not fully above the saturation curve!
     assert (chart.saturation.curves[0].y_data > config.w_min).any()
     # check if sat curve cuts x-axis with T > config.dbt_min
@@ -90,7 +68,7 @@ def _generate_chart_curves(
             temps_vl = temps_vl[temps_vl > dbt_min_seen]
         chart.constant_dry_temp_data = make_constant_dry_bulb_v_lines(
             config.w_min,
-            pressure,
+            chart.pressure,
             temps_vl=temps_vl,
             style=config.constant_dry_temp,
             family_label=config.chart_params.constant_temp_label,
@@ -103,7 +81,7 @@ def _generate_chart_curves(
         step = config.chart_params.constant_humid_step
         chart.constant_humidity_data = make_constant_humidity_ratio_h_lines(
             config.dbt_max,
-            pressure,
+            chart.pressure,
             ws_hl=np.arange(
                 config.w_min + step,
                 config.w_max + step / 10,
@@ -122,7 +100,7 @@ def _generate_chart_curves(
             config.dbt_max,
             config.w_min,
             config.w_max,
-            pressure,
+            chart.pressure,
         )
         rh_values = sorted(
             rh
@@ -138,7 +116,7 @@ def _generate_chart_curves(
             start,
             config.dbt_max,
             config.limits.step_temp,
-            pressure,
+            chart.pressure,
             rh_perc_values=rh_values,
             rh_label_values=config.chart_params.constant_rh_labels,
             style=config.constant_rh,
@@ -154,7 +132,7 @@ def _generate_chart_curves(
         start, end = config.chart_params.range_h
         chart.constant_h_data = make_constant_enthalpy_lines(
             config.w_min,
-            pressure,
+            chart.pressure,
             enthalpy_values=np.arange(start, end, step),
             h_label_values=config.chart_params.constant_h_labels,
             style=config.constant_h,
@@ -172,7 +150,7 @@ def _generate_chart_curves(
         start, end = config.chart_params.range_vol_m3_kg
         chart.constant_v_data = make_constant_specific_volume_lines(
             config.w_min,
-            pressure,
+            chart.pressure,
             vol_values=np.arange(start, end, step),
             v_label_values=config.chart_params.constant_v_labels,
             style=config.constant_v,
@@ -193,7 +171,7 @@ def _generate_chart_curves(
             config.dbt_max,
             config.w_min,
             config.w_max,
-            pressure,
+            chart.pressure,
             wbt_values=np.arange(start, end, step),
             wbt_label_values=config.chart_params.constant_wet_temp_labels,
             style=config.constant_wet_temp,
@@ -252,5 +230,21 @@ def update_psychrochart_data(
         current_chart.pressure,
         style=config.saturation,
     )
-    _generate_chart_curves(config, current_chart, current_chart.pressure)
+    _generate_chart_curves(config, current_chart)
+    # regen all zones
+    if config.chart_params.with_zones and not config.chart_params.zones:
+        # add default zones
+        config.chart_params.zones = DEFAULT_ZONES.zones
+    zone_curves = [
+        make_zone_curve(
+            zone,
+            pressure=current_chart.pressure,
+            step_temp=config.limits.step_temp,
+            # dbt_min=config.dbt_min,
+            # dbt_max=config.dbt_max,
+            # w_min=config.w_min,
+        )
+        for zone in config.chart_params.zones
+    ]
+    current_chart.zones = [zc for zc in zone_curves if zc is not None]
     config.commit_changes()

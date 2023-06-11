@@ -19,8 +19,6 @@ from psychrolib import (
 )
 from scipy.interpolate import interp1d
 
-from psychrochart.chart_entities import random_internal_value
-from psychrochart.models.annots import ChartZone
 from psychrochart.models.curves import PsychroCurve, PsychroCurves
 from psychrochart.models.styles import CurveStyle
 from psychrochart.util import solve_curves_with_iteration
@@ -487,50 +485,3 @@ def make_constant_wet_bulb_temperature_lines(
         curves.append(c)
 
     return PsychroCurves(curves=curves, family_label=family_label)
-
-
-def make_zone_curve(
-    zone_conf: ChartZone, increment: float, pressure: float
-) -> PsychroCurve:
-    """Generate plot-points for zone."""
-    # todo better id for overlay zones if no label
-    zone_value = random_internal_value() if zone_conf.label is None else None
-    if zone_conf.zone_type == "xy-points":
-        # expect points in plot coordinates!
-        return PsychroCurve(
-            x_data=np.array(zone_conf.points_x),
-            y_data=np.array(zone_conf.points_y),
-            style=zone_conf.style,
-            type_curve="xy-points",
-            label=zone_conf.label,
-            internal_value=zone_value,
-        )
-
-    assert zone_conf.zone_type == "dbt-rh"
-    # points for zone between constant dry bulb temps and RH
-    t_min = zone_conf.points_x[0]
-    t_max = zone_conf.points_x[-1]
-    rh_min = zone_conf.points_y[0]
-    rh_max = zone_conf.points_y[-1]
-    assert rh_min >= 0.0 and rh_max <= 100.0
-    assert t_min < t_max
-
-    temps = np.arange(t_min, t_max + increment, increment)
-    curve_rh_up = gen_points_in_constant_relative_humidity(
-        temps, rh_max, pressure
-    )
-    curve_rh_down = gen_points_in_constant_relative_humidity(
-        temps, rh_min, pressure
-    )
-    abs_humid: list[float] = (
-        list(curve_rh_up) + list(curve_rh_down)[::-1] + [curve_rh_up[0]]
-    )
-    temps_zone: list[float] = list(temps) + list(temps)[::-1] + [temps[0]]
-    return PsychroCurve(
-        x_data=np.array(temps_zone),
-        y_data=np.array(abs_humid),
-        style=zone_conf.style,
-        type_curve="dbt-rh",
-        label=zone_conf.label,
-        internal_value=zone_value,
-    )

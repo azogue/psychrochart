@@ -19,8 +19,8 @@ from psychrochart.chartdata import (
     gen_points_in_constant_relative_humidity,
     make_constant_dry_bulb_v_line,
 )
-from psychrochart.models.annots import ChartAnnots, ChartZones
-from psychrochart.models.config import ChartConfig
+from psychrochart.models.annots import ChartAnnots
+from psychrochart.models.config import ChartConfig, ChartZones
 from psychrochart.models.curves import PsychroChartModel
 from psychrochart.models.parsers import (
     ConvexGroupTuple,
@@ -121,7 +121,10 @@ class PsychroChart(PsychroChartModel):
         self, zones: ChartZones | dict[str, Any] | str | None = None
     ) -> None:
         """Append zones as patches to the psychrometric chart."""
-        append_zones_to_chart(self.config, self, zones)
+        zones_use = obj_loader(ChartZones, zones).zones
+        self.config.chart_params.with_zones = True
+        self.config.chart_params.zones += zones_use
+        assert self.config.has_changed
 
     def plot_points_dbt_rh(
         self,

@@ -107,4 +107,4 @@ class PsychroChartModel(BaseModel):
     constant_h_data: PsychroCurves | None = None
     constant_v_data: PsychroCurves | None = None
     constant_wbt_data: PsychroCurves | None = None
-    zones: list[PsychroCurves] = Field(default_factory=list)
+    zones: list[PsychroCurve] = Field(default_factory=list)

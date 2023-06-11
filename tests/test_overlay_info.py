@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 
 from psychrochart import PsychroChart
-from psychrochart.models.annots import ChartZone
+from psychrochart.models.config import ChartZone
 from psychrochart.models.parsers import load_config
 from tests.conftest import store_test_chart, TEST_BASEDIR
 
