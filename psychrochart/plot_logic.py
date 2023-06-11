@@ -11,6 +11,11 @@ from matplotlib.text import Annotation
 import numpy as np
 from scipy.spatial import ConvexHull, QhullError
 
+from psychrochart.chart_entities import (
+    ChartRegistry,
+    make_item_gid,
+    reg_artist,
+)
 from psychrochart.models.annots import ChartAnnots
 from psychrochart.models.config import ChartConfig
 from psychrochart.models.curves import (
@@ -109,8 +114,9 @@ def add_label_to_curve(
 
 def plot_curve(
     curve: PsychroCurve, ax: Axes, label_prefix: str | None = None
-) -> list[Artist]:
+) -> dict[str, Artist]:
     """Plot the curve, if it's between chart limits."""
+    artists: dict[str, Artist] = {}
     xmin, xmax = ax.get_xlim()
     ymin, ymax = ax.get_ylim()
     if (
@@ -133,9 +139,8 @@ def plot_curve(
             curve.x_data,
             curve.y_data,
         )
-        return []
+        return {}
 
-    artists = []
     if isinstance(curve.style, ZoneStyle):
         assert len(curve.y_data) > 2
         verts = list(zip(curve.x_data, curve.y_data))
@@ -147,8 +152,16 @@ def plot_curve(
         path = Path(verts, codes)
         patch = patches.PathPatch(path, **curve.style.dict())
         ax.add_patch(patch)
-        artists.append(patch)
-
+        gid_zone = make_item_gid(
+            "zone",
+            family_label=label_prefix or curve.type_curve,
+            name=curve.curve_id,
+        )
+        reg_artist(
+            gid_zone,
+            patch,
+            artists,
+        )
         if curve.label is not None:
             bbox_p = path.get_extents()
             text_x = 0.5 * (bbox_p.x0 + bbox_p.x1)
@@ -160,46 +173,62 @@ def plot_curve(
             }
             assert isinstance(curve.style, ZoneStyle)
             style_params["color"] = mod_color(curve.style.edgecolor, -25)
-            artist_label = _annotate_label(
-                ax, curve.label, text_x, text_y, 0, style_params
+            reg_artist(
+                "label_" + gid_zone,
+                _annotate_label(
+                    ax, curve.label, text_x, text_y, 0, style_params
+                ),
+                artists,
             )
-            artists.append(artist_label)
     else:
-        artist_line = ax.plot(curve.x_data, curve.y_data, **curve.style.dict())
-        artists.append(artist_line)
+        [artist_line] = ax.plot(
+            curve.x_data, curve.y_data, **curve.style.dict()
+        )
+        kind = (
+            (label_prefix or curve.type_curve)
+            if len(curve.x_data) > 1
+            else "point"
+        )
+        gid_line = make_item_gid(kind or "unknown", name=curve.curve_id)
+        reg_artist(gid_line, artist_line, artists)
         if curve.label is not None:
-            artists.append(add_label_to_curve(curve, ax))
+            reg_artist(
+                "label_" + gid_line, add_label_to_curve(curve, ax), artists
+            )
 
     return artists
 
 
-def plot_curves_family(family: PsychroCurves | None, ax: Axes) -> list[Artist]:
+def plot_curves_family(
+    family: PsychroCurves | None, ax: Axes
+) -> dict[str, Artist]:
     """Plot all curves in the family."""
-    artists: list[Artist] = []
     if family is None:
-        return artists
-
-    [
-        plot_curve(curve, ax, label_prefix=family.family_label)
+        return {}
+    artists: dict[str, Artist] = {
+        gid: item
         for curve in family.curves
-    ]
+        for gid, item in plot_curve(
+            curve, ax, label_prefix=family.family_label
+        ).items()
+    }
     # Curves family labelling
     if family.curves and family.family_label is not None:
-        artist_fam_label = ax.plot(
+        # artist for legend (1 label for each family)
+        min_params = {"marker": "D", "markersize": 10}
+        [artist_fam_label] = ax.plot(
             [-1],
             [-1],
             label=family.family_label,
-            marker="D",
-            markersize=10,
-            **family.curves[0].style.dict(),
+            **(min_params | family.curves[0].style.dict()),
         )
-        artists.append(artist_fam_label)
+        gid_family_label = make_item_gid(
+            "label_legend", name=family.family_label
+        )
+        artist_fam_label.set_gid(gid_family_label)
+        artists[gid_family_label] = artist_fam_label
 
-    # return [
-    #     art for art in artist_curves + artist_labels if art is not None
-    # ]
-    # TODO collect artists from plot_curve
-    return []
+    return artists
 
 
 def _apply_spines_style(axes, style, location="right") -> None:
@@ -213,8 +242,11 @@ def _apply_spines_style(axes, style, location="right") -> None:
             )
 
 
-def apply_axis_styling(config: ChartConfig, ax: Axes) -> None:
+def apply_axis_styling(config: ChartConfig, ax: Axes) -> dict[str, Artist]:
     """Setup matplotlib Axes object for the chart."""
+    layout_artists: dict[str, Artist] = {}
+    reg_artist("chart_x_axis", ax.xaxis, layout_artists)
+    reg_artist("chart_y_axis", ax.yaxis, layout_artists)
     ax.yaxis.tick_right()
     ax.yaxis.set_label_position("right")
     ax.set_xlim(config.dbt_min, config.dbt_max)
@@ -224,27 +256,33 @@ def apply_axis_styling(config: ChartConfig, ax: Axes) -> None:
     if config.figure.x_label is not None:
         style_axis = config.figure.x_axis_labels.dict()
         style_axis["fontsize"] *= 1.2
-        ax.set_xlabel(config.figure.x_label, **style_axis)
+        artist_xlabel = ax.set_xlabel(config.figure.x_label, **style_axis)
+        reg_artist("chart_x_axis_label", artist_xlabel, layout_artists)
     if config.figure.y_label is not None:
         style_axis = config.figure.y_axis_labels.dict()
         style_axis["fontsize"] *= 1.2
-        ax.set_ylabel(config.figure.y_label, **style_axis)
+        artist_ylabel = ax.set_ylabel(config.figure.y_label, **style_axis)
+        reg_artist("chart_y_axis_label", artist_ylabel, layout_artists)
     if config.figure.title is not None:
-        ax.set_title(
+        artist_title = ax.set_title(
             config.figure.title,
             fontsize=config.figure.fontsize * 1.5,
             fontweight="bold",
         )
+        reg_artist("chart_title", artist_title, layout_artists)
 
     _apply_spines_style(ax, config.figure.y_axis.dict(), location="right")
     _apply_spines_style(ax, config.figure.x_axis.dict(), location="bottom")
+    reg_artist("chart_x_axis_bottom_line", ax.spines["bottom"], layout_artists)
+    reg_artist("chart_y_axis_right_line", ax.spines["right"], layout_artists)
     if config.figure.partial_axis:  # Hide left and top axis
         ax.spines["left"].set_visible(False)
         ax.spines["top"].set_visible(False)
     else:
         _apply_spines_style(ax, config.figure.y_axis.dict(), location="left")
         _apply_spines_style(ax, config.figure.x_axis.dict(), location="top")
-
+        reg_artist("chart_x_axis_top_line", ax.spines["top"], layout_artists)
+        reg_artist("chart_y_axis_left_line", ax.spines["left"], layout_artists)
     if config.figure.x_axis_ticks is not None:
         ax.tick_params(axis="x", **config.figure.x_axis_ticks.dict())
     if config.figure.y_axis_ticks is not None:
@@ -286,53 +324,69 @@ def apply_axis_styling(config: ChartConfig, ax: Axes) -> None:
             )
     else:
         ax.set_yticks([])
+    return layout_artists
 
 
-def plot_chart(chart: PsychroChartModel, ax: Axes) -> Axes:
+def plot_chart(
+    chart: PsychroChartModel, ax: Axes, registry: ChartRegistry | None = None
+) -> ChartRegistry:
     """Plot the psychrochart curves on given Axes."""
+    if registry is None:
+        registry = ChartRegistry()
     # Plot curves:
-    plot_curves_family(chart.constant_dry_temp_data, ax)
-    plot_curves_family(chart.constant_humidity_data, ax)
-    plot_curves_family(chart.constant_h_data, ax)
-    plot_curves_family(chart.constant_v_data, ax)
-    plot_curves_family(chart.constant_rh_data, ax)
-    plot_curves_family(chart.constant_wbt_data, ax)
-    plot_curves_family(chart.saturation, ax)
+    if data := plot_curves_family(chart.constant_dry_temp_data, ax):
+        registry.constant_dry_temp = data
+    if data := plot_curves_family(chart.constant_humidity_data, ax):
+        registry.constant_humidity = data
+    if data := plot_curves_family(chart.constant_h_data, ax):
+        registry.constant_h = data
+    if data := plot_curves_family(chart.constant_v_data, ax):
+        registry.constant_v = data
+    if data := plot_curves_family(chart.constant_rh_data, ax):
+        registry.constant_rh = data
+    if data := plot_curves_family(chart.constant_wbt_data, ax):
+        registry.constant_wbt = data
+    registry.saturation = plot_curves_family(chart.saturation, ax)
 
     # Plot zones:
     for zone in chart.zones:
-        plot_curves_family(zone, ax)
-    return ax
+        registry.zones.update(plot_curve(zone, ax))
+    return registry
 
 
 def plot_annots_dbt_rh(
     ax: Axes, annots: ChartAnnots
-) -> list[Artist | list[Artist]]:
+) -> dict[str, Artist]:
     """Plot chat annotations in given matplotlib Axes, return `Artist` objs."""
-    _handlers_annotations = []
+    annot_artists: dict[str, Artist] = {}
     for d_con in annots.connectors:
         x_start, y_start = annots.get_point_by_name(d_con.start)
         x_end, y_end = annots.get_point_by_name(d_con.end)
         x_line = [x_start, x_end]
         y_line = [y_start, y_end]
-        _handlers_annotations.append(
-            ax.plot(
+        d_con_gid = make_item_gid(
+            "connector", name=d_con.label or f"{d_con.start}_{d_con.end}"
+        )
+        [artist_connector] = ax.plot(
+            x_line,
+            y_line,
+            label=d_con.label,
+            dash_capstyle="round",
+            **d_con.style.dict(),
+        )
+        reg_artist(d_con_gid, artist_connector, annot_artists)
+        if d_con.outline_marker_width:
+            [artist_connector_marker] = ax.plot(
                 x_line,
                 y_line,
-                label=d_con.label,
-                dash_capstyle="round",
-                **d_con.style.dict(),
+                color=[*d_con.style.color[:3], 0.15],
+                lw=d_con.outline_marker_width,
+                solid_capstyle="round",
             )
-        )
-        if d_con.outline_marker_width:
-            _handlers_annotations.append(
-                ax.plot(
-                    x_line,
-                    y_line,
-                    color=[*d_con.style.color[:3], 0.15],
-                    lw=d_con.outline_marker_width,
-                    solid_capstyle="round",
-                )
+            reg_artist(
+                d_con_gid + "_outline_mark",
+                artist_connector_marker,
+                annot_artists,
             )
 
     forbidden = set()
@@ -341,20 +395,24 @@ def plot_annots_dbt_rh(
         forbidden.add("markersize")
     else:
         f_plot = ax.plot
-    for series in annots.series.values():
+    for name, series in annots.series.items():
         style = {k: v for k, v in series.style.items() if k not in forbidden}
-        _handlers_annotations.append(
-            f_plot(series.x_data, series.y_data, label=series.label, **style)
+        artists = f_plot(
+            series.x_data, series.y_data, label=series.label, **style
         )
+        artist_line = artists[0] if isinstance(artists, list) else artists
+        line_gid = make_item_gid("series", name=series.label or name)
+        reg_artist(line_gid, artist_line, annot_artists)
 
-    for point in annots.points.values():
+    for name, point in annots.points.items():
         style = {k: v for k, v in point.style.items() if k not in forbidden}
-        _handlers_annotations.append(
-            f_plot(point.xy[0], point.xy[1], label=point.label, **style)
-        )
+        artists = f_plot(point.xy[0], point.xy[1], label=point.label, **style)
+        artist_point = artists[0] if isinstance(artists, list) else artists
+        line_gid = make_item_gid("point", name=point.label or name)
+        reg_artist(line_gid, artist_point, annot_artists)
 
     if ConvexHull is None or not annots.areas:
-        return _handlers_annotations
+        return annot_artists
 
     for convex_area in annots.areas:
         int_points = np.array(
@@ -367,20 +425,21 @@ def plot_annots_dbt_rh(
             logging.error(f"QhullError with points: {int_points}")
             continue
 
-        for simplex in hull.simplices:
-            _handlers_annotations.append(
-                ax.plot(
-                    int_points[simplex, 0],
-                    int_points[simplex, 1],
-                    **convex_area.line_style,
-                )
-            )
-        _handlers_annotations.append(
-            ax.fill(
-                int_points[hull.vertices, 0],
-                int_points[hull.vertices, 1],
-                **convex_area.fill_style,
-            )
+        area_gid = make_item_gid(
+            "convexhull", name=",".join(convex_area.point_names)
         )
+        for i, simplex in enumerate(hull.simplices):
+            [artist_contour] = ax.plot(
+                int_points[simplex, 0],
+                int_points[simplex, 1],
+                **convex_area.line_style,
+            )
+            reg_artist(area_gid + f"_s{i+1}", artist_contour, annot_artists)
+        [artist_area] = ax.fill(
+            int_points[hull.vertices, 0],
+            int_points[hull.vertices, 1],
+            **convex_area.fill_style,
+        )
+        reg_artist(area_gid, artist_area, annot_artists)
 
-    return _handlers_annotations
+    return annot_artists

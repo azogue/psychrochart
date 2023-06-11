@@ -37,7 +37,7 @@ class PsychroCurve(BaseModel):
     def curve_id(self) -> str:
         """Get Curve identifier (value or label)."""
         if self.internal_value is not None:
-            return f"{self.internal_value:g}"
+            return f"{self.internal_value:g}".replace("-", "minus")
         assert self.label is not None
         return self.label
 
