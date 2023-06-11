@@ -139,9 +139,7 @@ def test_generate_rsc_splash_chart():
     chart.plot_points_dbt_rh(points, connectors)
 
     # Legend
-    chart.plot_legend(
-        markerscale=0.7, frameon=False, fontsize=10, labelspacing=1.2
-    )
+    chart.plot_legend(markerscale=0.5, fontsize=10, labelspacing=1.2)
 
     # Save to disk
     store_test_chart(chart, "chart_overlay_style_minimal.svg", svg_rsc=True)

@@ -320,20 +320,19 @@ class PsychroChart(PsychroChartModel):
         **params,
     ) -> None:
         """Append a legend to the psychrochart plot."""
-        reg_artist(
-            "chart_legend",
-            self.axes.legend(
-                loc=loc,
-                markerscale=markerscale,
-                frameon=frameon,
-                edgecolor=edgecolor,
-                fontsize=fontsize,
-                fancybox=fancybox,
-                labelspacing=labelspacing,
-                **params,
-            ),
-            self._artists.layout,
+        legend = self.axes.legend(
+            loc=loc,
+            markerscale=markerscale,
+            frameon=frameon,
+            edgecolor=edgecolor,
+            fontsize=fontsize,
+            fancybox=fancybox,
+            labelspacing=labelspacing,
+            **params,
         )
+        if frameon:
+            legend.get_frame().set_gid("chart_legend_background")
+        reg_artist("chart_legend", legend, self._artists.layout)
 
     def plot(self, ax: Axes | None = None) -> Axes:
         """Plot the psychrochart and return the matplotlib Axes instance."""
