@@ -182,36 +182,6 @@ def _generate_chart_curves(config: ChartConfig, chart: PsychroChartModel):
         chart.constant_wbt_data = None
 
 
-def generate_psychrochart(
-    config: ChartConfig,
-    extra_zones: ChartZones | dict[str, Any] | str | None = None,
-    use_unit_system_si: bool = True,
-) -> PsychroChartModel:
-    """Create the PsychroChart object."""
-    # Set unit system for psychrolib and get standard pressure
-    pressure = get_pressure_pa(config.limits, use_unit_system_si)
-
-    # base chart with saturation line:
-    chart = PsychroChartModel(
-        unit_system_si=use_unit_system_si,
-        altitude_m=config.limits.altitude_m,
-        pressure=pressure,
-        saturation=make_saturation_line(
-            config.dbt_min,
-            config.dbt_max,
-            config.limits.step_temp,
-            pressure,
-            style=config.saturation,
-        ),
-    )
-    _generate_chart_curves(config, chart, pressure)
-
-    if config.chart_params.with_zones:
-        append_zones_to_chart(config, chart, extra_zones)
-
-    return chart
-
-
 def update_psychrochart_data(
     current_chart: PsychroChartModel, config: ChartConfig
 ) -> None:

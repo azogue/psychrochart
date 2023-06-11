@@ -112,10 +112,11 @@ def make_constant_relative_humidity_lines(
     temp_step: float,
     pressure: float,
     rh_perc_values: list[int],
-    rh_label_values: list[int],
+    *,
     style: CurveStyle,
-    label_loc: float,
-    family_label: str | None,
+    rh_label_values: list[int] | None = None,
+    label_loc: float = 0.0,
+    family_label: str | None = None,
 ) -> PsychroCurves:
     """Generate curves of constant relative humidity for the chart."""
     rh_values = sorted(rh for rh in rh_perc_values if 0 <= rh <= 100)
@@ -124,6 +125,7 @@ def make_constant_relative_humidity_lines(
         gen_points_in_constant_relative_humidity(temps_ct_rh, rh, pressure)
         for rh in rh_values
     ]
+    rh_label_values = rh_label_values or []
     return PsychroCurves(
         curves=[
             PsychroCurve(
@@ -145,6 +147,7 @@ def make_constant_dry_bulb_v_line(
     w_humidity_ratio_min: float,
     temp: float,
     pressure: float,
+    *,
     style: CurveStyle,
     type_curve: str | None = None,
     reverse: bool = False,
@@ -170,8 +173,9 @@ def make_constant_dry_bulb_v_lines(
     w_humidity_ratio_min: float,
     pressure: float,
     temps_vl: np.ndarray,
+    *,
     style: CurveStyle,
-    family_label: str | None,
+    family_label: str | None = None,
 ) -> PsychroCurves:
     """Generate curves of constant dry bulb temperature (vertical)."""
     w_max_vec = _get_humid_ratio_in_saturation(temps_vl, pressure)
@@ -194,8 +198,9 @@ def make_constant_humidity_ratio_h_lines(
     dbt_max: float,
     pressure: float,
     ws_hl: np.ndarray,
+    *,
     style: CurveStyle,
-    family_label: str | None,
+    family_label: str | None = None,
 ) -> PsychroCurves:
     """Generate curves of constant absolute humidity (horizontal)."""
     arr_hum_ratios = np.array(ws_hl) / _factor_out_w()
@@ -243,11 +248,12 @@ def make_constant_enthalpy_lines(
     w_humidity_ratio_min: float,
     pressure: float,
     enthalpy_values: np.ndarray,
-    h_label_values: list[float],
-    style: CurveStyle,
-    label_loc: float,
-    family_label: str | None,
+    *,
     saturation_curve: PsychroCurve,
+    style: CurveStyle,
+    h_label_values: list[float] | None = None,
+    label_loc: float = 0.0,
+    family_label: str | None = None,
     dbt_min_seen: float | None = None,
 ) -> PsychroCurves | None:
     """Generate curves of constant enthalpy for the chart."""
@@ -309,7 +315,8 @@ def make_constant_enthalpy_lines(
                 label_loc=label_loc,
                 label=(
                     _make_enthalpy_label(h)
-                    if round(h, 3) in h_label_values
+                    if isinstance(h_label_values, list)
+                    and round(h, 3) in h_label_values
                     else None
                 ),
                 internal_value=round(h, 3),
@@ -326,11 +333,12 @@ def make_constant_specific_volume_lines(
     w_humidity_ratio_min: float,
     pressure: float,
     vol_values: np.ndarray,
-    v_label_values: list[float],
-    style: CurveStyle,
-    label_loc: float,
-    family_label: str | None,
+    *,
     saturation_curve: PsychroCurve,
+    style: CurveStyle,
+    v_label_values: list[float] | None = None,
+    label_loc: float = 0.0,
+    family_label: str | None = None,
     dbt_min_seen: float | None = None,
 ) -> PsychroCurves | None:
     """Generate curves of constant specific volume for the chart."""
@@ -388,7 +396,8 @@ def make_constant_specific_volume_lines(
                 label_loc=label_loc,
                 label=(
                     _make_vol_label(vol)
-                    if round(vol, 3) in v_label_values
+                    if isinstance(v_label_values, list)
+                    and round(vol, 3) in v_label_values
                     else None
                 ),
                 internal_value=round(vol, 3),
@@ -408,10 +417,11 @@ def make_constant_wet_bulb_temperature_lines(
     w_humidity_ratio_max: float,
     pressure: float,
     wbt_values: np.ndarray,
-    wbt_label_values: list[float],
+    *,
     style: CurveStyle,
-    label_loc: float,
-    family_label: str | None,
+    wbt_label_values: list[float] | None = None,
+    label_loc: float = 0.0,
+    family_label: str | None = None,
 ) -> PsychroCurves | None:
     """Generate curves of constant wet bulb temperature for the chart."""
     wt_min = GetTWetBulbFromHumRatio(
@@ -479,7 +489,12 @@ def make_constant_wet_bulb_temperature_lines(
             style=style,
             type_curve="constant_wbt_data",
             label_loc=label_loc,
-            label=(_make_temp_label(wbt) if wbt in wbt_label_values else None),
+            label=(
+                _make_temp_label(wbt)
+                if isinstance(wbt_label_values, list)
+                and round(wbt, 3) in wbt_label_values
+                else None
+            ),
             internal_value=wbt,
         )
         curves.append(c)
