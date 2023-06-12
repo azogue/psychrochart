@@ -17,6 +17,113 @@
  </metadata>
  <defs>
   <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ <linearGradient id="grad-background">
+  <stop offset="0%" stop-color="#113cef" stop-opacity="0.2" />
+  <stop offset="25%" stop-color="#20eecf" stop-opacity="0.2" />
+  <stop offset="50%" stop-color="#eacc33" stop-opacity="0.2" />
+  <stop offset="75%" stop-color="#ee6820" stop-opacity="0.2" />
+  <stop offset="100%" stop-color="#ee1c09" stop-opacity="0.2" />
+</linearGradient>
+<linearGradient id="grad-sat">
+  <stop offset="0%" stop-color="#2f2ff1"/>
+  <stop offset="33%" stop-color="#EE6820"/>
+  <stop offset="75%" stop-color="#ea0c4f"/>
+  <stop offset="100%" stop-color="#d01cd0"/>
+</linearGradient>
+<style type="text/css">
+g,
+path {
+  transition: all 250ms ease-in-out;
+}
+
+/* background gradient */
+#chart_background > path {
+  fill: url(#grad-background) !important;
+}
+
+/* saturation line effects */
+@keyframes color_blink {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+#saturation_100 path {
+  stroke: url(#grad-sat) !important;
+  animation: color_blink 3s infinite ease;
+}
+#saturation_100:hover path {
+  stroke-width: 9 !important;
+}
+
+/* animated points */
+@keyframes scale_anim {
+  0% {
+    opacity: 0.5;
+    -webkit-transform: scale(0.75);
+    transform: scale(0.75);
+  }
+  100% {
+    opacity: 1;
+    -webkit-transform: scale(1.5);
+    transform: scale(1.5);
+  }
+}
+g[id^="point_"] {
+  animation: scale_anim 2s infinite ease-in-out;
+}
+
+/* bolder lines on hover */
+g[id^="constant_dry_temp"] > path:hover,
+g[id^="absolute_humidity"] > path:hover,
+g[id^="dry_bulb_temperature"] > path:hover,
+g[id^="constant_enthalpy"] > path:hover,
+g[id^="constant_specific_volume"] > path:hover,
+g[id^="constant_wet_bulb_temperature"] > path:hover,
+g[id^="constant_relative_humidity"] > path:hover {
+  stroke-width: 5 !important;
+}
+
+/* obscure zones on hover */
+g[id^="zone_"] > path:hover {
+  fill-opacity: 0.95 !important;
+  stroke-dasharray: none !important;
+  stroke-width: 1 !important;
+}
+
+/* specific formatting for lines on hover */
+#constant_relative_humidity_40:hover path,
+#constant_relative_humidity_60:hover path {
+  stroke: #2f2ff1 !important;
+  stroke-width: 3;
+}
+
+/* bigger points on hover */
+g[id^="point_"],
+g[id^="connector_"] {
+  transform: scale(1);
+  -webkit-transform-origin: 50% 50%;
+  transform-origin: 50% 50%;
+  transform-box: fill-box;
+}
+g[id^="point_"]:hover {
+  -webkit-transform: scale(1.5);
+  -webkit-transform-origin: 50% 50%;
+  transform: scale(1.5);
+  transform-origin: 50% 50%;
+}
+g[id^="connector_"]:hover {
+  -webkit-transform: scale(1.1);
+  -webkit-transform-origin: 50% 50%;
+  transform: scale(1.1);
+  transform-origin: 50% 50%;
+}
+</style>
  </defs>
  <g id="figure_psychrochart">
   <g id="chart_axes">
@@ -119,6 +226,142 @@ L 316.8 580.376047
 L 307.2 582.569465 
 z
 " clip-path="url(#pc0e6066e52)" style="fill: #7f9fff; fill-opacity: 0.2; stroke-dasharray: 7.4,3.2; stroke-dashoffset: 0; stroke: #7f9fcc; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="zone_volume_rh_v_rh_zone">
+    <path d="M -57.858501 550.882834 
+L -57.6 550.805467 
+L -48 547.888061 
+L -38.4 544.925843 
+L -28.8 541.918206 
+L -19.2 538.864536 
+L -9.6 535.764213 
+L 0 532.616608 
+L 9.6 529.421086 
+L 19.2 526.177002 
+L 28.8 522.883706 
+L 38.4 519.540539 
+L 47.174399 516.438692 
+L 135.288288 661.295646 
+L 134.4 661.384937 
+L 124.8 662.336116 
+L 115.2 663.273643 
+L 105.6 664.197685 
+L 96 665.108412 
+L 86.4 666.005987 
+L 76.8 666.890575 
+L 67.2 667.762338 
+L 57.6 668.621437 
+L 48 669.468029 
+L 38.4 670.302273 
+L 28.8 671.124323 
+L 19.2 671.934334 
+L 15.285783 672.259753 
+z
+" clip-path="url(#pc0e6066e52)" style="fill: #006400; fill-opacity: 0.466667; stroke-dasharray: 7.4,3.2; stroke-dashoffset: 0; stroke: #000000; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="zone_enthalpy_rh_h_rh_zone">
+    <path d="M 687.890493 133.064375 
+L 691.2 130.024463 
+L 700.8 121.085358 
+L 710.4 112.023583 
+L 720 102.837573 
+L 729.6 93.525747 
+L 739.2 84.086501 
+L 748.8 74.518209 
+L 758.4 64.819226 
+L 768 54.987884 
+L 775.630146 47.067325 
+L 1139.62951 154.701007 
+L 1132.8 160.229069 
+L 1123.2 167.903977 
+L 1113.6 175.484269 
+L 1104 182.971012 
+L 1094.4 190.365262 
+L 1084.8 197.668061 
+L 1075.2 204.880442 
+L 1065.6 212.003424 
+L 1056 219.038016 
+L 1046.4 225.985217 
+L 1036.8 232.846013 
+L 1033.253264 235.349183 
+z
+" clip-path="url(#pc0e6066e52)" style="fill: #ffff00; fill-opacity: 0.466667; stroke-dasharray: 7.4,3.2; stroke-dashoffset: 0; stroke: #000000; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="zone_over_saturated_0">
+    <path d="M 0 485.156567 
+L 0 0 
+L 670.821853 0 
+L 662.4 9.560111 
+L 652.8 20.306917 
+L 643.2 30.905006 
+L 633.6 41.356319 
+L 624 51.662773 
+L 614.4 61.826255 
+L 604.8 71.848631 
+L 595.2 81.731738 
+L 585.6 91.477392 
+L 576 101.087383 
+L 566.4 110.563476 
+L 556.8 119.907416 
+L 547.2 129.120921 
+L 537.6 138.205689 
+L 528 147.163395 
+L 518.4 155.995691 
+L 508.8 164.704209 
+L 499.2 173.290559 
+L 489.6 181.756329 
+L 480 190.103087 
+L 470.4 198.332382 
+L 460.8 206.44574 
+L 451.2 214.444671 
+L 441.6 222.330661 
+L 432 230.105181 
+L 422.4 237.769681 
+L 412.8 245.325593 
+L 403.2 252.774331 
+L 393.6 260.117288 
+L 384 267.355844 
+L 374.4 274.491359 
+L 364.8 281.525174 
+L 355.2 288.458616 
+L 345.6 295.292994 
+L 336 302.0296 
+L 326.4 308.669709 
+L 316.8 315.214583 
+L 307.2 321.665465 
+L 297.6 328.023583 
+L 288 334.29015 
+L 278.4 340.466365 
+L 268.8 346.55341 
+L 259.2 352.552454 
+L 249.6 358.464648 
+L 240 364.291133 
+L 230.4 370.033034 
+L 220.8 375.691461 
+L 211.2 381.267511 
+L 201.6 386.762267 
+L 192 392.176801 
+L 182.4 397.512168 
+L 172.8 402.769412 
+L 163.2 407.949563 
+L 153.6 413.05364 
+L 144 418.082649 
+L 134.4 423.037581 
+L 124.8 427.919419 
+L 115.2 432.72913 
+L 105.6 437.467671 
+L 96 442.135988 
+L 86.4 446.735013 
+L 76.8 451.265669 
+L 67.2 455.728865 
+L 57.6 460.125503 
+L 48 464.456469 
+L 38.4 468.722641 
+L 28.8 472.924886 
+L 19.2 477.06406 
+L 9.6 481.141009 
+z
+" clip-path="url(#pc0e6066e52)" style="fill: #ffc1ab"/>
    </g>
    <g id="chart_x_axis">
     <g id="xtick_1">
@@ -1755,6 +1998,103 @@ z
      <use xlink:href="#DejaVuSans-74" x="187.789062"/>
      <use xlink:href="#DejaVuSans-65" x="226.998047"/>
      <use xlink:href="#DejaVuSans-72" x="288.521484"/>
+    </g>
+   </g>
+   <g id="label_zone_volume_rh_v_rh_zone">
+    <g id="patch_3">
+     <path d="M 9.032081 603.188285 
+L 68.397706 603.188285 
+L 68.397706 585.51016 
+L 9.032081 585.51016 
+z
+" style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
+    </g>
+    <!-- V-RH zone -->
+    <g style="opacity: 0.75" transform="translate(13.032081 597.108598) scale(0.1 -0.1)">
+     <defs>
+      <path id="DejaVuSans-56" d="M 1831 0 
+L 50 4666 
+L 709 4666 
+L 2188 738 
+L 3669 4666 
+L 4325 4666 
+L 2547 0 
+L 1831 0 
+z
+" transform="scale(0.015625)"/>
+      <path id="DejaVuSans-52" d="M 2841 2188 
+Q 3044 2119 3236 1894 
+Q 3428 1669 3622 1275 
+L 4263 0 
+L 3584 0 
+L 2988 1197 
+Q 2756 1666 2539 1819 
+Q 2322 1972 1947 1972 
+L 1259 1972 
+L 1259 0 
+L 628 0 
+L 628 4666 
+L 2053 4666 
+Q 2853 4666 3247 4331 
+Q 3641 3997 3641 3322 
+Q 3641 2881 3436 2590 
+Q 3231 2300 2841 2188 
+z
+M 1259 4147 
+L 1259 2491 
+L 2053 2491 
+Q 2509 2491 2742 2702 
+Q 2975 2913 2975 3322 
+Q 2975 3731 2742 3939 
+Q 2509 4147 2053 4147 
+L 1259 4147 
+z
+" transform="scale(0.015625)"/>
+      <path id="DejaVuSans-7a" d="M 353 3500 
+L 3084 3500 
+L 3084 2975 
+L 922 459 
+L 3084 459 
+L 3084 0 
+L 275 0 
+L 275 525 
+L 2438 3041 
+L 353 3041 
+L 353 3500 
+z
+" transform="scale(0.015625)"/>
+     </defs>
+     <use xlink:href="#DejaVuSans-56"/>
+     <use xlink:href="#DejaVuSans-2d" x="62.533203"/>
+     <use xlink:href="#DejaVuSans-52" x="98.617188"/>
+     <use xlink:href="#DejaVuSans-48" x="168.099609"/>
+     <use xlink:href="#DejaVuSans-20" x="243.294922"/>
+     <use xlink:href="#DejaVuSans-7a" x="275.082031"/>
+     <use xlink:href="#DejaVuSans-6f" x="327.572266"/>
+     <use xlink:href="#DejaVuSans-6e" x="388.753906"/>
+     <use xlink:href="#DejaVuSans-65" x="452.132812"/>
+    </g>
+   </g>
+   <g id="label_zone_enthalpy_rh_h_rh_zone">
+    <g id="patch_4">
+     <path d="M 883.443595 150.047317 
+L 944.076407 150.047317 
+L 944.076407 132.369192 
+L 883.443595 132.369192 
+z
+" style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
+    </g>
+    <!-- H-RH zone -->
+    <g style="opacity: 0.75" transform="translate(887.443595 143.967629) scale(0.1 -0.1)">
+     <use xlink:href="#DejaVuSans-48"/>
+     <use xlink:href="#DejaVuSans-2d" x="75.195312"/>
+     <use xlink:href="#DejaVuSans-52" x="111.279297"/>
+     <use xlink:href="#DejaVuSans-48" x="180.761719"/>
+     <use xlink:href="#DejaVuSans-20" x="255.957031"/>
+     <use xlink:href="#DejaVuSans-7a" x="287.744141"/>
+     <use xlink:href="#DejaVuSans-6f" x="340.234375"/>
+     <use xlink:href="#DejaVuSans-6e" x="401.416016"/>
+     <use xlink:href="#DejaVuSans-65" x="464.794922"/>
     </g>
    </g>
    <g id="label_vline_constant_dbt_too_cold_16degc">

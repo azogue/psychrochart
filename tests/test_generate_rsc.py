@@ -1,7 +1,7 @@
 import pytest
 
 from psychrochart import PsychroChart
-from tests.conftest import store_test_chart
+from tests.conftest import RSC_EXAMPLES, store_test_chart
 
 
 @pytest.mark.parametrize(
@@ -54,6 +54,28 @@ def test_generate_rsc_splash_chart():
                 "points_x": [18, 23],
                 "points_y": [35, 55],
                 "label": "Winter",
+            },
+            {
+                "zone_type": "volume-rh",
+                "style": {
+                    "edgecolor": "k",
+                    "facecolor": "#00640077",
+                    "linestyle": "--",
+                },
+                "points_x": [0.86, 0.87],
+                "points_y": [20, 80],
+                "label": "V-RH zone",
+            },
+            {
+                "zone_type": "enthalpy-rh",
+                "style": {
+                    "edgecolor": "k",
+                    "facecolor": "#FFFF0077",
+                    "linestyle": "--",
+                },
+                "points_x": [80, 90],
+                "points_y": [40, 80],
+                "label": "H-RH zone",
             },
         ]
     }
@@ -142,5 +164,29 @@ def test_generate_rsc_splash_chart():
     # Legend
     chart.plot_legend(markerscale=0.5, fontsize=10, labelspacing=1.2)
 
+    # CSS styling + SVG defs to customize and animate SVG
+    svg_defs = """<linearGradient id="grad-background">
+  <stop offset="0%" stop-color="#113cef" stop-opacity="0.2" />
+  <stop offset="25%" stop-color="#20eecf" stop-opacity="0.2" />
+  <stop offset="50%" stop-color="#eacc33" stop-opacity="0.2" />
+  <stop offset="75%" stop-color="#ee6820" stop-opacity="0.2" />
+  <stop offset="100%" stop-color="#ee1c09" stop-opacity="0.2" />
+</linearGradient>
+<linearGradient id="grad-sat">
+  <stop offset="0%" stop-color="#2f2ff1"/>
+  <stop offset="33%" stop-color="#EE6820"/>
+  <stop offset="75%" stop-color="#ea0c4f"/>
+  <stop offset="100%" stop-color="#d01cd0"/>
+</linearGradient>"""
+
     # Save to disk
-    store_test_chart(chart, "chart_overlay_style_minimal.svg", svg_rsc=True)
+    p_svg = RSC_EXAMPLES / "chart_overlay_style_minimal.svg"
+    p_svg.write_text(
+        chart.make_svg(
+            css_styles=RSC_EXAMPLES / "splash-chart.css",
+            svg_definitions=svg_defs,
+            metadata={"Date": None},
+        )
+    )
+    # p_png = RSC_EXAMPLES / "chart_overlay_style_minimal.png"
+    # chart.save(p_png, facecolor="none")
