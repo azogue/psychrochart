@@ -146,10 +146,11 @@ def test_invisible_zones(caplog):
     assert chart.artists.zones
 
     # zoom in to make zones invisible in plot
-    chart.config.limits.range_temp_c = (15, 35)
-    chart.config.limits.range_humidity_g_kg = (15, 30)
+    chart.config.limits.range_temp_c = (25, 35)
+    chart.config.limits.range_humidity_g_kg = (0, 18)
     svg_zoom = chart.make_svg()
     assert '<g id="zone_enthalpy_rh_test_hidden_hrh"' not in svg_zoom
     assert '<g id="zone_volume_rh_test_hidden_vrh"' not in svg_zoom
     assert len(caplog.messages) >= 2
     assert not chart.artists.zones
+    assert chart.plot_over_saturated_zone() is None

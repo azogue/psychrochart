@@ -23,7 +23,7 @@ from psychrochart.chartdata import (
 )
 from psychrochart.models.config import ChartZone
 from psychrochart.models.curves import PsychroCurve, PsychroCurves
-from psychrochart.models.styles import CurveStyle
+from psychrochart.models.styles import CurveStyle, ZoneStyle
 
 
 def _adjust_temp_range_for_enthalpy(
@@ -380,4 +380,96 @@ def make_zone_curve(
         type_curve="xy-points",
         label=zone_conf.label,
         internal_value=zone_value,
+    )
+
+
+def make_over_saturated_zone(
+    saturation: PsychroCurve,
+    *,
+    dbt_min: float,
+    dbt_max: float,
+    w_min: float,
+    w_max: float,
+    color_fill: str | list[float] = "#0C92F6FF",
+) -> PsychroCurve | None:
+    """Generate plot-points for a Patch in the over-saturated zone of chart."""
+    if saturation.outside_limits(dbt_min, dbt_max, w_min, w_max):
+        return None
+
+    path_x, path_y = [], []
+    if saturation.y_data[0] < w_min:  # saturation cuts bottom x-axis
+        idx_start = (saturation.y_data > w_min).argmax()
+        t_start, t_end = (
+            saturation.x_data[idx_start - 1],
+            saturation.x_data[idx_start],
+        )
+        w_start, w_end = (
+            saturation.y_data[idx_start - 1],
+            saturation.y_data[idx_start],
+        )
+        t_cut1, _w_cut1 = _crossing_point_between_rect_lines(
+            segment_1_x=(dbt_min, dbt_max),
+            segment_1_y=(w_min, w_min),
+            segment_2_x=(t_start, t_end),
+            segment_2_y=(w_start, w_end),
+        )
+        path_x.append(t_cut1)
+        path_y.append(w_min)
+
+        path_x.append(dbt_min)
+        path_y.append(w_min)
+    else:  # saturation cuts left y-axis
+        idx_start = 0
+        t_cut1, w_cut1 = saturation.x_data[0], saturation.y_data[0]
+
+        path_x.append(t_cut1)
+        path_y.append(w_cut1)
+
+    # top left corner
+    path_x.append(dbt_min)
+    path_y.append(w_max)
+
+    if saturation.y_data[-1] < w_max:  # saturation cuts right y-axis
+        # top right corner
+        path_x.append(dbt_max)
+        path_y.append(w_max)
+        t_cut2, w_cut2 = saturation.x_data[-1], saturation.y_data[-1]
+        path_x.append(t_cut2)
+        path_y.append(w_cut2)
+
+        path_x += saturation.x_data[idx_start:].tolist()[::-1]
+        path_y += saturation.y_data[idx_start:].tolist()[::-1]
+    else:  # saturation cuts top x-axis
+        idx_end = (saturation.y_data < w_max).argmin()
+        t_start, t_end = (
+            saturation.x_data[idx_end - 1],
+            saturation.x_data[idx_end],
+        )
+        w_start, w_end = (
+            saturation.y_data[idx_end - 1],
+            saturation.y_data[idx_end],
+        )
+        t_cut2, _w_cut2 = _crossing_point_between_rect_lines(
+            segment_1_x=(dbt_min, dbt_max),
+            segment_1_y=(w_max, w_max),
+            segment_2_x=(t_start, t_end),
+            segment_2_y=(w_start, w_end),
+        )
+        path_x.append(t_cut2)
+        path_y.append(w_max)
+
+        path_x += saturation.x_data[idx_start:idx_end].tolist()[::-1]
+        path_y += saturation.y_data[idx_start:idx_end].tolist()[::-1]
+
+    return PsychroCurve(
+        x_data=np.array(path_x),
+        y_data=np.array(path_y),
+        style=ZoneStyle(
+            edgecolor=[0, 0, 0, 0],
+            facecolor=color_fill,
+            linewidth=0,
+            linestyle="none",
+        ),
+        type_curve="over_saturated",
+        internal_value=0,
     )

@@ -137,6 +137,7 @@ def test_generate_rsc_splash_chart():
         },
     ]
     chart.plot_points_dbt_rh(points, connectors)
+    chart.plot_over_saturated_zone(color_fill="#ffc1ab")
 
     # Legend
     chart.plot_legend(markerscale=0.5, fontsize=10, labelspacing=1.2)

@@ -20,9 +20,10 @@ from psychrochart.chartdata import (
     make_constant_dry_bulb_v_line,
     make_saturation_line,
 )
+from psychrochart.chartzones import make_over_saturated_zone
 from psychrochart.models.annots import ChartAnnots
 from psychrochart.models.config import ChartConfig, ChartZones
-from psychrochart.models.curves import PsychroChartModel
+from psychrochart.models.curves import PsychroChartModel, PsychroCurve
 from psychrochart.models.parsers import (
     ConvexGroupTuple,
     load_extra_annots,
@@ -307,6 +308,26 @@ class PsychroChart(PsychroChartModel):
                 add_label_to_curve(curve, self.axes, label, **label_params),
                 self._artists.annotations,
             )
+
+    def plot_over_saturated_zone(
+        self, color_fill: str | list[float] = "#0C92F6FF"
+    ) -> PsychroCurve | None:
+        """Add a colored zone in chart to fill the over-saturated space."""
+        # ensure chart is plotted
+        current_ax = self.axes
+        if (
+            curve_sat_zone := make_over_saturated_zone(
+                self.saturation,
+                dbt_min=self.config.dbt_min,
+                dbt_max=self.config.dbt_max,
+                w_min=self.config.w_min,
+                w_max=self.config.w_max,
+                color_fill=color_fill,
+            )
+        ) is not None:
+            plot_curve(curve_sat_zone, current_ax)
+            self._artists.zones.update()
+        return curve_sat_zone
 
     def plot_legend(
         self,
