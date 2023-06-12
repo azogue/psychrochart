@@ -2,13 +2,9 @@ g,
 path {
   transition: all 250ms ease-in-out;
 }
-
-/* background gradient */
 #chart_background > path {
   fill: url(#grad-background) !important;
 }
-
-/* saturation line effects */
 @keyframes color_blink {
   0% {
     opacity: 0.6;
@@ -27,8 +23,6 @@ path {
 #saturation_100:hover path {
   stroke-width: 9 !important;
 }
-
-/* animated points */
 @keyframes scale_anim {
   0% {
     opacity: 0.5;
@@ -44,8 +38,6 @@ path {
 g[id^="point_"] {
   animation: scale_anim 2s infinite ease-in-out;
 }
-
-/* bolder lines on hover */
 g[id^="constant_dry_temp"] > path:hover,
 g[id^="absolute_humidity"] > path:hover,
 g[id^="dry_bulb_temperature"] > path:hover,
@@ -55,22 +47,16 @@ g[id^="constant_wet_bulb_temperature"] > path:hover,
 g[id^="constant_relative_humidity"] > path:hover {
   stroke-width: 5 !important;
 }
-
-/* obscure zones on hover */
 g[id^="zone_"] > path:hover {
   fill-opacity: 0.95 !important;
   stroke-dasharray: none !important;
   stroke-width: 1 !important;
 }
-
-/* specific formatting for lines on hover */
 #constant_relative_humidity_40:hover path,
 #constant_relative_humidity_60:hover path {
   stroke: #2f2ff1 !important;
   stroke-width: 3;
 }
-
-/* bigger points on hover */
 g[id^="point_"],
 g[id^="connector_"] {
   transform: scale(1);
