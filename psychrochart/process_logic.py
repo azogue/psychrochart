@@ -47,7 +47,7 @@ def get_pressure_pa(limits: ChartLimits, unit_system_si: bool = True) -> float:
         return GetStandardAtmPressure(limits.altitude_m)
 
 
-def _generate_chart_curves(config: ChartConfig, chart: PsychroChartModel):
+def _gen_interior_lines(config: ChartConfig, chart: PsychroChartModel) -> None:
     # check chart limits are not fully above the saturation curve!
     assert (chart.saturation.y_data > config.w_min).any()
     # check if sat curve cuts x-axis with T > config.dbt_min
@@ -182,6 +182,26 @@ def _generate_chart_curves(config: ChartConfig, chart: PsychroChartModel):
         chart.constant_wbt_data = None
 
 
+def _gen_chart_zones(config: ChartConfig, chart: PsychroChartModel) -> None:
+    # regen all zones
+    if config.chart_params.with_zones and not config.chart_params.zones:
+        # add default zones
+        config.chart_params.zones = DEFAULT_ZONES.zones
+    zone_curves = [
+        make_zone_curve(
+            zone,
+            pressure=chart.pressure,
+            step_temp=config.limits.step_temp,
+            dbt_min=config.dbt_min,
+            dbt_max=config.dbt_max,
+            w_min=config.w_min,
+            w_max=config.w_max,
+        )
+        for zone in config.chart_params.zones
+    ]
+    chart.zones = [zc for zc in zone_curves if zc is not None]
+
+
 def update_psychrochart_data(
     current_chart: PsychroChartModel, config: ChartConfig
 ) -> None:
@@ -200,21 +220,7 @@ def update_psychrochart_data(
         current_chart.pressure,
         style=config.saturation,
     )
-    _generate_chart_curves(config, current_chart)
+    _gen_interior_lines(config, current_chart)
     # regen all zones
-    if config.chart_params.with_zones and not config.chart_params.zones:
-        # add default zones
-        config.chart_params.zones = DEFAULT_ZONES.zones
-    zone_curves = [
-        make_zone_curve(
-            zone,
-            pressure=current_chart.pressure,
-            step_temp=config.limits.step_temp,
-            # dbt_min=config.dbt_min,
-            # dbt_max=config.dbt_max,
-            # w_min=config.w_min,
-        )
-        for zone in config.chart_params.zones
-    ]
-    current_chart.zones = [zc for zc in zone_curves if zc is not None]
+    _gen_chart_zones(config, current_chart)
     config.commit_changes()

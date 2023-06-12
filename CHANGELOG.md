@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - ✨ More kinds of chart zones + CSS for SVG styling - 2023-06-12
+
+Define new enclosed areas in chart between constant RH lines and constant volume or enthalpy values,
+and enable full potencial for SVG customization by including CSS and/or `<defs>` inside it.
+
+##### Changes
+
+- ✨ Add new kind of overlay **zones 'enthalpy-rh' and 'volume-rh'**, to define chart areas delimited between 2 constant enthalpy or volume lines, and 2 constant humidity lines
+- 🎨 Add `chart.remove_zones()` method, like the existent `.remove_legend()` and `.remove_annotations()`, to clear matplotlib current Axes from each kind of annotated objects
+- 🐛 Fix artists registry not mirroring objects in plot, by setting a new one each time `chart.plot()` is invoked
+- ♻️ Set gid for 'chart_legend_background' item if frameon is enabled
+- ✨ Pass **optional CSS and SVG <defs>** to `chart.make_svg()`, to include extra-styling inside the produced SVG 🌈
+- ✨ Add method `chart.plot_over_saturated_zone()` to create a filled patch in the over-saturated zone of the psychrochart, to colorize that area
+- 🦄 tests: Add dynamic effects and CSS rules to splash chart for a show-off of SVG styling capabilities
+- 🚀 env: Bump version and update CHANGELOG
+
 ## [0.8.0] - ✨ Lazy generation of chart data, 'Artist' registry, and better SVG export - 2023-06-11
 
 Now all chart-data parameters, including the overlayed zones, are included in the `ChartConfig`,

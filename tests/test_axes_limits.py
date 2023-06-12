@@ -32,10 +32,12 @@ def test_constant_wetbulb_temp_lines(caplog):
 
         # example of saturation crossing x-axis
         chart.config.limits.range_humidity_g_kg = (10, 50)
+        chart.plot_over_saturated_zone()
         store_test_chart(chart, "chart-wbt-layout-cut-xaxis.svg")
 
         # example of saturation crossing both axis
         chart.config.limits.range_humidity_g_kg = (15, 120)
+        chart.plot_over_saturated_zone()
         store_test_chart(chart, "chart-wbt-layout-cut-both.svg")
 
         assert len(caplog.messages) == 0, caplog.messages

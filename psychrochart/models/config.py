@@ -39,7 +39,7 @@ _DEFAULT_STYLE_HUMID = CurveStyle(
     color=[0.0, 0.125, 0.376], linewidth=0.75, linestyle=":"
 )
 
-ZoneKind = Literal["dbt-rh", "xy-points"]
+ZoneKind = Literal["dbt-rh", "xy-points", "enthalpy-rh", "volume-rh"]
 
 
 class ChartFigure(BaseConfig):

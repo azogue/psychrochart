@@ -119,19 +119,12 @@ def plot_curve(
     artists: dict[str, Artist] = {}
     xmin, xmax = ax.get_xlim()
     ymin, ymax = ax.get_ylim()
-    if (
-        curve.x_data is None
-        or curve.y_data is None
-        or max(curve.y_data) < ymin
-        or max(curve.x_data) < xmin
-        or min(curve.y_data) > ymax
-        or min(curve.x_data) > xmax
-    ):
+    if curve.outside_limits(xmin, xmax, ymin, ymax):
         logging.info(
-            "%s (label:%s) not between limits ([%.2g, %.2g, %.2g, %.2g]) "
+            "%s (name:%s) not between limits ([%.2g, %.2g, %.2g, %.2g]) "
             "-> x:%s, y:%s",
             curve.type_curve,
-            curve.label or "unnamed",
+            curve.label or str(curve.internal_value),
             xmin,
             xmax,
             ymin,

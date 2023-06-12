@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 from typing import Callable, Sequence
 
 import numpy as np
@@ -111,3 +112,24 @@ def mod_color(color: Sequence[float], modification: float) -> list[float]:
             max(0.0, min(1.0, c * (1 + modification / 100))) for c in color
         ]
     return color
+
+
+def add_styling_to_svg(
+    original: str,
+    css_styles: str | Path | None = None,
+    svg_definitions: str | None = None,
+) -> str:
+    """Insert CSS styles and/or SVG definitions under SVG <defs/>."""
+    if css_styles is None or svg_definitions is None:
+        return original
+
+    insertion_point = original.find("</defs>")
+    text_css = (
+        css_styles.read_text() if isinstance(css_styles, Path) else css_styles
+    )
+    return (
+        f"{original[:insertion_point]}"
+        f"{svg_definitions or ''}\n"
+        f'<style type="text/css">\n{text_css}</style>\n'
+        f" {original[insertion_point:]}"
+    )

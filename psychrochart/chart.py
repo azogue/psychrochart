@@ -20,9 +20,10 @@ from psychrochart.chartdata import (
     make_constant_dry_bulb_v_line,
     make_saturation_line,
 )
+from psychrochart.chartzones import make_over_saturated_zone
 from psychrochart.models.annots import ChartAnnots
 from psychrochart.models.config import ChartConfig, ChartZones
-from psychrochart.models.curves import PsychroChartModel
+from psychrochart.models.curves import PsychroChartModel, PsychroCurve
 from psychrochart.models.parsers import (
     ConvexGroupTuple,
     load_extra_annots,
@@ -41,7 +42,7 @@ from psychrochart.process_logic import (
     get_pressure_pa,
     update_psychrochart_data,
 )
-from psychrochart.util import mod_color
+from psychrochart.util import add_styling_to_svg, mod_color
 
 
 def _select_fig_canvas(
@@ -308,6 +309,26 @@ class PsychroChart(PsychroChartModel):
                 self._artists.annotations,
             )
 
+    def plot_over_saturated_zone(
+        self, color_fill: str | list[float] = "#0C92F6FF"
+    ) -> PsychroCurve | None:
+        """Add a colored zone in chart to fill the over-saturated space."""
+        # ensure chart is plotted
+        current_ax = self.axes
+        if (
+            curve_sat_zone := make_over_saturated_zone(
+                self.saturation,
+                dbt_min=self.config.dbt_min,
+                dbt_max=self.config.dbt_max,
+                w_min=self.config.w_min,
+                w_max=self.config.w_max,
+                color_fill=color_fill,
+            )
+        ) is not None:
+            plot_curve(curve_sat_zone, current_ax)
+            self._artists.zones.update()
+        return curve_sat_zone
+
     def plot_legend(
         self,
         loc: str = "upper left",
@@ -320,24 +341,25 @@ class PsychroChart(PsychroChartModel):
         **params,
     ) -> None:
         """Append a legend to the psychrochart plot."""
-        reg_artist(
-            "chart_legend",
-            self.axes.legend(
-                loc=loc,
-                markerscale=markerscale,
-                frameon=frameon,
-                edgecolor=edgecolor,
-                fontsize=fontsize,
-                fancybox=fancybox,
-                labelspacing=labelspacing,
-                **params,
-            ),
-            self._artists.layout,
+        legend = self.axes.legend(
+            loc=loc,
+            markerscale=markerscale,
+            frameon=frameon,
+            edgecolor=edgecolor,
+            fontsize=fontsize,
+            fancybox=fancybox,
+            labelspacing=labelspacing,
+            **params,
         )
+        if frameon:
+            legend.get_frame().set_gid("chart_legend_background")
+        reg_artist("chart_legend", legend, self._artists.layout)
 
     def plot(self, ax: Axes | None = None) -> Axes:
         """Plot the psychrochart and return the matplotlib Axes instance."""
         self.process_chart()
+        # instantiate a new artist registry for the new plot
+        self._artists = ChartRegistry()
         if ax is not None:
             self._fig = ax.get_figure()
         else:
@@ -356,6 +378,12 @@ class PsychroChart(PsychroChartModel):
         )
         plot_chart(self, self._axes, self._artists)
         return self._axes
+
+    def remove_zones(self) -> None:
+        """Remove the zones in the chart to reuse it."""
+        for patch in self._artists.zones.values():
+            patch.remove()
+        self._artists.zones = {}
 
     def remove_annotations(self) -> None:
         """Remove the annotations made in the chart to reuse it."""
@@ -388,12 +416,17 @@ class PsychroChart(PsychroChartModel):
         canvas_use(self._fig).print_figure(path_dest, **params)
         gc.collect()
 
-    def make_svg(self, **params) -> str:
+    def make_svg(
+        self,
+        css_styles: str | Path | None = None,
+        svg_definitions: str | None = None,
+        **params,
+    ) -> str:
         """Generate chart as SVG and return as text."""
         svg_io = StringIO()
         self.save(svg_io, canvas_cls=FigureCanvasSVG, **params)
         svg_io.seek(0)
-        return svg_io.read()
+        return add_styling_to_svg(svg_io.read(), css_styles, svg_definitions)
 
     def close_fig(self) -> None:
         """Close the figure plot."""
