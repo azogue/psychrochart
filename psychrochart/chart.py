@@ -41,7 +41,7 @@ from psychrochart.process_logic import (
     get_pressure_pa,
     update_psychrochart_data,
 )
-from psychrochart.util import mod_color
+from psychrochart.util import add_styling_to_svg, mod_color
 
 
 def _select_fig_canvas(
@@ -395,12 +395,17 @@ class PsychroChart(PsychroChartModel):
         canvas_use(self._fig).print_figure(path_dest, **params)
         gc.collect()
 
-    def make_svg(self, **params) -> str:
+    def make_svg(
+        self,
+        css_styles: str | Path | None = None,
+        svg_definitions: str | None = None,
+        **params,
+    ) -> str:
         """Generate chart as SVG and return as text."""
         svg_io = StringIO()
         self.save(svg_io, canvas_cls=FigureCanvasSVG, **params)
         svg_io.seek(0)
-        return svg_io.read()
+        return add_styling_to_svg(svg_io.read(), css_styles, svg_definitions)
 
     def close_fig(self) -> None:
         """Close the figure plot."""
