@@ -19,7 +19,11 @@ It implements a useful collection of psychrometric equations for moisture and hu
 
 **Psychrometric calculations to make the chart data are done with [`PsychroLib`](https://github.com/psychrometrics/psychrolib)** (summary paper in https://doi.org/10.21105/joss.01137).
 
-<img src="./tests/example-charts/chart_overlay_style_minimal.svg" width="100%" height="100%">
+🌈 And can generate plots like this:
+
+<object data="./tests/example-charts/chart_overlay_style_minimal.svg" type="image/svg+xml" width="100%" height="100%">
+  <img src="./tests/example-charts/chart_overlay_style_minimal.svg" width="100%" height="100%"/>
+</object>
 
 ## Install
 
