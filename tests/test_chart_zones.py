@@ -154,3 +154,111 @@ def test_invisible_zones(caplog):
     assert len(caplog.messages) >= 2
     assert not chart.artists.zones
     assert chart.plot_over_saturated_zone() is None
+
+
+def test_max_humid_delimited_zones():
+    config = load_config("minimal")
+    config.limits.range_temp_c = (10, 22)
+    config.limits.range_humidity_g_kg = (5, 20)
+    config.limits.step_temp = 1
+
+    config.chart_params.with_constant_humidity = True
+    config.chart_params.constant_humid_step = 1.0
+    config.chart_params.constant_humid_label_step = 1.0
+    config.chart_params.with_constant_dry_temp = True
+    config.chart_params.constant_temp_step = 1.0
+    config.chart_params.constant_temp_label_step = 1.0
+    config.chart_params.range_vol_m3_kg = (0.80, 1)
+    config.chart_params.constant_v_step = 0.01
+    config.chart_params.constant_v_labels = [0.88, 0.9, 0.92, 0.94]
+
+    config.constant_rh.linewidth = 1.0
+    config.constant_h.linewidth = 0.75
+    config.constant_v.linewidth = 0.75
+    config.chart_params.with_constant_h = True
+    config.chart_params.range_h = (10, 100)
+    config.chart_params.constant_h_step = 5
+    config.chart_params.constant_h_labels = [40, 55]
+
+    wmax_z1 = ChartZone(
+        zone_type="dbt-wmax",
+        points_x=[12, 40],
+        points_y=[7, 13],
+        label="Zone w_max 1",
+        style=ZoneStyle(
+            edgecolor=config.constant_h.color,
+            facecolor="yellow",
+            linewidth=0.5,
+        ),
+    )
+    wmax_z2 = ChartZone(
+        zone_type="dbt-wmax",
+        points_x=[5, 30],
+        points_y=[0, 8],
+        label="Zone w_max 2",
+        style=ZoneStyle(
+            edgecolor=config.constant_h.color,
+            facecolor="#aa000033",
+            linewidth=1.5,
+        ),
+    )
+    wmax_z3 = ChartZone(
+        zone_type="dbt-wmax",
+        points_x=[36, 45],
+        points_y=[0, 24],
+        label="Zone w_max 3",
+        style=ZoneStyle(
+            edgecolor=config.constant_h.color,
+            facecolor="#00aa0033",
+            linewidth=1.5,
+        ),
+    )
+    wmax_z4 = ChartZone(
+        zone_type="dbt-wmax",
+        points_x=[20, 60],
+        points_y=[17, 19],
+        label="Zone w_max 4",
+        style=ZoneStyle(
+            edgecolor=config.constant_h.color,
+            facecolor="#0000aa33",
+            linewidth=1.5,
+        ),
+    )
+    config.chart_params.zones = [wmax_z1, wmax_z2, wmax_z3, wmax_z4]
+
+    chart = PsychroChart.create(config)
+    store_test_chart(chart, "chart-zones-wmax.svg")
+    assert len(chart.artists.zones) == 6
+
+    # zoom out to include full zones inside limits
+    config.limits.range_temp_c = (6, 50)
+    config.limits.range_humidity_g_kg = (0, 25)
+    store_test_chart(chart, "chart-zones-wmax-zoom-out.svg")
+    assert chart.artists.zones
+    assert len(chart.artists.zones) == 8
+
+    # remove zones
+    chart.remove_zones()
+    svg_no_annot = chart.make_svg()
+    assert not chart.artists.zones
+    assert "Zone w_max" not in svg_no_annot
+    assert "dbt-wmax" not in svg_no_annot
+
+
+def test_sat_no_sat_zones():
+    chart = PsychroChart.create("minimal")
+    chart.config.chart_params.zones.append(
+        ChartZone(
+            zone_type="dbt-wmax",
+            points_x=[chart.config.dbt_min, chart.config.dbt_max],
+            points_y=[chart.config.w_min, chart.config.w_max],
+            style=ZoneStyle(
+                edgecolor="none",
+                facecolor="#C8E44088",
+                linewidth=0,
+                linestyle="-",
+            ),
+        )
+    )
+    chart.plot_over_saturated_zone(color_fill="#5A90E4")
+    store_test_chart(chart, "chart-saturation-zones.svg")
