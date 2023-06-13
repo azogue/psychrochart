@@ -274,7 +274,7 @@ def _make_zone_delimited_by_vertical_dbt_and_rh(
         x_data=np.array(temps_zone),
         y_data=np.array(abs_humid),
         style=zone.style,
-        type_curve="dbt-rh",
+        type_curve=zone.zone_type,
         label=zone.label,
         internal_value=random_internal_value() if zone.label is None else None,
     )
@@ -330,6 +330,119 @@ def _make_zone_delimited_by_volume_and_rh(
     )
 
 
+def _make_zone_delimited_by_dbt_and_wmax(
+    zone: ChartZone,
+    pressure: float,
+    *,
+    step_temp: float,
+    dbt_min: float,
+    dbt_max: float,
+    w_min: float,
+    w_max: float,
+) -> PsychroCurve | None:
+    assert zone.zone_type == "dbt-wmax"
+    dbt_1, dbt_2 = zone.points_x
+    w_1, w_2 = zone.points_y
+
+    if dbt_1 > dbt_max or dbt_2 < dbt_min or w_1 > w_max or w_2 < w_min:
+        # zone outside limits
+        return None
+
+    w_1 = max(w_1, w_min)
+    w_2 = min(w_2, w_max)
+    dbt_1 = max(dbt_1, dbt_min)
+    dbt_2 = min(dbt_2, dbt_max)
+
+    saturation = make_saturation_line(dbt_1, dbt_2, step_temp, pressure)
+    if saturation.outside_limits(dbt_min, dbt_max, w_min, w_max):
+        # just make a rectangle
+        return PsychroCurve(
+            x_data=np.array([dbt_1, dbt_2]),
+            y_data=np.array([w_1, w_2]),
+            style=zone.style,
+            type_curve=zone.zone_type,
+            label=zone.label,
+            internal_value=w_2,
+        )
+
+    # build path clockwise starting in left bottom corner
+    path_x, path_y = [], []
+    if saturation.y_data[0] < w_1:  # saturation cuts lower w value
+        idx_start = (saturation.y_data > w_1).argmax()
+        t_start, t_end = (
+            saturation.x_data[idx_start - 1],
+            saturation.x_data[idx_start],
+        )
+        w_start, w_end = (
+            saturation.y_data[idx_start - 1],
+            saturation.y_data[idx_start],
+        )
+        t_cut1, _w_cut1 = _crossing_point_between_rect_lines(
+            segment_1_x=(dbt_1, dbt_2),
+            segment_1_y=(w_1, w_1),
+            segment_2_x=(t_start, t_end),
+            segment_2_y=(w_start, w_end),
+        )
+        path_x.append(t_cut1)
+        path_y.append(w_1)
+    else:  # saturation cuts left y-axis
+        idx_start = 0
+        t_cut1, w_cut1 = saturation.x_data[0], saturation.y_data[0]
+
+        path_x.append(dbt_1)
+        path_y.append(w_1)
+        path_x.append(t_cut1)
+        path_y.append(w_cut1)
+
+    if saturation.y_data[-1] < w_2:  # saturation cuts right dbt_2
+        path_x += saturation.x_data[idx_start:].tolist()
+        path_y += saturation.y_data[idx_start:].tolist()
+
+        t_cut2, w_cut2 = saturation.x_data[-1], saturation.y_data[-1]
+        path_x.append(t_cut2)
+        path_y.append(w_cut2)
+    else:  # saturation cuts top w_2
+        idx_end = (saturation.y_data < w_2).argmin()
+        path_x += saturation.x_data[idx_start:idx_end].tolist()
+        path_y += saturation.y_data[idx_start:idx_end].tolist()
+
+        t_start, t_end = (
+            saturation.x_data[idx_end - 1],
+            saturation.x_data[idx_end],
+        )
+        w_start, w_end = (
+            saturation.y_data[idx_end - 1],
+            saturation.y_data[idx_end],
+        )
+        t_cut2, _w_cut2 = _crossing_point_between_rect_lines(
+            segment_1_x=(dbt_1, dbt_2),
+            segment_1_y=(w_2, w_2),
+            segment_2_x=(t_start, t_end),
+            segment_2_y=(w_start, w_end),
+        )
+        path_x.append(t_cut2)
+        path_y.append(w_2)
+
+        path_x.append(dbt_2)
+        path_y.append(w_2)
+
+    path_x.append(dbt_2)
+    path_y.append(w_1)
+
+    # repeat 1st point to close path
+    path_x.append(path_x[0])
+    path_y.append(path_y[0])
+
+    return PsychroCurve(
+        x_data=np.array(path_x),
+        y_data=np.array(path_y),
+        style=zone.style,
+        type_curve=zone.zone_type,
+        label=zone.label,
+        internal_value=w_2,
+    )
+
+
 def make_zone_curve(
     zone_conf: ChartZone,
     *,
@@ -370,6 +483,18 @@ def make_zone_curve(
             w_max=w_max,
         )
 
+    if zone_conf.zone_type == "dbt-wmax":
+        # points for zone between abs humid and dbt ranges
+        return _make_zone_delimited_by_dbt_and_wmax(
+            zone_conf,
+            pressure,
+            step_temp=step_temp,
+            dbt_min=dbt_min,
+            dbt_max=dbt_max,
+            w_min=w_min,
+            w_max=w_max,
+        )
+
     # expect points in plot coordinates!
     assert zone_conf.zone_type == "xy-points"
     zone_value = random_internal_value() if zone_conf.label is None else None
@@ -377,7 +502,7 @@ def make_zone_curve(
         x_data=np.array(zone_conf.points_x),
         y_data=np.array(zone_conf.points_y),
         style=zone_conf.style,
-        type_curve="xy-points",
+        type_curve=zone_conf.zone_type,
         label=zone_conf.label,
         internal_value=zone_value,
     )
