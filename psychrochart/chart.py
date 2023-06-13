@@ -128,8 +128,7 @@ class PsychroChart(PsychroChartModel):
     @property
     def axes(self) -> Axes:
         """Return the Axes object plotting the chart if necessary."""
-        self.process_chart()
-        if not self.rendered:
+        if not self.rendered or self.config.has_changed:
             self.plot()
         assert isinstance(self._axes, Axes)
         return self._axes
