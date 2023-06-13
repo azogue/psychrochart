@@ -135,15 +135,25 @@ def plot_curve(
         return {}
 
     if isinstance(curve.style, ZoneStyle):
-        assert len(curve.y_data) > 2
-        verts = list(zip(curve.x_data, curve.y_data))
-        codes = (
-            [Path.MOVETO]
-            + [Path.LINETO] * (len(curve.y_data) - 2)
-            + [Path.CLOSEPOLY]
-        )
-        path = Path(verts, codes)
-        patch = patches.PathPatch(path, **curve.style.dict())
+        if len(curve.y_data) == 2:  # draw a rectangle!
+            patch = patches.Rectangle(
+                (curve.x_data[0], curve.y_data[0]),
+                width=curve.x_data[1] - curve.x_data[0],
+                height=curve.y_data[1] - curve.y_data[0],
+                **curve.style.dict(),
+            )
+            bbox_p = patch.get_extents()
+        else:
+            assert len(curve.y_data) > 2
+            verts = list(zip(curve.x_data, curve.y_data))
+            codes = (
+                [Path.MOVETO]
+                + [Path.LINETO] * (len(curve.y_data) - 2)
+                + [Path.CLOSEPOLY]
+            )
+            path = Path(verts, codes)
+            patch = patches.PathPatch(path, **curve.style.dict())
+            bbox_p = path.get_extents()
         ax.add_patch(patch)
         gid_zone = make_item_gid(
             "zone",
@@ -156,7 +166,6 @@ def plot_curve(
             artists,
         )
         if curve.label is not None:
-            bbox_p = path.get_extents()
             text_x = 0.5 * (bbox_p.x0 + bbox_p.x1)
             text_y = 0.5 * (bbox_p.y0 + bbox_p.y1)
             style_params = {

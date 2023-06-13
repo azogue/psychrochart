@@ -128,8 +128,7 @@ class PsychroChart(PsychroChartModel):
     @property
     def axes(self) -> Axes:
         """Return the Axes object plotting the chart if necessary."""
-        self.process_chart()
-        if not self.rendered:
+        if not self.rendered or self.config.has_changed:
             self.plot()
         assert isinstance(self._axes, Axes)
         return self._axes
@@ -422,7 +421,7 @@ class PsychroChart(PsychroChartModel):
         svg_definitions: str | None = None,
         **params,
     ) -> str:
-        """Generate chart as SVG and return as text."""
+        """Generate chart as SVG, with optional styling, and return as text."""
         svg_io = StringIO()
         self.save(svg_io, canvas_cls=FigureCanvasSVG, **params)
         svg_io.seek(0)
