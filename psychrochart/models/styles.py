@@ -67,5 +67,8 @@ class ZoneStyle(BaseConfig):
         return parse_color(v)
 
     @root_validator(pre=True)
-    def _remove_aliases(cls, values):
+    def _remove_aliases_and_fix_defaults(cls, values):
+        if values.get("linewidth", 2) == 0:
+            # avoid matplotlib error with inconsistent line parameters
+            values["linestyle"] = "-"
         return reduce_field_abrs(values)

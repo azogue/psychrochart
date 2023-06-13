@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✨ Add new kind of overlay **zone 'dbt-wmax'**, to define chart areas delimited between db-temps and absolute humidity values, solving #28
 - 🐛 Enable zones defined by 2 points (assume a rectangle defined by left-bottom/right-top coords)
 - 🐛 Fix logic for plot regeneration, to plot again if config changes _AFTER_ plotting the chart
+- 🐛 Fix ZoneStyle definition when linewidth is 0 and linestyle remains the default (passing inconsistent params to matplotlib)
 
 ## [0.9.0] - ✨ More kinds of chart zones + CSS for SVG styling - 2023-06-12
 

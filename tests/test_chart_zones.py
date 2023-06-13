@@ -252,12 +252,7 @@ def test_sat_no_sat_zones():
             zone_type="dbt-wmax",
             points_x=[chart.config.dbt_min, chart.config.dbt_max],
             points_y=[chart.config.w_min, chart.config.w_max],
-            style=ZoneStyle(
-                edgecolor="none",
-                facecolor="#C8E44088",
-                linewidth=0,
-                linestyle="-",
-            ),
+            style=ZoneStyle(edgecolor="k", facecolor="#e4a039", linewidth=0),
         )
     )
     chart.plot_over_saturated_zone(color_fill="#5A90E4")
