@@ -23,7 +23,6 @@ class ChartPoint(BaseModel):
 class ChartSeries(BaseModel):
     """Input model for data-series point array annotation."""
 
-    # TODO fusion with PsychroCurve, + pandas ready
     x_data: np.ndarray
     y_data: np.ndarray
     style: dict[str, Any] = Field(default_factory=dict)

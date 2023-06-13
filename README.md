@@ -31,8 +31,8 @@ pip install psychrochart
 
 ## Features
 
-- **SI** units (with temperatures in celsius for better readability).
-- Easy style customization based on [**pydantic**](https://docs.pydantic.dev/latest/) models and config presets for full customization of colors, line styles, line widths, etc..
+- **SI** units (with temperatures in celsius for better readability), with _partial_ compatibility with IP system (imperial units)
+- Easy style customization based on [**pydantic**](https://docs.pydantic.dev/latest/) models and config presets for full customization of **chart limits**, included lines and labels, colors, line styles, line widths, etc..
 - Psychrometric charts within temperature and humidity ratio ranges, for any pressure\*, with:
   - **Saturation line**
   - **Constant RH lines**
@@ -41,10 +41,16 @@ pip install psychrochart
   - **Constant specific volume lines**
   - **Constant dry-bulb temperature lines** (internal orthogonal grid, vertical)
   - **Constant humidity ratio lines** (internal orthogonal grid, horizontal)
-- Plot legend for each family of lines
+- Plot legend for each family of lines, labeled zones and annotations
 - Specify labels for each family of lines
-- **Overlay points, zones, convex hulls, and arrows**
-- **Export SVG, PNG files**
+- Overlay points, arrows, **data-series** (numpy arrays or pandas series), and convex hulls around points
+- Define multiple kinds of **zones limited by psychrometric values**:
+  - 'dbt-rh' for areas between dry-bulb temperature and relative humidity values,
+  - 'enthalpy-rh' for areas between constant enthalpy and relative humidity values
+  - 'volume-rh' for areas between constant volume and relative humidity values
+  - 'dbt-wmax' for an area between dry-bulb temperature and water vapor content values (:= a rectangle cut by the saturation line),
+  - 'xy-points' to define arbitrary closed paths in plot coordinates (dbt, abs humidity)
+- **Export as SVG, PNG files**, or generate dynamic SVGs with extra CSS and <defs> with `chart.make_svg(...)`
 
 > NOTE: The ranges of temperature, humidity and pressure where this library should provide good results are within the normal environments for people to live in.
 >

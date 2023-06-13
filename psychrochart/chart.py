@@ -421,7 +421,7 @@ class PsychroChart(PsychroChartModel):
         svg_definitions: str | None = None,
         **params,
     ) -> str:
-        """Generate chart as SVG and return as text."""
+        """Generate chart as SVG, with optional styling, and return as text."""
         svg_io = StringIO()
         self.save(svg_io, canvas_cls=FigureCanvasSVG, **params)
         svg_io.seek(0)
