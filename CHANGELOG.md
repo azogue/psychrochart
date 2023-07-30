@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.2] - 🐛 Fix install with new pydantic v2 - 2023-07-30
+
+##### Changes
+
+- 🎨 lint: pre-commit autoupdate
+- 📦️ env: Bump patch version and fix deps with pydantic version < v2, and enabling new Python 3.12
+- 📝 Update CHANGELOG
+
 ## [0.9.1] - ✨ Add zone kind 'dbt-wmax' with vapour content limit - 2023-06-13
 
 ##### Changes
