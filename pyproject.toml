@@ -42,7 +42,7 @@ log_date_format = "%Y-%m-%d %H:%M:%S"
 
 [tool.poetry]
 name = "psychrochart"
-version = "0.9.1"
+version = "0.9.2"
 description = "A python 3 library to make psychrometric charts and overlay information on them"
 authors = ["Eugenio Panadero <eugenio.panadero@gmail.com>"]
 packages = [
@@ -64,16 +64,17 @@ classifiers=[
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 keywords=["psychrometrics", "moist", "humid air", "climate control", "matplotlib"]
 include = ["CHANGELOG.md"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.12"
+python = ">=3.10,<3.13"
 matplotlib = ">=3.7"
 scipy = ">=1.10"
 psychrolib = ">=2.5"
-pydantic = ">=1.8"
+pydantic = ">=1.8,<2"
 python-slugify = ">=8.0.1"
 
 [tool.poetry.group.dev.dependencies]
