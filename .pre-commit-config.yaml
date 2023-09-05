@@ -5,7 +5,7 @@ exclude: >
   )$
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.281
+    rev: v0.0.287
     hooks:
       - id: ruff
         args:
@@ -31,11 +31,11 @@ repos:
       - id: check-toml
       - id: check-yaml
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0
+    rev: v3.0.3
     hooks:
       - id: prettier
   - repo: "https://github.com/pre-commit/mirrors-mypy"
-    rev: "v1.4.1"
+    rev: "v1.5.1"
     hooks:
       - id: "mypy"
         name: "Check type hints (mypy)"
