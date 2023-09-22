@@ -23,7 +23,7 @@ from psychrochart.chartdata import (
 )
 from psychrochart.models.config import ChartZone
 from psychrochart.models.curves import PsychroCurve, PsychroCurves
-from psychrochart.models.styles import CurveStyle, ZoneStyle
+from psychrochart.models.styles import CurveStyle, ZoneStyle, AnnotationStyle
 
 
 def _adjust_temp_range_for_enthalpy(
@@ -194,6 +194,7 @@ def _zone_between_rh_and_rects(
         type_curve=zone.zone_type,
         label=zone.label,
         internal_value=random_internal_value() if zone.label is None else None,
+        annotation_style=zone.annotation_style,
     )
 
 
@@ -277,6 +278,7 @@ def _make_zone_delimited_by_vertical_dbt_and_rh(
         type_curve=zone.zone_type,
         label=zone.label,
         internal_value=random_internal_value() if zone.label is None else None,
+        annotation_style=zone.annotation_style,
     )
 
 
@@ -363,6 +365,7 @@ def _make_zone_delimited_by_dbt_and_wmax(
             type_curve=zone.zone_type,
             label=zone.label,
             internal_value=w_2,
+            annotation_style=zone.annotation_style,
         )
 
     # build path clockwise starting in left bottom corner
@@ -440,6 +443,7 @@ def _make_zone_delimited_by_dbt_and_wmax(
         type_curve=zone.zone_type,
         label=zone.label,
         internal_value=w_2,
+        annotation_style=zone.annotation_style,
     )
 
 

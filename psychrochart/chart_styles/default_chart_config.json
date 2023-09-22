@@ -77,6 +77,42 @@
     "linewidth": 0.75,
     "linestyle": ":"
   },
+  "constant_v_annotation": {
+    "color": [0.2,0.2,0.2],
+    "fontsize": 10,
+    "bbox": {
+      "boxstyle": "square,pad=0.1",
+      "color": [1,1,1,0.7],
+      "lw": 0.5
+    }
+  },
+  "constant_h_annotation": {
+    "color": [0.2,0.2,0.2],
+    "fontsize": 10,
+    "bbox": {
+      "boxstyle": "square,pad=0.1",
+      "color": [1,1,1,0.7],
+      "lw": 0.5
+    }
+  },
+  "constant_wet_temp_annotation": {
+    "color": [0.2,0.2,0.2],
+    "fontsize": 10,
+    "bbox": {
+      "boxstyle": "square,pad=0.1",
+      "color": [1,1,1,0.7],
+      "lw": 0.5
+    }
+  },
+  "constant_rh_annotation": {
+    "color": [0.2,0.2,0.2],
+    "fontsize": 10,
+    "bbox": {
+      "boxstyle": "square,pad=0.1",
+      "color": [1,1,1,0.7],
+      "lw": 0.5
+    }
+  },
   "chart_params": {
     "with_constant_rh": true,
     "constant_rh_label": "Constant relative humidity",

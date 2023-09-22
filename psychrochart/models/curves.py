@@ -3,7 +3,7 @@ from typing import AbstractSet, Any, Mapping
 import numpy as np
 from pydantic import BaseModel, Field, root_validator
 
-from psychrochart.models.styles import CurveStyle, ZoneStyle
+from psychrochart.models.styles import CurveStyle, ZoneStyle, AnnotationStyle
 from psychrochart.models.validators import parse_curve_arrays
 
 
@@ -17,6 +17,7 @@ class PsychroCurve(BaseModel):
     label: str | None = None
     label_loc: float = 0.75
     internal_value: float | None = None
+    annotation_style: AnnotationStyle | None = None
 
     class Config:
         arbitrary_types_allowed = True

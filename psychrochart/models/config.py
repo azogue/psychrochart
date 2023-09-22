@@ -8,6 +8,7 @@ from psychrochart.models.styles import (
     LabelStyle,
     TickStyle,
     ZoneStyle,
+    AnnotationStyle,
 )
 
 _DEFAULT_RANGE_VOL_M3_KG = (0.78, 0.98)
@@ -38,6 +39,10 @@ _DEFAULT_STYLE_DRY_TEMP = CurveStyle(
 _DEFAULT_STYLE_HUMID = CurveStyle(
     color=[0.0, 0.125, 0.376], linewidth=0.75, linestyle=":"
 )
+_DEFAULT_STYLE_CURVES_ANNOTATION = AnnotationStyle(
+    color= [0.2, 0.2, 0.2], fontsize = 10,
+    bbox=dict(boxstyle="square,pad=0.1", color=[1, 1, 1, 0.7], lw=0.5)
+    )
 
 ZoneKind = Literal[
     "dbt-rh", "xy-points", "enthalpy-rh", "volume-rh", "dbt-wmax"
@@ -85,6 +90,7 @@ class ChartZone(BaseConfig):
     label: str | None = Field(default=None)
     zone_type: ZoneKind = Field(default="xy-points")
     style: ZoneStyle = Field(default_factory=ZoneStyle)
+    annotation_style: AnnotationStyle = Field(default_factory=AnnotationStyle)
 
     @root_validator
     def _validate_zone_definition(cls, values):
@@ -182,6 +188,10 @@ class ChartConfig(BaseConfig):
     constant_wet_temp: CurveStyle = Field(default=_DEFAULT_STYLE_WET_TEMP)
     constant_dry_temp: CurveStyle = Field(default=_DEFAULT_STYLE_DRY_TEMP)
     constant_humidity: CurveStyle = Field(default=_DEFAULT_STYLE_HUMID)
+    constant_v_annotation: AnnotationStyle = Field(default=_DEFAULT_STYLE_CURVES_ANNOTATION)
+    constant_h_annotation: AnnotationStyle = Field(default=_DEFAULT_STYLE_CURVES_ANNOTATION)
+    constant_wet_temp_annotation: AnnotationStyle = Field(default=_DEFAULT_STYLE_CURVES_ANNOTATION)
+    constant_rh_annotation: AnnotationStyle = Field(default=_DEFAULT_STYLE_CURVES_ANNOTATION)
 
     chart_params: ChartParams = Field(default_factory=ChartParams)
 
