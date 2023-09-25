@@ -131,12 +131,12 @@ def _gen_interior_lines(config: ChartConfig, chart: PsychroChartModel) -> None:
     if config.chart_params.with_constant_h:
         step = config.chart_params.constant_h_step
         start, end = config.chart_params.range_h
-        delta_t = config.limits.range_temp_c[1]-config.limits.range_temp_c[0]
+        delta_t = config.limits.range_temp_c[1] - config.limits.range_temp_c[0]
         chart.constant_h_data = make_constant_enthalpy_lines(
             config.w_min,
             chart.pressure,
             enthalpy_values=np.arange(start, end, step),
-            delta_t = delta_t,
+            delta_t=delta_t,
             h_label_values=config.chart_params.constant_h_labels,
             style=config.constant_h,
             label_loc=config.chart_params.constant_h_labels_loc,

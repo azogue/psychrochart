@@ -45,7 +45,8 @@ _DEFAULT_STYLE_CURVES_ANNOTATION = AnnotationStyle(
     bbox=dict(boxstyle="square,pad=0.1", color=[1, 1, 1, 0.7], lw=0.5),
 )
 _DEFAULT_STYLE_H_ANNOTATION = AnnotationStyle(
-    color=[0.2, 0.2, 0.2], fontsize=10,
+    color=[0.2, 0.2, 0.2],
+    fontsize=10,
     bbox=dict(boxstyle="square,pad=0.1", color=[1, 1, 1, 0], lw=0.5),
 )
 

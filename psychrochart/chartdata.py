@@ -323,34 +323,42 @@ def make_constant_enthalpy_lines(
     w_in_sat = _get_humid_ratio_in_saturation(t_sat_points, pressure)
 
     curves = [
-            PsychroCurve(
-                x_data=np.array([t_sat, t_max]),
-                y_data=np.array([w_sat, w_humidity_ratio_min]),
-                style=style,
-                type_curve="constant_h_data",
-                label_loc=label_loc,
-                label=(
-                    _make_enthalpy_label(h)
-                    if isinstance(h_label_values, list)
-                    and round(h, 3) in h_label_values
-                    else None
-                ),
-                internal_value=round(h, 3),
-                annotation_style=annotation_style
-                if annotation_style is not None
-                else AnnotationStyle(),
-            )
-            for t_sat, w_sat, t_max, h in zip(
-                t_sat_points, w_in_sat, temps_max_constant_h, h_objective
-            )
-            ]
-    
+        PsychroCurve(
+            x_data=np.array([t_sat, t_max]),
+            y_data=np.array([w_sat, w_humidity_ratio_min]),
+            style=style,
+            type_curve="constant_h_data",
+            label_loc=label_loc,
+            label=(
+                _make_enthalpy_label(h)
+                if isinstance(h_label_values, list)
+                and round(h, 3) in h_label_values
+                else None
+            ),
+            internal_value=round(h, 3),
+            annotation_style=annotation_style
+            if annotation_style is not None
+            else AnnotationStyle(),
+        )
+        for t_sat, w_sat, t_max, h in zip(
+            t_sat_points, w_in_sat, temps_max_constant_h, h_objective
+        )
+    ]
+
     if label_loc < 0:
         style.linestyle = "--"
         curves = curves + [
             PsychroCurve(
-                x_data=np.array([t_sat+(delta_t*label_loc),t_sat]),
-                y_data=np.array([w_sat+(delta_t*label_loc)*(w_humidity_ratio_min-w_sat)/(t_max-t_sat),w_sat]),
+                x_data=np.array([t_sat + (delta_t * label_loc), t_sat]),
+                y_data=np.array(
+                    [
+                        w_sat
+                        + (delta_t * label_loc)
+                        * (w_humidity_ratio_min - w_sat)
+                        / (t_max - t_sat),
+                        w_sat,
+                    ]
+                ),
                 style=style,
                 type_curve="constant_h_data",
                 internal_value=round(h, 3),
@@ -359,7 +367,7 @@ def make_constant_enthalpy_lines(
                 t_sat_points, w_in_sat, temps_max_constant_h, h_objective
             )
         ]
-    
+
     return PsychroCurves(
         curves=curves,
         family_label=family_label,

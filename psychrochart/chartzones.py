@@ -211,7 +211,7 @@ def _make_zone_delimited_by_enthalpy_and_rh(
     assert zone.zone_type == "enthalpy-rh"
     h_min, h_max = zone.points_x
     rh_min, rh_max = zone.points_y
-    delta_t = dbt_max-dbt_min
+    delta_t = dbt_max - dbt_min
     dbt_min_use = _adjust_temp_range_for_enthalpy(
         (h_min, h_max), (dbt_min, dbt_max), pressure, step_temp
     )
@@ -223,7 +223,7 @@ def _make_zone_delimited_by_enthalpy_and_rh(
             dbt_min_use, dbt_max, step_temp, pressure
         ),
         style=CurveStyle(),
-        delta_t = delta_t
+        delta_t=delta_t,
     )
     if not _valid_zone_delimiter_on_plot_limits(
         zone, h_lines, dbt_min, dbt_max, w_min, w_max
