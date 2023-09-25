@@ -33,9 +33,8 @@ def test_default_config():
         .replace(".0,", ",")
         .replace(".0\n", "\n")
         .replace(".0]", "]")
-        .replace("\\u00b0C", "\\u00c2\\u00b0C")
     )
-    stored_data = json.loads(Path(DEFAULT_CHART_CONFIG_FILE).read_text())
+    stored_data = json.loads(Path(DEFAULT_CHART_CONFIG_FILE).read_text("UTF-8"))
     assert json.dumps(stored_data, indent=2) == simple_repr
 
 
