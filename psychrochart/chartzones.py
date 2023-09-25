@@ -23,7 +23,7 @@ from psychrochart.chartdata import (
 )
 from psychrochart.models.config import ChartZone
 from psychrochart.models.curves import PsychroCurve, PsychroCurves
-from psychrochart.models.styles import CurveStyle, ZoneStyle, AnnotationStyle
+from psychrochart.models.styles import CurveStyle, ZoneStyle
 
 
 def _adjust_temp_range_for_enthalpy(

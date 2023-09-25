@@ -81,7 +81,7 @@ def test_config_presets(style_file: str):
     # print(p_file.read_text())
     # old method, without pydantic
     stored_data = json.loads(p_file.read_text("UTF-8"))
-    
+
     old_config_data = _update_config(ChartConfig().dict(), stored_data)
     old_config = ChartConfig.validate(old_config_data)
 
