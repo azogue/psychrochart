@@ -266,6 +266,7 @@ def make_constant_enthalpy_lines(
     *,
     saturation_curve: PsychroCurve,
     style: CurveStyle,
+    delta_t: float,
     h_label_values: list[float] | None = None,
     label_loc: float = 0.0,
     family_label: str | None = None,
@@ -321,8 +322,7 @@ def make_constant_enthalpy_lines(
     )
     w_in_sat = _get_humid_ratio_in_saturation(t_sat_points, pressure)
 
-    return PsychroCurves(
-        curves=[
+    curves = [
             PsychroCurve(
                 x_data=np.array([t_sat, t_max]),
                 y_data=np.array([w_sat, w_humidity_ratio_min]),
@@ -343,7 +343,25 @@ def make_constant_enthalpy_lines(
             for t_sat, w_sat, t_max, h in zip(
                 t_sat_points, w_in_sat, temps_max_constant_h, h_objective
             )
-        ],
+            ]
+    
+    if label_loc < 0:
+        style.linestyle = "--"
+        curves = curves + [
+            PsychroCurve(
+                x_data=np.array([t_sat+(delta_t*label_loc),t_sat]),
+                y_data=np.array([w_sat+(delta_t*label_loc)*(w_humidity_ratio_min-w_sat)/(t_max-t_sat),w_sat]),
+                style=style,
+                type_curve="constant_h_data",
+                internal_value=round(h, 3),
+            )
+            for t_sat, w_sat, t_max, h in zip(
+                t_sat_points, w_in_sat, temps_max_constant_h, h_objective
+            )
+        ]
+    
+    return PsychroCurves(
+        curves=curves,
         family_label=family_label,
     )
 

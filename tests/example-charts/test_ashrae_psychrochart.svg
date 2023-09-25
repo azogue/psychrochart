@@ -2597,8 +2597,9 @@ L 1094.4 32.4
 L 1088.650191 600.67534 
 L 1092.535688 589.639357 
 L 1032.262243 568.418569 
+L 1028.376747 579.454552 
 z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: none"/>
     </g>
     <!-- 50 $kJ/kg_{da}$     -->
     <g style="fill: #333333" transform="translate(1030.349483 576.862582) rotate(-340.604095) scale(0.1 -0.1)">
@@ -2639,8 +2640,9 @@ z
 L 1095.014768 233.332664 
 L 1098.868946 222.285704 
 L 1032.492772 199.127692 
+L 1028.638594 210.174652 
 z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: none"/>
     </g>
     <!-- 100 $kJ/kg_{da}$     -->
     <g style="fill: #333333" transform="translate(1030.603971 207.577096) rotate(-340.766609) scale(0.1 -0.1)">

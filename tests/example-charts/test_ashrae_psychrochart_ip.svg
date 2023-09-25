@@ -3052,8 +3052,9 @@ L 1094.4 32.4
 L 739.590113 600.758338 
 L 745.223306 590.528688 
 L 684.518805 557.100353 
+L 678.885612 567.330003 
 z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: none"/>
     </g>
     <!-- 20 $Btu/lb_{da}$     -->
     <g style="fill: #333333" transform="translate(681.247132 565.11467) rotate(-331.159606) scale(0.1 -0.1)">
@@ -3162,8 +3163,9 @@ z
 L 1056.736941 600.757164 
 L 1062.339749 590.51084 
 L 1001.536305 557.262816 
+L 995.933497 567.509139 
 z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: none"/>
     </g>
     <!-- 30 $Btu/lb_{da}$     -->
     <g style="fill: #333333" transform="translate(998.288432 565.286808) rotate(-331.329653) scale(0.1 -0.1)">
@@ -3190,8 +3192,9 @@ z
 L 1094.800307 448.866989 
 L 1100.382848 438.609609 
 L 1039.513792 405.481856 
+L 1033.931252 415.739236 
 z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: none"/>
     </g>
     <!-- 40 $Btu/lb_{da}$     -->
     <g style="fill: #333333" transform="translate(1036.281788 413.512253) rotate(-331.442925) scale(0.1 -0.1)">
@@ -3218,8 +3221,9 @@ z
 L 1094.802369 277.436778 
 L 1100.369306 267.170921 
 L 1039.449948 234.135761 
+L 1033.883011 244.401618 
 z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: none"/>
     </g>
     <!-- 50 $Btu/lb_{da}$     -->
     <g style="fill: #333333" transform="translate(1036.230159 242.171064) rotate(-331.530047) scale(0.1 -0.1)">

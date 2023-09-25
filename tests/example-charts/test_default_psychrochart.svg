@@ -2723,8 +2723,9 @@ L 1094.4 599.4
 L 135.426048 600.624857 
 L 138.456022 589.324005 
 L 82.821057 574.407212 
+L 79.791083 585.708064 
 z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: none"/>
     </g>
     <!-- 5 $kJ/kg_{da}$     -->
     <g style="fill: #333333" transform="translate(81.559782 582.972793) rotate(-344.990921) scale(0.1 -0.1)">
@@ -2764,8 +2765,9 @@ z
 L 559.12633 600.623383 
 L 562.132785 589.316252 
 L 500.37845 572.896382 
+L 497.371995 584.203514 
 z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: none"/>
     </g>
     <!-- 25 $kJ/kg_{da}$     -->
     <g style="fill: #333333" transform="translate(499.134998 581.464569) rotate(-345.110128) scale(0.1 -0.1)">
@@ -2791,8 +2793,9 @@ z
 L 1088.750593 600.622166 
 L 1091.73767 589.3099 
 L 1029.955292 572.995865 
+L 1026.968215 584.308131 
 z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: none"/>
     </g>
     <!-- 50 $kJ/kg_{da}$     -->
     <g style="fill: #333333" transform="translate(1028.726523 581.56617) rotate(-345.208299) scale(0.1 -0.1)">
@@ -2818,8 +2821,9 @@ z
 L 1095.113105 463.160924 
 L 1098.085823 451.844876 
 L 1036.28279 435.609264 
+L 1033.310072 446.925312 
 z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: none"/>
     </g>
     <!-- 75 $kJ/kg_{da}$     -->
     <g style="fill: #333333" transform="translate(1035.064899 444.181122) rotate(-345.281015) scale(0.1 -0.1)">
@@ -2857,8 +2861,9 @@ z
 L 1095.114283 325.11487 
 L 1098.076079 313.795958 
 L 1030.065864 295.999873 
+L 1027.104068 307.318785 
 z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: none"/>
     </g>
     <!-- 100 $kJ/kg_{da}$     -->
     <g style="fill: #333333" transform="translate(1028.856246 304.572902) rotate(-345.336312) scale(0.1 -0.1)">
@@ -2885,8 +2890,9 @@ z
 L 1095.115228 187.837327 
 L 1098.068264 176.516126 
 L 1030.044299 158.772671 
+L 1027.091263 170.093872 
 z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: none"/>
     </g>
     <!-- 125 $kJ/kg_{da}$     -->
     <g style="fill: #333333" transform="translate(1028.841315 167.346634) rotate(-345.380646) scale(0.1 -0.1)">
