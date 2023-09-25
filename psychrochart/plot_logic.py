@@ -174,7 +174,7 @@ def plot_curve(
                 "va": "center",
                 "backgroundcolor": [1, 1, 1, 0.4],
             }
-            
+
             assert isinstance(curve.style, ZoneStyle)
             if curve.annotation_style is not None:
                 style_params.update(curve.annotation_style.dict())
@@ -196,8 +196,7 @@ def plot_curve(
         )
         gid_line = make_item_gid(kind or "unknown", name=curve.curve_id)
         reg_artist(gid_line, artist_line, artists)
-        
-        
+
         if curve.label is not None:
             reg_artist(
                 "label_" + gid_line, add_label_to_curve(curve, ax), artists

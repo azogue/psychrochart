@@ -36,18 +36,23 @@ class LabelStyle(BaseConfig):
     def _color_arr(cls, v, values):
         return parse_color(v)
 
+
 class AnnotationStyle(BaseConfig):
     """Container for matplotlib styling of curve annotations."""
 
     color: list[float] = Field(default=[0.2, 0.2, 0.2])
     fontsize: int | float = Field(default=9)
-    bbox: dict = Field(default=dict(boxstyle="square,pad=0.2", color=[1, 1, 1, 0.8], lw=0.5))
+    bbox: dict = Field(
+        default=dict(boxstyle="square,pad=0.2", color=[1, 1, 1, 0.8], lw=0.5)
+    )
+
     class Config:
         extra = Extra.allow
 
     @validator("color", pre=True, always=True)
     def _color_arr(cls, v, values):
         return parse_color(v)
+
 
 class TickStyle(BaseConfig):
     """Container for matplotlib tick axes styling."""

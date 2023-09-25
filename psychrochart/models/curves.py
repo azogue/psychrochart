@@ -3,7 +3,7 @@ from typing import AbstractSet, Any, Mapping
 import numpy as np
 from pydantic import BaseModel, Field, root_validator
 
-from psychrochart.models.styles import CurveStyle, ZoneStyle, AnnotationStyle
+from psychrochart.models.styles import AnnotationStyle, CurveStyle, ZoneStyle
 from psychrochart.models.validators import parse_curve_arrays
 
 

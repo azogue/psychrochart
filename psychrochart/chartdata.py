@@ -20,7 +20,7 @@ from psychrolib import (
 from scipy.interpolate import interp1d
 
 from psychrochart.models.curves import PsychroCurve, PsychroCurves
-from psychrochart.models.styles import CurveStyle, AnnotationStyle
+from psychrochart.models.styles import AnnotationStyle, CurveStyle
 from psychrochart.util import solve_curves_with_iteration
 
 f_vec_hum_ratio_from_vap_press = np.vectorize(GetHumRatioFromVapPres)
@@ -137,7 +137,9 @@ def make_constant_relative_humidity_lines(
                 label_loc=label_loc,
                 label=f"RH {rh:g} %" if rh in rh_label_values else None,
                 internal_value=float(rh),
-                annotation_style = annotation_style if annotation_style is not None else AnnotationStyle(),
+                annotation_style=annotation_style
+                if annotation_style is not None
+                else AnnotationStyle(),
             )
             for rh, curve_ct_rh in zip(rh_values, curves_ct_rh)
         ],
@@ -169,7 +171,9 @@ def make_constant_dry_bulb_v_line(
         style=style,
         type_curve=type_curve,
         internal_value=temp,
-        annotation_style = annotation_style if annotation_style is not None else AnnotationStyle(),
+        annotation_style=annotation_style
+        if annotation_style is not None
+        else AnnotationStyle(),
     )
 
 
@@ -192,7 +196,9 @@ def make_constant_dry_bulb_v_lines(
                 style=style,
                 type_curve="constant_dry_temp_data",
                 internal_value=temp,
-                annotation_style = annotation_style if annotation_style is not None else AnnotationStyle(),
+                annotation_style=annotation_style
+                if annotation_style is not None
+                else AnnotationStyle(),
             )
             for temp, w_max in zip(temps_vl, w_max_vec)
         ],
@@ -222,7 +228,9 @@ def make_constant_humidity_ratio_h_lines(
                 style=style,
                 type_curve="constant_humidity_data",
                 internal_value=w,
-                annotation_style = annotation_style if annotation_style is not None else AnnotationStyle(),
+                annotation_style=annotation_style
+                if annotation_style is not None
+                else AnnotationStyle(),
             )
             for w, t_dp in zip(ws_hl, dew_points)
         ],
@@ -328,7 +336,9 @@ def make_constant_enthalpy_lines(
                     else None
                 ),
                 internal_value=round(h, 3),
-                annotation_style = annotation_style if annotation_style is not None else AnnotationStyle()
+                annotation_style=annotation_style
+                if annotation_style is not None
+                else AnnotationStyle(),
             )
             for t_sat, w_sat, t_max, h in zip(
                 t_sat_points, w_in_sat, temps_max_constant_h, h_objective
@@ -411,7 +421,9 @@ def make_constant_specific_volume_lines(
                     else None
                 ),
                 internal_value=round(vol, 3),
-                annotation_style = annotation_style if annotation_style is not None else AnnotationStyle()
+                annotation_style=annotation_style
+                if annotation_style is not None
+                else AnnotationStyle(),
             )
             for t_sat, w_sat, t_max, vol in zip(
                 t_sat_points, w_in_sat, temps_max_constant_v, v_objective
@@ -508,7 +520,7 @@ def make_constant_wet_bulb_temperature_lines(
                 else None
             ),
             internal_value=wbt,
-            annotation_style = annotation_style
+            annotation_style=annotation_style,
         )
         curves.append(c)
 

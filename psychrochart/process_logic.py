@@ -122,7 +122,7 @@ def _gen_interior_lines(config: ChartConfig, chart: PsychroChartModel) -> None:
             style=config.constant_rh,
             label_loc=config.chart_params.constant_rh_labels_loc,
             family_label=config.chart_params.constant_rh_label,
-            annotation_style = config.constant_rh_annotation
+            annotation_style=config.constant_rh_annotation,
         )
     else:
         chart.constant_rh_data = None
@@ -180,7 +180,7 @@ def _gen_interior_lines(config: ChartConfig, chart: PsychroChartModel) -> None:
             style=config.constant_wet_temp,
             label_loc=config.chart_params.constant_wet_temp_labels_loc,
             family_label=config.chart_params.constant_wet_temp_label,
-            annotation_style=config.constant_wet_temp_annotation
+            annotation_style=config.constant_wet_temp_annotation,
         )
     else:
         chart.constant_wbt_data = None
