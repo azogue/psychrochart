@@ -742,10 +742,10 @@ L 960 -1
    <g id="label_legend_dry_bulb_temperature">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke-dasharray: 0.75,1.2375; stroke-dashoffset: 0; stroke: #da251d; stroke-width: 0.75"/>
     <defs>
-     <path id="mb007793320" d="M 0 7.071068 
+     <path id="m96863f8e12" d="M -0 7.071068 
 L 7.071068 0 
 L 0 -7.071068 
-L -7.071068 0 
+L -7.071068 -0 
 z
 " style="stroke: #da251d; stroke-linejoin: miter"/>
     </defs>
@@ -769,10 +769,10 @@ L 1153 46.750514
    <g id="label_legend_constant_enthalpy">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #400080; stroke-width: 2; stroke-linecap: square"/>
     <defs>
-     <path id="m94adee2fe9" d="M 0 7.071068 
+     <path id="mca71176ed7" d="M -0 7.071068 
 L 7.071068 0 
 L 0 -7.071068 
-L -7.071068 0 
+L -7.071068 -0 
 z
 " style="stroke: #400080; stroke-linejoin: miter"/>
     </defs>
@@ -796,10 +796,10 @@ L 1059.591343 720
    <g id="label_legend_constant_specific_volume">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #008056; stroke-width: 2; stroke-linecap: square"/>
     <defs>
-     <path id="m45440bea04" d="M 0 7.071068 
+     <path id="m3c54779707" d="M -0 7.071068 
 L 7.071068 0 
 L 0 -7.071068 
-L -7.071068 0 
+L -7.071068 -0 
 z
 " style="stroke: #008056; stroke-linejoin: miter"/>
     </defs>
@@ -1257,10 +1257,10 @@ L 820.3093 -1
    <g id="label_legend_constant_relative_humidity">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #007fff; stroke-width: 2; stroke-linecap: square"/>
     <defs>
-     <path id="m732def1002" d="M 0 7.071068 
+     <path id="m3ad1b69498" d="M -0 7.071068 
 L 7.071068 0 
 L 0 -7.071068 
-L -7.071068 0 
+L -7.071068 -0 
 z
 " style="stroke: #007fff; stroke-linejoin: miter"/>
     </defs>
@@ -1299,10 +1299,10 @@ L 1152 5.582498
    <g id="label_legend_constant_wet_bulb_temperature">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #7fdfff; stroke-linecap: square"/>
     <defs>
-     <path id="mdab191c7a7" d="M 0 7.071068 
+     <path id="med92be201a" d="M -0 7.071068 
 L 7.071068 0 
 L 0 -7.071068 
-L -7.071068 0 
+L -7.071068 -0 
 z
 " style="stroke: #7fdfff; stroke-linejoin: miter"/>
     </defs>
@@ -1393,16 +1393,8 @@ L 1152 720
 " style="fill: none; stroke: #da251d; stroke-width: 2; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="label_constant_wet_bulb_temperature_10">
-    <g id="patch_1">
-     <path d="M 56.351366 503.426626 
-L 84.931991 512.162595 
-L 88.345628 500.994529 
-L 59.765003 492.258561 
-z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
-    </g>
     <!-- 10 °C -->
-    <g style="fill: #333333" transform="translate(58.207914 500.773759) rotate(-343.003676) scale(0.1 -0.1)">
+    <g style="fill: #5fa7bf" transform="translate(58.207914 500.773759) rotate(-343.003676) scale(0.1 -0.1)">
      <defs>
       <path id="DejaVuSans-31" d="M 794 531 
 L 1825 531 
@@ -1469,16 +1461,8 @@ z
     </g>
    </g>
    <g id="label_constant_wet_bulb_temperature_20">
-    <g id="patch_2">
-     <path d="M 440.347779 285.961632 
-L 468.880553 294.852645 
-L 472.354774 283.703277 
-L 443.822 274.812265 
-z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
-    </g>
     <!-- 20 °C -->
-    <g style="fill: #333333" transform="translate(442.218703 283.318884) rotate(-342.6926) scale(0.1 -0.1)">
+    <g style="fill: #5fa7bf" transform="translate(442.218703 283.318884) rotate(-342.6926) scale(0.1 -0.1)">
      <use xlink:href="#DejaVuSans-32"/>
      <use xlink:href="#DejaVuSans-30" x="63.623047"/>
      <use xlink:href="#DejaVuSans-20" x="127.246094"/>
@@ -1506,15 +1490,15 @@ L 28.5 19.647656
 L 43.5 19.647656 
 " style="fill: none; stroke-dasharray: 0.75,1.2375; stroke-dashoffset: 0; stroke: #da251d; stroke-width: 0.75"/>
      <defs>
-      <path id="md0e183a329" d="M 0 6.363961 
+      <path id="me7a81889da" d="M -0 6.363961 
 L 6.363961 0 
 L 0 -6.363961 
-L -6.363961 0 
+L -6.363961 -0 
 z
 " style="stroke: #da251d; stroke-linejoin: miter"/>
      </defs>
      <g>
-      <use xlink:href="#md0e183a329" x="28.5" y="19.647656" style="fill: #da251d; stroke: #da251d; stroke-linejoin: miter"/>
+      <use xlink:href="#me7a81889da" x="28.5" y="19.647656" style="fill: #da251d; stroke: #da251d; stroke-linejoin: miter"/>
      </g>
     </g>
     <g id="text_2">
@@ -1548,15 +1532,15 @@ L 28.5 56.664844
 L 43.5 56.664844 
 " style="fill: none; stroke: #400080; stroke-width: 2; stroke-linecap: square"/>
      <defs>
-      <path id="m1259304095" d="M 0 6.363961 
+      <path id="m5765b293f6" d="M -0 6.363961 
 L 6.363961 0 
 L 0 -6.363961 
-L -6.363961 0 
+L -6.363961 -0 
 z
 " style="stroke: #400080; stroke-linejoin: miter"/>
      </defs>
      <g>
-      <use xlink:href="#m1259304095" x="28.5" y="56.664844" style="fill: #400080; stroke: #400080; stroke-linejoin: miter"/>
+      <use xlink:href="#m5765b293f6" x="28.5" y="56.664844" style="fill: #400080; stroke: #400080; stroke-linejoin: miter"/>
      </g>
     </g>
     <g id="text_3">
@@ -1658,15 +1642,15 @@ L 28.5 93.682031
 L 43.5 93.682031 
 " style="fill: none; stroke: #008056; stroke-width: 2; stroke-linecap: square"/>
      <defs>
-      <path id="m33f1c71874" d="M 0 6.363961 
+      <path id="ma07c87bda7" d="M -0 6.363961 
 L 6.363961 0 
 L 0 -6.363961 
-L -6.363961 0 
+L -6.363961 -0 
 z
 " style="stroke: #008056; stroke-linejoin: miter"/>
      </defs>
      <g>
-      <use xlink:href="#m33f1c71874" x="28.5" y="93.682031" style="fill: #008056; stroke: #008056; stroke-linejoin: miter"/>
+      <use xlink:href="#ma07c87bda7" x="28.5" y="93.682031" style="fill: #008056; stroke: #008056; stroke-linejoin: miter"/>
      </g>
     </g>
     <g id="text_4">
@@ -1758,15 +1742,15 @@ L 28.5 130.699219
 L 43.5 130.699219 
 " style="fill: none; stroke: #007fff; stroke-width: 2; stroke-linecap: square"/>
      <defs>
-      <path id="mb6704fdb49" d="M 0 6.363961 
+      <path id="m7a941eb10b" d="M -0 6.363961 
 L 6.363961 0 
 L 0 -6.363961 
-L -6.363961 0 
+L -6.363961 -0 
 z
 " style="stroke: #007fff; stroke-linejoin: miter"/>
      </defs>
      <g>
-      <use xlink:href="#mb6704fdb49" x="28.5" y="130.699219" style="fill: #007fff; stroke: #007fff; stroke-linejoin: miter"/>
+      <use xlink:href="#m7a941eb10b" x="28.5" y="130.699219" style="fill: #007fff; stroke: #007fff; stroke-linejoin: miter"/>
      </g>
     </g>
     <g id="text_5">
@@ -1806,15 +1790,15 @@ L 28.5 167.716406
 L 43.5 167.716406 
 " style="fill: none; stroke: #7fdfff; stroke-linecap: square"/>
      <defs>
-      <path id="m00c9fa0e8d" d="M 0 6.363961 
+      <path id="m15cdf44b73" d="M -0 6.363961 
 L 6.363961 0 
 L 0 -6.363961 
-L -6.363961 0 
+L -6.363961 -0 
 z
 " style="stroke: #7fdfff; stroke-linejoin: miter"/>
      </defs>
      <g>
-      <use xlink:href="#m00c9fa0e8d" x="28.5" y="167.716406" style="fill: #7fdfff; stroke: #7fdfff; stroke-linejoin: miter"/>
+      <use xlink:href="#m15cdf44b73" x="28.5" y="167.716406" style="fill: #7fdfff; stroke: #7fdfff; stroke-linejoin: miter"/>
      </g>
     </g>
     <g id="text_6">

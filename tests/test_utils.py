@@ -20,7 +20,7 @@ def test_load_plot_config():
 
     # Test passing dict vs JSON path:
     config_2 = load_config(config=DEFAULT_CHART_CONFIG_FILE)
-    with open(DEFAULT_CHART_CONFIG_FILE, encoding="utf-8") as f:
+    with open(DEFAULT_CHART_CONFIG_FILE) as f:
         config_3 = load_config(config=json.load(f))
     assert config_2 == config_3
 

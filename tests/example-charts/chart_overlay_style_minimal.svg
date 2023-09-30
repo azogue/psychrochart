@@ -435,7 +435,7 @@ z
      </g>
     </g>
     <g id="chart_x_axis_label">
-     <!-- Dry-bulb temperature ($캜$) -->
+     <!-- Dry-bulb temperature ($째C$) -->
      <g style="fill: #da251d" transform="translate(488.616 734.032) scale(0.132 -0.132)">
       <defs>
        <path id="DejaVuSans-44" d="M 1259 4147 
@@ -1077,10 +1077,10 @@ L 960 -1
    <g id="label_legend_dry_bulb_temperature">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke-dasharray: 0.75,1.2375; stroke-dashoffset: 0; stroke: #da251d; stroke-width: 0.75"/>
     <defs>
-     <path id="mb007793320" d="M 0 7.071068 
+     <path id="m96863f8e12" d="M -0 7.071068 
 L 7.071068 0 
 L 0 -7.071068 
-L -7.071068 0 
+L -7.071068 -0 
 z
 " style="stroke: #da251d; stroke-linejoin: miter"/>
     </defs>
@@ -1104,10 +1104,10 @@ L 1153 46.750514
    <g id="label_legend_constant_enthalpy">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #400080; stroke-width: 2; stroke-linecap: square"/>
     <defs>
-     <path id="m94adee2fe9" d="M 0 7.071068 
+     <path id="mca71176ed7" d="M -0 7.071068 
 L 7.071068 0 
 L 0 -7.071068 
-L -7.071068 0 
+L -7.071068 -0 
 z
 " style="stroke: #400080; stroke-linejoin: miter"/>
     </defs>
@@ -1131,10 +1131,10 @@ L 1059.591343 720
    <g id="label_legend_constant_specific_volume">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #008056; stroke-width: 2; stroke-linecap: square"/>
     <defs>
-     <path id="m45440bea04" d="M 0 7.071068 
+     <path id="m3c54779707" d="M -0 7.071068 
 L 7.071068 0 
 L 0 -7.071068 
-L -7.071068 0 
+L -7.071068 -0 
 z
 " style="stroke: #008056; stroke-linejoin: miter"/>
     </defs>
@@ -1592,10 +1592,10 @@ L 820.3093 -1
    <g id="label_legend_constant_relative_humidity">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #007fff; stroke-width: 2; stroke-linecap: square"/>
     <defs>
-     <path id="m732def1002" d="M 0 7.071068 
+     <path id="m3ad1b69498" d="M -0 7.071068 
 L 7.071068 0 
 L 0 -7.071068 
-L -7.071068 0 
+L -7.071068 -0 
 z
 " style="stroke: #007fff; stroke-linejoin: miter"/>
     </defs>
@@ -1634,10 +1634,10 @@ L 1152 5.582498
    <g id="label_legend_constant_wet_bulb_temperature">
     <path clip-path="url(#pc0e6066e52)" style="fill: none; stroke: #7fdfff; stroke-linecap: square"/>
     <defs>
-     <path id="mdab191c7a7" d="M 0 7.071068 
+     <path id="med92be201a" d="M -0 7.071068 
 L 7.071068 0 
 L 0 -7.071068 
-L -7.071068 0 
+L -7.071068 -0 
 z
 " style="stroke: #7fdfff; stroke-linejoin: miter"/>
     </defs>
@@ -1815,16 +1815,8 @@ L 1152 720
 " style="fill: none; stroke: #da251d; stroke-width: 2; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="label_constant_wet_bulb_temperature_10">
-    <g id="patch_1">
-     <path d="M 56.351366 503.426626 
-L 84.931991 512.162595 
-L 88.345628 500.994529 
-L 59.765003 492.258561 
-z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
-    </g>
-    <!-- 10 캜 -->
-    <g style="fill: #333333" transform="translate(58.207914 500.773759) rotate(-343.003676) scale(0.1 -0.1)">
+    <!-- 10 째C -->
+    <g style="fill: #5fa7bf" transform="translate(58.207914 500.773759) rotate(-343.003676) scale(0.1 -0.1)">
      <defs>
       <path id="DejaVuSans-31" d="M 794 531 
 L 1825 531 
@@ -1891,16 +1883,8 @@ z
     </g>
    </g>
    <g id="label_constant_wet_bulb_temperature_20">
-    <g id="patch_2">
-     <path d="M 440.347779 285.961632 
-L 468.880553 294.852645 
-L 472.354774 283.703277 
-L 443.822 274.812265 
-z
-" style="fill: #ffffff; fill-opacity: 0.7; stroke: #ffffff; stroke-opacity: 0.7; stroke-width: 0.5; stroke-linejoin: miter"/>
-    </g>
-    <!-- 20 캜 -->
-    <g style="fill: #333333" transform="translate(442.218703 283.318884) rotate(-342.6926) scale(0.1 -0.1)">
+    <!-- 20 째C -->
+    <g style="fill: #5fa7bf" transform="translate(442.218703 283.318884) rotate(-342.6926) scale(0.1 -0.1)">
      <use xlink:href="#DejaVuSans-32"/>
      <use xlink:href="#DejaVuSans-30" x="63.623047"/>
      <use xlink:href="#DejaVuSans-20" x="127.246094"/>
@@ -1909,16 +1893,16 @@ z
     </g>
    </g>
    <g id="label_zone_dbt_rh_summer">
-    <g id="patch_3">
-     <path d="M 574.305938 399.345723 
-L 616.094062 399.345723 
-L 616.094062 387.035411 
-L 574.305938 387.035411 
+    <g id="patch_1">
+     <path d="M 572.505937 401.145723 
+L 617.894063 401.145723 
+L 617.894063 385.235411 
+L 572.505937 385.235411 
 z
-" style="fill: #ffffff; fill-opacity: 0.8; stroke: #ffffff; stroke-opacity: 0.8; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
     </g>
     <!-- Summer -->
-    <g style="fill: #333333" transform="translate(576.105937 395.674005) scale(0.09 -0.09)">
+    <g transform="translate(576.105937 395.674005) scale(0.09 -0.09)">
      <defs>
       <path id="DejaVuSans-53" d="M 3425 4513 
 L 3425 3897 
@@ -1961,16 +1945,16 @@ z
     </g>
    </g>
    <g id="label_zone_dbt_rh_winter">
-    <g id="patch_4">
-     <path d="M 386.566875 509.131785 
-L 419.833125 509.131785 
-L 419.833125 496.821473 
-L 386.566875 496.821473 
+    <g id="patch_2">
+     <path d="M 384.766875 510.931785 
+L 421.633125 510.931785 
+L 421.633125 495.021473 
+L 384.766875 495.021473 
 z
-" style="fill: #ffffff; fill-opacity: 0.8; stroke: #ffffff; stroke-opacity: 0.8; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
     </g>
     <!-- Winter -->
-    <g style="fill: #333333" transform="translate(388.366875 505.460067) scale(0.09 -0.09)">
+    <g transform="translate(388.366875 505.460067) scale(0.09 -0.09)">
      <defs>
       <path id="DejaVuSans-57" d="M 213 4666 
 L 850 4666 
@@ -2017,16 +2001,16 @@ z
     </g>
    </g>
    <g id="label_zone_volume_rh_v_rh_zone">
-    <g id="patch_5">
-     <path d="M 13.800362 600.504379 
-L 63.629425 600.504379 
-L 63.629425 588.194066 
-L 13.800362 588.194066 
+    <g id="patch_3">
+     <path d="M 12.000362 602.304379 
+L 65.429425 602.304379 
+L 65.429425 586.394066 
+L 12.000362 586.394066 
 z
-" style="fill: #ffffff; fill-opacity: 0.8; stroke: #ffffff; stroke-opacity: 0.8; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
     </g>
     <!-- V-RH zone -->
-    <g style="fill: #333333" transform="translate(15.600362 596.83266) scale(0.09 -0.09)">
+    <g transform="translate(15.600362 596.83266) scale(0.09 -0.09)">
      <defs>
       <path id="DejaVuSans-56" d="M 1831 0 
 L 50 4666 
@@ -2092,16 +2076,16 @@ z
     </g>
    </g>
    <g id="label_zone_enthalpy_rh_h_rh_zone">
-    <g id="patch_6">
-     <path d="M 888.275236 147.36341 
-L 939.244767 147.36341 
-L 939.244767 135.053098 
-L 888.275236 135.053098 
+    <g id="patch_4">
+     <path d="M 886.475236 149.16341 
+L 941.044767 149.16341 
+L 941.044767 133.253098 
+L 886.475236 133.253098 
 z
-" style="fill: #ffffff; fill-opacity: 0.8; stroke: #ffffff; stroke-opacity: 0.8; stroke-width: 0.5; stroke-linejoin: miter"/>
+" style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
     </g>
     <!-- H-RH zone -->
-    <g style="fill: #333333" transform="translate(890.075236 143.691692) scale(0.09 -0.09)">
+    <g transform="translate(890.075236 143.691692) scale(0.09 -0.09)">
      <use xlink:href="#DejaVuSans-48"/>
      <use xlink:href="#DejaVuSans-2d" x="75.195312"/>
      <use xlink:href="#DejaVuSans-52" x="111.279297"/>
@@ -2114,16 +2098,8 @@ z
     </g>
    </g>
    <g id="label_vline_constant_dbt_too_cold_16degc">
-    <g id="patch_7">
-     <path d="M 232.2 721.8 
-L 232.2 632.518594 
-L 219.889687 632.518594 
-L 219.889687 721.8 
-z
-" style="fill: #ffffff; fill-opacity: 0.8; stroke: #ffffff; stroke-opacity: 0.8; stroke-width: 0.5; stroke-linejoin: miter"/>
-    </g>
-    <!--   TOO COLD (16캜) -->
-    <g style="fill: #333333" transform="translate(228.528281 720) rotate(-90) scale(0.09 -0.09)">
+    <!--   TOO COLD (16째C) -->
+    <g style="fill: #001848" transform="translate(228.320312 720) rotate(-90) scale(0.1 -0.1)">
      <defs>
       <path id="DejaVuSans-54" d="M -19 4666 
 L 3928 4666 
@@ -2217,16 +2193,8 @@ z
     </g>
    </g>
    <g id="label_vline_constant_dbt_too_hot_30degc">
-    <g id="patch_8">
-     <path d="M 766.2 638.4825 
-L 766.2 721.8 
-L 778.510312 721.8 
-L 778.510312 638.4825 
-z
-" style="fill: #ffffff; fill-opacity: 0.8; stroke: #ffffff; stroke-opacity: 0.8; stroke-width: 0.5; stroke-linejoin: miter"/>
-    </g>
-    <!-- TOO HOT (30캜)   -->
-    <g style="fill: #333333" transform="translate(769.871719 640.2825) rotate(-270) scale(0.09 -0.09)">
+    <!-- TOO HOT (30째C)   -->
+    <g style="fill: #bf002f" transform="translate(770.079687 631.425) rotate(-270) scale(0.1 -0.1)">
      <defs>
       <path id="DejaVuSans-33" d="M 2597 2516 
 Q 3050 2419 3304 2112 
@@ -2299,15 +2267,15 @@ L 19 13.098438
 L 29 13.098438 
 " style="fill: none; stroke-dasharray: 0.75,1.2375; stroke-dashoffset: 0; stroke: #da251d; stroke-width: 0.75"/>
      <defs>
-      <path id="me04e0426aa" d="M 0 3.535534 
+      <path id="m24e1a32515" d="M -0 3.535534 
 L 3.535534 0 
 L 0 -3.535534 
-L -3.535534 0 
+L -3.535534 -0 
 z
 " style="stroke: #da251d; stroke-linejoin: miter"/>
      </defs>
      <g>
-      <use xlink:href="#me04e0426aa" x="19" y="13.098438" style="fill: #da251d; stroke: #da251d; stroke-linejoin: miter"/>
+      <use xlink:href="#m24e1a32515" x="19" y="13.098438" style="fill: #da251d; stroke: #da251d; stroke-linejoin: miter"/>
      </g>
     </g>
     <g id="text_2">
@@ -2341,15 +2309,15 @@ L 19 34.776563
 L 29 34.776563 
 " style="fill: none; stroke: #400080; stroke-width: 2; stroke-linecap: square"/>
      <defs>
-      <path id="mefd070c64e" d="M 0 3.535534 
+      <path id="m6fec345d51" d="M -0 3.535534 
 L 3.535534 0 
 L 0 -3.535534 
-L -3.535534 0 
+L -3.535534 -0 
 z
 " style="stroke: #400080; stroke-linejoin: miter"/>
      </defs>
      <g>
-      <use xlink:href="#mefd070c64e" x="19" y="34.776563" style="fill: #400080; stroke: #400080; stroke-linejoin: miter"/>
+      <use xlink:href="#m6fec345d51" x="19" y="34.776563" style="fill: #400080; stroke: #400080; stroke-linejoin: miter"/>
      </g>
     </g>
     <g id="text_3">
@@ -2432,15 +2400,15 @@ L 19 56.454688
 L 29 56.454688 
 " style="fill: none; stroke: #008056; stroke-width: 2; stroke-linecap: square"/>
      <defs>
-      <path id="m99b6e6d020" d="M 0 3.535534 
+      <path id="mc9ca70fa54" d="M -0 3.535534 
 L 3.535534 0 
 L 0 -3.535534 
-L -3.535534 0 
+L -3.535534 -0 
 z
 " style="stroke: #008056; stroke-linejoin: miter"/>
      </defs>
      <g>
-      <use xlink:href="#m99b6e6d020" x="19" y="56.454688" style="fill: #008056; stroke: #008056; stroke-linejoin: miter"/>
+      <use xlink:href="#mc9ca70fa54" x="19" y="56.454688" style="fill: #008056; stroke: #008056; stroke-linejoin: miter"/>
      </g>
     </g>
     <g id="text_4">
@@ -2532,15 +2500,15 @@ L 19 78.132813
 L 29 78.132813 
 " style="fill: none; stroke: #007fff; stroke-width: 2; stroke-linecap: square"/>
      <defs>
-      <path id="m2a32e26f7c" d="M 0 3.535534 
+      <path id="me8df4de33d" d="M -0 3.535534 
 L 3.535534 0 
 L 0 -3.535534 
-L -3.535534 0 
+L -3.535534 -0 
 z
 " style="stroke: #007fff; stroke-linejoin: miter"/>
      </defs>
      <g>
-      <use xlink:href="#m2a32e26f7c" x="19" y="78.132813" style="fill: #007fff; stroke: #007fff; stroke-linejoin: miter"/>
+      <use xlink:href="#me8df4de33d" x="19" y="78.132813" style="fill: #007fff; stroke: #007fff; stroke-linejoin: miter"/>
      </g>
     </g>
     <g id="text_5">
@@ -2580,15 +2548,15 @@ L 19 99.810938
 L 29 99.810938 
 " style="fill: none; stroke: #7fdfff; stroke-linecap: square"/>
      <defs>
-      <path id="maa4e13d817" d="M 0 3.535534 
+      <path id="m04b62f6128" d="M -0 3.535534 
 L 3.535534 0 
 L 0 -3.535534 
-L -3.535534 0 
+L -3.535534 -0 
 z
 " style="stroke: #7fdfff; stroke-linejoin: miter"/>
      </defs>
      <g>
-      <use xlink:href="#maa4e13d817" x="19" y="99.810938" style="fill: #7fdfff; stroke: #7fdfff; stroke-linejoin: miter"/>
+      <use xlink:href="#m04b62f6128" x="19" y="99.810938" style="fill: #7fdfff; stroke: #7fdfff; stroke-linejoin: miter"/>
      </g>
     </g>
     <g id="text_6">
