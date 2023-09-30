@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.3] - ✨ Add customizable annotations - 2023-09-30
+
+From @tadashiorigami in #44, thanks!
+
+##### Changes
+
+- ✨ Add styling for annotations (labeled curves in the chart), customizing their **font-size, color, and bbox style**.
+- 🔧 Support negative `constant_h_labels_loc` settings, to strech the constant h line to the left inside the saturated area, giving the chart an aspect closer to the popular ASHRAE chart.
+- ✅ Add unit test with example from @tadashiorigami, with styled annotations with bbox and hack for negative constant_h_labels_loc
+- 📦️ Bump version and update matplotlib to 3.8.0
+
 ## [0.9.2] - 🐛 Fix install with new pydantic v2 - 2023-07-30
 
 ##### Changes
