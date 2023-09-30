@@ -196,7 +196,6 @@ def plot_curve(
         )
         gid_line = make_item_gid(kind or "unknown", name=curve.curve_id)
         reg_artist(gid_line, artist_line, artists)
-
         if curve.label is not None:
             reg_artist(
                 "label_" + gid_line, add_label_to_curve(curve, ax), artists

@@ -1,5 +1,4 @@
 import json
-from pathlib import Path
 from typing import Any
 
 from pydantic import parse_obj_as
@@ -34,9 +33,7 @@ def test_default_config():
         .replace(".0\n", "\n")
         .replace(".0]", "]")
     )
-    stored_data = json.loads(
-        Path(DEFAULT_CHART_CONFIG_FILE).read_text("UTF-8")
-    )
+    stored_data = json.loads(DEFAULT_CHART_CONFIG_FILE.read_text())
     assert json.dumps(stored_data, indent=2) == simple_repr
 
 
@@ -80,9 +77,8 @@ def test_config_presets(style_file: str):
     p_file = PATH_STYLES / style_file
     assert p_file.exists()
     parsed_config = ChartConfig.parse_file(p_file)
-    # print(p_file.read_text())
     # old method, without pydantic
-    stored_data = json.loads(p_file.read_text("UTF-8"))
+    stored_data = json.loads(p_file.read_text())
 
     old_config_data = _update_config(ChartConfig().dict(), stored_data)
     old_config = ChartConfig.validate(old_config_data)
