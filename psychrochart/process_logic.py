@@ -122,6 +122,7 @@ def _gen_interior_lines(config: ChartConfig, chart: PsychroChartModel) -> None:
             style=config.constant_rh,
             label_loc=config.chart_params.constant_rh_labels_loc,
             family_label=config.chart_params.constant_rh_label,
+            annotation_style=config.constant_rh_annotation,
         )
     else:
         chart.constant_rh_data = None
@@ -130,16 +131,19 @@ def _gen_interior_lines(config: ChartConfig, chart: PsychroChartModel) -> None:
     if config.chart_params.with_constant_h:
         step = config.chart_params.constant_h_step
         start, end = config.chart_params.range_h
+        delta_t = config.limits.range_temp_c[1] - config.limits.range_temp_c[0]
         chart.constant_h_data = make_constant_enthalpy_lines(
             config.w_min,
             chart.pressure,
             enthalpy_values=np.arange(start, end, step),
+            delta_t=delta_t,
             h_label_values=config.chart_params.constant_h_labels,
             style=config.constant_h,
             label_loc=config.chart_params.constant_h_labels_loc,
             family_label=config.chart_params.constant_h_label,
             saturation_curve=chart.saturation,
             dbt_min_seen=dbt_min_seen,
+            annotation_style=config.constant_h_annotation,
         )
     else:
         chart.constant_h_data = None
@@ -158,6 +162,7 @@ def _gen_interior_lines(config: ChartConfig, chart: PsychroChartModel) -> None:
             family_label=config.chart_params.constant_v_label,
             saturation_curve=chart.saturation,
             dbt_min_seen=dbt_min_seen,
+            annotation_style=config.constant_v_annotation,
         )
     else:
         chart.constant_v_data = None
@@ -177,6 +182,7 @@ def _gen_interior_lines(config: ChartConfig, chart: PsychroChartModel) -> None:
             style=config.constant_wet_temp,
             label_loc=config.chart_params.constant_wet_temp_labels_loc,
             family_label=config.chart_params.constant_wet_temp_label,
+            annotation_style=config.constant_wet_temp_annotation,
         )
     else:
         chart.constant_wbt_data = None

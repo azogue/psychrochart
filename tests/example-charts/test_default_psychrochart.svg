@@ -9,7 +9,7 @@
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.7.2, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.8.0, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -3281,15 +3281,15 @@ z
    </g>
    <g id="label_zone_dbt_rh_summer">
     <g id="patch_1">
-     <path d="M 515.072375 468.218132 
-L 565.503625 468.218132 
-L 565.503625 450.540007 
-L 515.072375 450.540007 
+     <path d="M 517.593938 467.334225 
+L 562.982063 467.334225 
+L 562.982063 451.423913 
+L 517.593938 451.423913 
 z
 " style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
     </g>
     <!-- Summer -->
-    <g style="fill: #bf8f00; opacity: 0.6" transform="translate(519.072375 462.138444) scale(0.1 -0.1)">
+    <g transform="translate(521.193938 461.862507) scale(0.09 -0.09)">
      <defs>
       <path id="DejaVuSans-53" d="M 3425 4513 
 L 3425 3897 
@@ -3333,15 +3333,15 @@ z
    </g>
    <g id="label_zone_dbt_rh_winter">
     <g id="patch_2">
-     <path d="M 477.18275 502.528043 
-L 518.14525 502.528043 
-L 518.14525 484.849918 
-L 477.18275 484.849918 
+     <path d="M 479.230875 501.644137 
+L 516.097125 501.644137 
+L 516.097125 485.733824 
+L 479.230875 485.733824 
 z
 " style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
     </g>
     <!-- Winter -->
-    <g style="fill: #5f7799" transform="translate(481.18275 496.448355) scale(0.1 -0.1)">
+    <g transform="translate(482.830875 496.172418) scale(0.09 -0.09)">
      <defs>
       <path id="DejaVuSans-57" d="M 213 4666 
 L 850 4666 

@@ -151,6 +151,26 @@ custom_style = {
         "with_constant_h": False,
         "with_constant_wet_temp": False,
         "with_zones": False
+    },
+    "constant_v_annotation": {
+        "color":[0.2, 0.2, 0.2],
+        "fontsize":7,
+        "bbox": dict(boxstyle="square,pad=-0.2", color=[1, 1, 1, 0.9], lw=0.5)
+    },
+    "constant_h_annotation": {
+        "color":[0.2, 0.2, 0.2],
+        "fontsize":6,
+        "bbox": dict(boxstyle="square,pad=-0.1", color=[1, 1, 1, 0.9], lw=0.5)
+    },
+    "constant_wet_temp_annotation": {
+        "color":[0.2, 0.2, 0.2],
+        "fontsize":7,
+        "bbox": dict(boxstyle="square,pad=0", color=[1, 1, 1, 0.9], lw=0.5)
+    },
+    "constant_rh_annotation": {
+        "color":[0.2, 0.2, 0.2],
+        "fontsize":7,
+        "bbox": dict(boxstyle="square,pad=0", color=[1, 1, 1, 0.9], lw=0.5)
     }
 }
 

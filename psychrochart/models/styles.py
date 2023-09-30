@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import Extra, Field, root_validator, validator
 
 from psychrochart.models.base import BaseConfig
@@ -35,6 +37,25 @@ class LabelStyle(BaseConfig):
     @validator("color", pre=True, always=True)
     def _color_arr(cls, v, values):
         return parse_color(v)
+
+
+class AnnotationStyle(BaseConfig):
+    """Container for matplotlib styling of curve annotations."""
+
+    color: list[float] | None = None
+    fontsize: int | float = Field(default=9)
+    bbox: dict[str, Any] = Field(default_factory=dict)
+
+    class Config:
+        extra = Extra.allow
+
+    @validator("color", pre=True, always=True)
+    def _color_arr(cls, v, values):
+        return parse_color(v) if v else None
+
+    def export_style(self) -> dict[str, Any]:
+        """Get enabled styling kwargs for curve annotation."""
+        return {key: value for key, value in self.dict().items() if value}
 
 
 class TickStyle(BaseConfig):

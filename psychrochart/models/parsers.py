@@ -15,12 +15,12 @@ from psychrochart.models.annots import (
 from psychrochart.models.config import ChartConfig, ChartZones, DEFAULT_ZONES
 
 PATH_STYLES = Path(__file__).absolute().parents[1] / "chart_styles"
-DEFAULT_CHART_CONFIG_FILE = str(PATH_STYLES / "default_chart_config.json")
-ASHRAE_CHART_CONFIG_FILE = str(PATH_STYLES / "ashrae_chart_style.json")
-ASHRAE_IP_CHART_CONFIG_FILE = str(PATH_STYLES / "ashrae_ip_chart_style.json")
-INTERIOR_CHART_CONFIG_FILE = str(PATH_STYLES / "interior_chart_style.json")
-MINIMAL_CHART_CONFIG_FILE = str(PATH_STYLES / "minimal_chart_style.json")
-DEFAULT_ZONES_FILE = str(PATH_STYLES / "default_comfort_zones.json")
+DEFAULT_CHART_CONFIG_FILE = PATH_STYLES / "default_chart_config.json"
+ASHRAE_CHART_CONFIG_FILE = PATH_STYLES / "ashrae_chart_style.json"
+ASHRAE_IP_CHART_CONFIG_FILE = PATH_STYLES / "ashrae_ip_chart_style.json"
+INTERIOR_CHART_CONFIG_FILE = PATH_STYLES / "interior_chart_style.json"
+MINIMAL_CHART_CONFIG_FILE = PATH_STYLES / "minimal_chart_style.json"
+DEFAULT_ZONES_FILE = PATH_STYLES / "default_comfort_zones.json"
 
 STYLES = {
     "ashrae": ASHRAE_CHART_CONFIG_FILE,
@@ -35,7 +35,7 @@ T = TypeVar("T", bound=BaseModel)
 
 def obj_loader(
     data_cls: Type[T],
-    data: T | dict[str, Any] | str | None = None,
+    data: T | dict[str, Any] | str | Path | None = None,
     default_obj: T | None = None,
 ) -> T:
     """Load pydantic model from disk, or raw, with optional defaults."""
@@ -45,13 +45,13 @@ def obj_loader(
         return data
     if isinstance(data, str) and data in STYLES:
         return data_cls.parse_file(STYLES[data])
-    if isinstance(data, str):
+    if isinstance(data, (str, Path)):
         return data_cls.parse_file(data)
     return data_cls(**data)
 
 
 def load_config(
-    config: ChartConfig | dict[str, Any] | str | None = None
+    config: ChartConfig | dict[str, Any] | Path | str | None = None
 ) -> ChartConfig:
     """Load the plot params for the psychrometric chart."""
     return obj_loader(ChartConfig, config)

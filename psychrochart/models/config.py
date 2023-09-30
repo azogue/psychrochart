@@ -3,6 +3,7 @@ from typing import Literal
 from pydantic import Extra, Field, root_validator
 
 from psychrochart.models.styles import (
+    AnnotationStyle,
     BaseConfig,
     CurveStyle,
     LabelStyle,
@@ -38,6 +39,7 @@ _DEFAULT_STYLE_DRY_TEMP = CurveStyle(
 _DEFAULT_STYLE_HUMID = CurveStyle(
     color=[0.0, 0.125, 0.376], linewidth=0.75, linestyle=":"
 )
+_DEFAULT_STYLE_CURVES_ANNOTATION = AnnotationStyle(fontsize=10)
 
 ZoneKind = Literal[
     "dbt-rh", "xy-points", "enthalpy-rh", "volume-rh", "dbt-wmax"
@@ -85,6 +87,7 @@ class ChartZone(BaseConfig):
     label: str | None = Field(default=None)
     zone_type: ZoneKind = Field(default="xy-points")
     style: ZoneStyle = Field(default_factory=ZoneStyle)
+    annotation_style: AnnotationStyle = Field(default_factory=AnnotationStyle)
 
     @root_validator
     def _validate_zone_definition(cls, values):
@@ -131,7 +134,7 @@ class ChartParams(BaseConfig):
     constant_h_step: float = Field(default=5)
     range_h: tuple[float, float] = Field(default=_DEFAULT_RANGE_ENTALPHY)
     constant_h_labels: list[float] = Field(default=_DEFAULT_CONSTANT_H_LABELS)
-    constant_h_labels_loc: float = Field(default=1.0)
+    constant_h_labels_loc: float = Field(default=1)
 
     with_constant_wet_temp: bool = Field(default=True)
     constant_wet_temp_label: str | None = Field(
@@ -182,6 +185,18 @@ class ChartConfig(BaseConfig):
     constant_wet_temp: CurveStyle = Field(default=_DEFAULT_STYLE_WET_TEMP)
     constant_dry_temp: CurveStyle = Field(default=_DEFAULT_STYLE_DRY_TEMP)
     constant_humidity: CurveStyle = Field(default=_DEFAULT_STYLE_HUMID)
+    constant_v_annotation: AnnotationStyle = Field(
+        default=_DEFAULT_STYLE_CURVES_ANNOTATION
+    )
+    constant_h_annotation: AnnotationStyle = Field(
+        default=_DEFAULT_STYLE_CURVES_ANNOTATION
+    )
+    constant_wet_temp_annotation: AnnotationStyle = Field(
+        default=_DEFAULT_STYLE_CURVES_ANNOTATION
+    )
+    constant_rh_annotation: AnnotationStyle = Field(
+        default=_DEFAULT_STYLE_CURVES_ANNOTATION
+    )
 
     chart_params: ChartParams = Field(default_factory=ChartParams)
 
