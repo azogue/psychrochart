@@ -97,6 +97,29 @@ def test_custom_style_psychrochart():
             "constant_humid_label_include_limits": False,
             "with_zones": False,
         },
+        "constant_v_annotation": {
+            "color": [0.2, 0.2, 0.2],
+            "fontsize": 7,
+            "bbox": dict(
+                boxstyle="square,pad=-0.2", color=[1, 1, 1, 0.9], lw=0.5
+            ),
+        },
+        "constant_h_annotation": {
+            "color": [0.2, 0.2, 0.2],
+            "fontsize": 6,
+            "bbox": dict(
+                boxstyle="square,pad=-0.1", color=[1, 1, 1, 0.9], lw=0.5
+            ),
+        },
+        "constant_wet_temp_annotation": {
+            "color": "#7f1cd0",
+            "fontsize": 15,
+            "bbox": dict(boxstyle="round", ec="#0909f310", lw=0.5),
+        },
+        "constant_rh_annotation": {
+            "fontsize": 12,
+            "bbox": dict(boxstyle="square,pad=2", color=[1, 1, 1, 0.3]),
+        },
     }
     chart = PsychroChart.create(custom_style)
     chart.plot()
@@ -109,8 +132,9 @@ def test_custom_style_psychrochart_2():
     custom_style = {
         "chart_params": {
             "constant_h_label": None,
-            "constant_h_labels": [30, 40, 50, 60, 70, 80],
+            "constant_h_labels": [0, 10, 20, 30, 40, 50, 60, 70],
             "constant_h_step": 5,
+            "constant_h_labels_loc": -0.1,
             "constant_humid_label": None,
             "constant_humid_label_include_limits": False,
             "constant_humid_label_step": 5,
@@ -151,6 +175,12 @@ def test_custom_style_psychrochart_2():
             "linestyle": "-",
             "linewidth": 2,
         },
+        "constant_h_annotation": {
+            "fontsize": 15,
+            "bbox": dict(
+                boxstyle="square,pad=-0.1", color=[1, 1, 1, 0.9], lw=0.5
+            ),
+        },
         "constant_humidity": {
             "color": [0.0, 0.125, 0.376, 0.7],
             "linestyle": ":",
@@ -165,6 +195,13 @@ def test_custom_style_psychrochart_2():
             "color": [0.0, 0.502, 0.337, 0.7],
             "linestyle": "-",
             "linewidth": 1,
+        },
+        "constant_v_annotation": {
+            "color": [0.2, 0.2, 0.2],
+            "fontsize": 12,
+            "bbox": dict(
+                boxstyle="square,pad=-0.2", color=[1, 1, 1, 0.9], lw=0.5
+            ),
         },
         "constant_wet_temp": {
             "color": [0.498, 0.875, 1.0, 0.7],
