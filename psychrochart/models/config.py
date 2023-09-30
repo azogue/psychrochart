@@ -39,16 +39,7 @@ _DEFAULT_STYLE_DRY_TEMP = CurveStyle(
 _DEFAULT_STYLE_HUMID = CurveStyle(
     color=[0.0, 0.125, 0.376], linewidth=0.75, linestyle=":"
 )
-_DEFAULT_STYLE_CURVES_ANNOTATION = AnnotationStyle(
-    color=[0.2, 0.2, 0.2],
-    fontsize=10,
-    bbox=dict(boxstyle="square,pad=0.1", color=[1, 1, 1, 0.7], lw=0.5),
-)
-_DEFAULT_STYLE_H_ANNOTATION = AnnotationStyle(
-    color=[0.2, 0.2, 0.2],
-    fontsize=10,
-    bbox=dict(boxstyle="square,pad=0.1", color=[1, 1, 1, 0], lw=0.5),
-)
+_DEFAULT_STYLE_CURVES_ANNOTATION = AnnotationStyle(fontsize=10)
 
 ZoneKind = Literal[
     "dbt-rh", "xy-points", "enthalpy-rh", "volume-rh", "dbt-wmax"
@@ -198,7 +189,7 @@ class ChartConfig(BaseConfig):
         default=_DEFAULT_STYLE_CURVES_ANNOTATION
     )
     constant_h_annotation: AnnotationStyle = Field(
-        default=_DEFAULT_STYLE_H_ANNOTATION
+        default=_DEFAULT_STYLE_CURVES_ANNOTATION
     )
     constant_wet_temp_annotation: AnnotationStyle = Field(
         default=_DEFAULT_STYLE_CURVES_ANNOTATION

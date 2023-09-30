@@ -108,7 +108,7 @@ def add_label_to_curve(
         text_style["va"] = va
 
     if curve.annotation_style is not None:
-        text_style.update(curve.annotation_style.dict())
+        text_style.update(curve.annotation_style.export_style())
 
     return _annotate_label(ax, label, text_x, text_y, rotation, text_style)
 
@@ -177,7 +177,7 @@ def plot_curve(
 
             assert isinstance(curve.style, ZoneStyle)
             if curve.annotation_style is not None:
-                style_params.update(curve.annotation_style.dict())
+                style_params.update(curve.annotation_style.export_style())
             reg_artist(
                 "label_" + gid_zone,
                 _annotate_label(
