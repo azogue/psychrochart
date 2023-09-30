@@ -353,9 +353,14 @@ def make_constant_enthalpy_lines(
                 type_curve="constant_h_data",
                 internal_value=round(h, 3),
             )
-            for t_sat, w_sat, t_max, h in zip(
-                t_sat_points, w_in_sat, temps_max_constant_h, h_objective
+            for t_sat, w_sat, t_max, h, curve in zip(
+                t_sat_points,
+                w_in_sat,
+                temps_max_constant_h,
+                h_objective,
+                curves,
             )
+            if curve.label is not None
         ]
 
     return PsychroCurves(
