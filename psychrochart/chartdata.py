@@ -1,4 +1,5 @@
 """A library to make psychrometric charts and overlay information in them."""
+
 import logging
 from typing import Sequence
 

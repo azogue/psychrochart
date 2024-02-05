@@ -1,4 +1,5 @@
 """Test that Psychrochart object is serializable."""
+
 import pickle
 
 from psychrochart import load_config, PsychroChart

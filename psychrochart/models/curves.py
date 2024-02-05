@@ -45,12 +45,12 @@ class PsychroCurve(BaseModel):
     def dict(
         self,
         *,
-        include: AbstractSet[int | str]
-        | Mapping[int | str, Any]
-        | None = None,
-        exclude: AbstractSet[int | str]
-        | Mapping[int | str, Any]
-        | None = None,
+        include: (
+            AbstractSet[int | str] | Mapping[int | str, Any] | None
+        ) = None,
+        exclude: (
+            AbstractSet[int | str] | Mapping[int | str, Any] | None
+        ) = None,
         by_alias: bool = False,
         skip_defaults: bool | None = None,
         exclude_unset: bool = False,

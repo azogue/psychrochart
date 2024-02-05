@@ -1,4 +1,5 @@
 """Tests utilities."""
+
 import json
 import logging
 
