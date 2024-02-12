@@ -1,4 +1,5 @@
 """Tests plotting."""
+
 import numpy as np
 
 from psychrochart import PsychroChart

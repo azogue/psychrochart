@@ -1,4 +1,5 @@
 """A library to make psychrometric charts and overlay information in them."""
+
 import gc
 from io import StringIO
 from pathlib import Path
@@ -151,9 +152,9 @@ class PsychroChart(PsychroChartModel):
         self,
         points: dict[str, Any],
         connectors: list[dict[str, Any]] | None = None,
-        convex_groups: list[dict[str, Any]]
-        | list[ConvexGroupTuple]
-        | None = None,
+        convex_groups: (
+            list[dict[str, Any]] | list[ConvexGroupTuple] | None
+        ) = None,
         scatter_style: dict[str, Any] | None = None,
     ) -> ChartAnnots:
         """Append individual points, connectors and groups to the plot.
