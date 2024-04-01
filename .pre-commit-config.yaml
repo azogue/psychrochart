@@ -5,7 +5,7 @@ exclude: >
   )$
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.2.0
+    rev: v0.3.5
     hooks:
       - id: ruff
         args:
@@ -18,7 +18,7 @@ repos:
         args:
           - --dont-order-by-type
   - repo: https://github.com/psf/black
-    rev: "24.1.1"
+    rev: "24.3.0"
     hooks:
       - id: black
         name: Format code (black)
@@ -35,7 +35,7 @@ repos:
     hooks:
       - id: prettier
   - repo: "https://github.com/pre-commit/mirrors-mypy"
-    rev: "v1.8.0"
+    rev: "v1.9.0"
     hooks:
       - id: "mypy"
         name: "Check type hints (mypy)"
