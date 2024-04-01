@@ -56,7 +56,7 @@ def test_rh_delimited_zones():
     config.chart_params.constant_h_step = 5
     config.chart_params.constant_h_labels = [40, 55]
 
-    hrh_zone1 = ChartZone.validate(_RAW_ZONE_H_RH)
+    hrh_zone1 = ChartZone.model_validate(_RAW_ZONE_H_RH)
     hrh_zone2 = ChartZone(
         zone_type="enthalpy-rh",
         points_x=[20, 35],

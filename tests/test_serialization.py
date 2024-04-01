@@ -12,9 +12,14 @@ def test_0_serialize_psychrochart():
     chart = PsychroChart.create()
     chart.save(path_svg)
     (TEST_BASEDIR / "chart.pickle").write_bytes(pickle.dumps(chart))
-    (TEST_BASEDIR / "chart.json").write_text(chart.json(indent=2))
+    (TEST_BASEDIR / "chart.json").write_text(chart.model_dump_json(indent=2))
 
-    assert PsychroChart.parse_raw(chart.json()) == chart
+    assert (
+        PsychroChart.model_validate_json(
+            chart.model_dump_json()
+        ).model_dump_json()
+        == chart.model_dump_json()
+    )
 
 
 def test_1_unpickle_psychrochart():
@@ -24,7 +29,9 @@ def test_1_unpickle_psychrochart():
 
 
 def test_1_load_json_psychrochart():
-    chart = PsychroChart.parse_file(TEST_BASEDIR / "chart.json")
+    chart = PsychroChart.model_validate_json(
+        (TEST_BASEDIR / "chart.json").read_text()
+    )
     path_svg = TEST_BASEDIR / "test_from_json.svg"
     chart.save(path_svg)
 
@@ -48,10 +55,16 @@ def test_workflow_with_json_serializing():
     store_test_chart(custom_chart, "custom-chart-1.svg", png=True)
 
     # serialize the config for future uses
-    assert chart_config.json() == custom_chart.config.json()
-    (TEST_BASEDIR / "custom-chart-config.json").write_text(chart_config.json())
+    assert (
+        chart_config.model_dump_json() == custom_chart.config.model_dump_json()
+    )
+    (TEST_BASEDIR / "custom-chart-config.json").write_text(
+        chart_config.model_dump_json()
+    )
     # or even the full psychrochart
-    (TEST_BASEDIR / "custom-chart.json").write_text(custom_chart.json())
+    (TEST_BASEDIR / "custom-chart.json").write_text(
+        custom_chart.model_dump_json()
+    )
 
     # reuse config
     custom_2 = PsychroChart.create(
@@ -60,7 +73,9 @@ def test_workflow_with_json_serializing():
     store_test_chart(custom_2, "custom-chart-2.svg", png=True)
 
     # or reload chart from disk
-    custom_3 = PsychroChart.parse_file(TEST_BASEDIR / "custom-chart.json")
+    custom_3 = PsychroChart.model_validate_json(
+        (TEST_BASEDIR / "custom-chart.json").read_text()
+    )
     store_test_chart(custom_3, "custom-chart-3.svg", png=True)
 
     # anyway it produces the same psychrochart

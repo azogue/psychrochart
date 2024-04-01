@@ -1,7 +1,7 @@
 import json
 from typing import Any
 
-from pydantic import parse_obj_as
+from pydantic import TypeAdapter
 import pytest
 
 from psychrochart.models.annots import ChartAnnots, ChartArea, ChartPoint
@@ -24,17 +24,19 @@ from psychrochart.process_logic import set_unit_system
 
 def test_default_config():
     default_config = ChartConfig()
-    config = ChartConfig.parse_file(DEFAULT_CHART_CONFIG_FILE)
+    config = ChartConfig.model_validate_json(
+        DEFAULT_CHART_CONFIG_FILE.read_text()
+    )
     assert default_config == config
 
     simple_repr = (
-        config.json(indent=2)
+        config.model_dump_json(indent=2)
         .replace(".0,", ",")
         .replace(".0\n", "\n")
         .replace(".0]", "]")
     )
     stored_data = json.loads(DEFAULT_CHART_CONFIG_FILE.read_text())
-    assert json.dumps(stored_data, indent=2) == simple_repr
+    assert json.dumps(stored_data, indent=2, ensure_ascii=False) == simple_repr
 
 
 def _update_config(
@@ -76,18 +78,18 @@ def _update_config(
 def test_config_presets(style_file: str):
     p_file = PATH_STYLES / style_file
     assert p_file.exists()
-    parsed_config = ChartConfig.parse_file(p_file)
+    parsed_config = ChartConfig.model_validate_json(p_file.read_text())
     # old method, without pydantic
     stored_data = json.loads(p_file.read_text())
 
-    old_config_data = _update_config(ChartConfig().dict(), stored_data)
-    old_config = ChartConfig.validate(old_config_data)
+    old_config_data = _update_config(ChartConfig().model_dump(), stored_data)
+    old_config = ChartConfig.model_validate(old_config_data)
 
     # check equivalency
     assert parsed_config == old_config
-    assert parsed_config.json(indent=2).replace(".0,", ",").replace(
+    assert parsed_config.model_dump_json(indent=2).replace(".0,", ",").replace(
         ".0\n", "\n"
-    ).replace(".0]", "]") == old_config.json(indent=2).replace(
+    ).replace(".0]", "]") == old_config.model_dump_json(indent=2).replace(
         ".0,", ","
     ).replace(
         ".0\n", "\n"
@@ -99,7 +101,7 @@ def test_config_presets(style_file: str):
 def test_zone_presets():
     p_file = PATH_STYLES / "default_comfort_zones.json"
     assert p_file.exists()
-    parsed_zones = ChartZones.parse_file(p_file)
+    parsed_zones = ChartZones.model_validate_json(p_file.read_text())
     assert parsed_zones == DEFAULT_ZONES
 
 
@@ -107,7 +109,7 @@ def test_styles_with_extra_fields():
     style_extra = CurveStyle(
         color=[0.3, 0.3, 0.3], linewidth=2, linestyle="-", marker="o"
     )
-    assert CurveStyle.validate(style_extra.dict()) == style_extra
+    assert CurveStyle.model_validate(style_extra.model_dump()) == style_extra
     assert style_extra.marker == "o"
 
 
@@ -148,28 +150,30 @@ def test_chart_zone_definition():
         "points_y": [45.0, 60.0, 25.0],
         **style,
     }
-    zone1 = ChartZone.validate(z1)
+    zone1 = ChartZone.model_validate(z1)
     assert zone1.zone_type == "xy-points"
     assert zone1.label is None
 
     # invalid number of points
     with pytest.raises(ValueError):
-        ChartZone.validate({"points_x": [], "points_y": [], **style})
+        ChartZone.model_validate({"points_x": [], "points_y": [], **style})
     with pytest.raises(ValueError):
-        ChartZone.validate({"points_x": [25.0], "points_y": [25.0], **style})
+        ChartZone.model_validate(
+            {"points_x": [25.0], "points_y": [25.0], **style}
+        )
     with pytest.raises(ValueError):
-        ChartZone.validate(
+        ChartZone.model_validate(
             {"points_x": [25.0, 25.0], "points_y": [25.0, 25.0, 25.0], **style}
         )
 
     # dbt-rh zones have 2 points: (dbt-min, RH-min),  (dbt-max, RH-max)
     z1["zone_type"] = "dbt-rh"
     with pytest.raises(ValueError):
-        ChartZone.validate(z1)
+        ChartZone.model_validate(z1)
 
     z1["points_x"] = [23.0, 25.0]
     z1["points_y"] = [45.0, 60.0]
-    zone2 = ChartZone.validate(z1)
+    zone2 = ChartZone.model_validate(z1)
     assert zone2.zone_type == "dbt-rh"
     assert zone2.label is None
 
@@ -189,7 +193,7 @@ def test_chart_area_schema():
             "fill_style": {"color": "darkorange", "lw": 0},
         },
     ]
-    a1, a2 = parse_obj_as(list[ChartArea], raw_areas_as_dict)
+    a1, a2 = TypeAdapter(list[ChartArea]).validate_python(raw_areas_as_dict)
     assert len(set(a1.point_names + a2.point_names)) == 6
     assert a1.fill_style == a1.line_style
     assert a2.fill_style == a2.line_style
@@ -273,8 +277,8 @@ def test_chart_annots_schema():
         # "areas": [],
         # "use_scatter": False,
     }
-    example_annots = ChartAnnots.validate(raw_annots)
-    assert example_annots.dict(exclude_unset=True) == raw_annots
+    example_annots = ChartAnnots.model_validate(raw_annots)
+    assert example_annots.model_dump(exclude_unset=True) == raw_annots
     assert len(example_annots.points) == 4
     assert len(example_annots.connectors) == 2
 
@@ -301,7 +305,7 @@ def test_chart_annots_definition():
         points={"p1": {"xy": [3, 4]}, "p2": {"xy": [5, 6]}},
         connectors=[{"start": "p1", "end": "p2", "style": {"lw": 7}}],
     )
-    # print(annot_2.json(indent=2))
+    # print(annot_2.model_dump_json(indent=2))
     assert annot_2.connectors[0].style.linewidth == 7
     assert annot_2.connectors[0].label is None
 

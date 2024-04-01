@@ -31,7 +31,7 @@ def test_chart_overlay_points_and_zones():
 
     # bad zone definition
     with pytest.raises(ValueError):
-        ChartZone.validate(
+        ChartZone.model_validate(
             {"zone_type": "not_recognized_type", "label": "Bad zone"}
         )
 

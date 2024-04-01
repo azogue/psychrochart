@@ -11,8 +11,8 @@ def test_default_config():
     config_default = ChartConfig()
     assert not config_default.has_changed
 
-    config_json = ChartConfig.parse_file(
-        PATH_STYLES / "default_chart_config.json"
+    config_json = ChartConfig.model_validate_json(
+        (PATH_STYLES / "default_chart_config.json").read_text()
     )
     assert not config_json.has_changed
 
@@ -22,9 +22,9 @@ def test_default_config():
     config_style = PsychroChart.create("default").config
     assert config_style.has_changed
 
-    assert config_default == config_style
-    assert config_style_none == config_style
-    assert config_json == config_style
+    assert config_default.model_dump() == config_style.model_dump()
+    assert config_style_none.model_dump() == config_style.model_dump()
+    assert config_json.model_dump() == config_style.model_dump()
 
 
 def test_config_mutation():

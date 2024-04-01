@@ -27,10 +27,10 @@ def test_load_plot_config():
 
     # Test update config:
     config_custom = load_config(config=_PATH_CONFIG_UPDATE)
-    assert default_config.dict() != config_custom.dict()
-    assert "constant_h" in config_custom.dict()
-    assert "constant_v" in config_custom.dict()
-    assert "test_fake_param" not in config_custom.dict()
+    assert default_config.model_dump() != config_custom.model_dump()
+    assert "constant_h" in config_custom.model_dump()
+    assert "constant_v" in config_custom.model_dump()
+    assert "test_fake_param" not in config_custom.model_dump()
 
     # Test config styles:
     default_config_s = load_config(config="default")
