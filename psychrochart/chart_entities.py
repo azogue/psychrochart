@@ -2,7 +2,7 @@ import logging
 from uuid import uuid4
 
 from matplotlib.artist import Artist
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from slugify import slugify
 
 
@@ -49,8 +49,7 @@ class ChartRegistry(BaseModel):
     # axes artists
     layout: dict[str, Artist] = Field(default_factory=dict)
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def render_tree(self) -> str:  # pragma: no cover
         """Helper method to show all IDs in plot."""

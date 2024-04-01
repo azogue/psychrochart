@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import Extra, Field, root_validator
+from pydantic import Field, model_validator
 
 from psychrochart.models.styles import (
     AnnotationStyle,
@@ -89,20 +89,18 @@ class ChartZone(BaseConfig):
     style: ZoneStyle = Field(default_factory=ZoneStyle)
     annotation_style: AnnotationStyle = Field(default_factory=AnnotationStyle)
 
-    @root_validator
-    def _validate_zone_definition(cls, values):
-        shape = len(values["points_x"]), len(values["points_y"])
+    @model_validator(mode="after")
+    def _validate_zone_definition(self):
+        shape = len(self.points_x), len(self.points_y)
         if shape[0] < 2 or shape[1] < 2 or shape[0] != shape[1]:
             raise ValueError(f"Invalid shape: {shape}")
-        if values["zone_type"] != "xy-points" and (
+        if self.zone_type != "xy-points" and (
             shape != (2, 2)
-            or (values["points_x"][1] < values["points_x"][0])
-            or (values["points_y"][1] < values["points_y"][0])
+            or (self.points_x[1] < self.points_x[0])
+            or (self.points_y[1] < self.points_y[0])
         ):
-            raise ValueError(
-                f"Invalid shape for {values['zone_type']}: {shape}"
-            )
-        return values
+            raise ValueError(f"Invalid shape for {self.zone_type}: {shape}")
+        return self
 
 
 class ChartZones(BaseConfig):
@@ -199,9 +197,6 @@ class ChartConfig(BaseConfig):
     )
 
     chart_params: ChartParams = Field(default_factory=ChartParams)
-
-    class Config:
-        extra = Extra.ignore
 
     @property
     def dbt_min(self) -> float:

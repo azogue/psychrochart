@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import Extra, Field, root_validator, validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from psychrochart.models.base import BaseConfig
 from psychrochart.models.validators import parse_color, reduce_field_abrs
@@ -13,14 +13,14 @@ class CurveStyle(BaseConfig):
     linewidth: float = Field(default=1)
     linestyle: str = Field(default="-")
 
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
-    @validator("color", pre=True, always=True)
-    def _color_arr(cls, v, values):
-        return parse_color(v)
+    @field_validator("color", mode="before")
+    def _color_arr(cls, value):
+        return parse_color(value)
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def _remove_aliases(cls, values):
         return reduce_field_abrs(values)
 
@@ -31,12 +31,11 @@ class LabelStyle(BaseConfig):
     color: list[float] = Field(default=[0.2, 0.2, 0.2])
     fontsize: int | float = Field(default=9)
 
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
-    @validator("color", pre=True, always=True)
-    def _color_arr(cls, v, values):
-        return parse_color(v)
+    @field_validator("color", mode="before")
+    def _color_arr(cls, value):
+        return parse_color(value)
 
 
 class AnnotationStyle(BaseConfig):
@@ -46,16 +45,17 @@ class AnnotationStyle(BaseConfig):
     fontsize: int | float = Field(default=9)
     bbox: dict[str, Any] = Field(default_factory=dict)
 
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
-    @validator("color", pre=True, always=True)
-    def _color_arr(cls, v, values):
-        return parse_color(v) if v else None
+    @field_validator("color", mode="before")
+    def _color_arr(cls, value):
+        return parse_color(value) if value else None
 
     def export_style(self) -> dict[str, Any]:
         """Get enabled styling kwargs for curve annotation."""
-        return {key: value for key, value in self.dict().items() if value}
+        return {
+            key: value for key, value in self.model_dump().items() if value
+        }
 
 
 class TickStyle(BaseConfig):
@@ -64,12 +64,11 @@ class TickStyle(BaseConfig):
     direction: str = Field(default="out")
     color: list[float] = Field(default=[0.2, 0.2, 0.2])
 
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
-    @validator("color", pre=True, always=True)
-    def _color_arr(cls, v, values):
-        return parse_color(v)
+    @field_validator("color", mode="before")
+    def _color_arr(cls, value):
+        return parse_color(value)
 
 
 class ZoneStyle(BaseConfig):
@@ -80,16 +79,18 @@ class ZoneStyle(BaseConfig):
     linewidth: float = Field(default=2)
     linestyle: str = Field(default="--")
 
-    class Config:
-        extra = Extra.allow
+    model_config = ConfigDict(extra="allow")
 
-    @validator("edgecolor", "facecolor", pre=True, always=True)
-    def _color_arr(cls, v, values):
-        return parse_color(v)
+    @field_validator("edgecolor", "facecolor", mode="before")
+    def _color_arr(cls, value):
+        return parse_color(value)
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def _remove_aliases_and_fix_defaults(cls, values):
-        if values.get("linewidth", 2) == 0:
-            # avoid matplotlib error with inconsistent line parameters
-            values["linestyle"] = "-"
-        return reduce_field_abrs(values)
+        if isinstance(values, dict):
+            if values.get("linewidth", 2) == 0:
+                # avoid matplotlib error with inconsistent line parameters
+                values["linestyle"] = "-"
+            return reduce_field_abrs(values)
+        return values

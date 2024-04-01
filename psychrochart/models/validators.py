@@ -25,20 +25,24 @@ def check_connector_and_areas_by_point_name(values):
     keys_1 = set(values.get("points", {}).keys())
     keys_2 = set(values.get("series", {}).keys())
     valid_keys = keys_1 | keys_2
-    values["connectors"] = [
-        cn
-        for cn in values["connectors"]
-        if cn.start in valid_keys and cn.end in valid_keys
-    ]
+    valid_connectors = []
+    for conn in values.get("connectors", []):
+        if not isinstance(conn, dict):
+            conn = conn.model_dump()
+        if conn["start"] in valid_keys and conn["end"] in valid_keys:
+            valid_connectors.append(conn)
     valid_areas = []
-    for chart_area in values["areas"]:
+    for chart_area in values.get("areas", []):
+        if not isinstance(chart_area, dict):
+            chart_area = chart_area.model_dump()
         point_names = [
-            name for name in chart_area.point_names if name in valid_keys
+            name for name in chart_area["point_names"] if name in valid_keys
         ]
         if len(point_names) >= 3:
-            chart_area.point_names = point_names
+            chart_area["point_names"] = point_names
             valid_areas.append(chart_area)
 
+    values["connectors"] = valid_connectors
     values["areas"] = valid_areas
     return values
 

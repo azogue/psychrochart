@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, PrivateAttr
 
 
 class BaseConfig(BaseModel):
@@ -8,12 +8,9 @@ class BaseConfig(BaseModel):
     To control chart config changes to trigger model-data regenereration.
     """
 
-    _has_changed: bool = False
+    _has_changed: bool = PrivateAttr(default=False)
 
-    class Config:
-        allow_mutation = True
-        validate_assignment = True
-        underscore_attrs_are_private = True
+    model_config = ConfigDict(validate_assignment=True)
 
     def __setattr__(self, name, value):
         """Override setattr to control mutability flag '_has_changed'."""
