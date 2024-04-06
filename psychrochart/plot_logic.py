@@ -24,7 +24,7 @@ from psychrochart.models.curves import (
     PsychroCurve,
     PsychroCurves,
 )
-from psychrochart.models.styles import ZoneStyle
+from psychrochart.models.styles import CurveStyle, ZoneStyle
 from psychrochart.util import mod_color
 
 
@@ -98,7 +98,11 @@ def add_label_to_curve(
         text_x, text_y = curve.x_data[idx], curve.y_data[idx]
         text_style["ha"] = "center"
 
-    text_style["color"] = mod_color(curve.style.color, -25)
+    text_style["color"] = (
+        mod_color(curve.style.color, -25)
+        if isinstance(curve.style, CurveStyle)
+        else mod_color(curve.style.edgecolor, -25)
+    )
     if ha is not None:
         text_style["ha"] = ha
     if va is not None:
