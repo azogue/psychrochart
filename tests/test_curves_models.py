@@ -55,7 +55,7 @@ def test_curve_serialization():
     """Test the PsychroCurve object."""
     x_data = np.arange(0, 50, 1)
     y_data = np.arange(0, 50, 1)
-    style = CurveStyle(color="k", linewidth=0.5)
+    style = CurveStyle.model_validate({"color": "k", "linewidth": 0.5})
     curve = PsychroCurve(
         x_data=x_data, y_data=y_data, style=style, internal_value=2
     )
@@ -77,7 +77,7 @@ def test_plot_single_curves():
     """Test the plotting of PsychroCurve objects."""
     x_data = np.arange(0, 50, 1)
     y_data = np.arange(0, 50, 1)
-    style = CurveStyle(color="k", linewidth=0.5)
+    style = CurveStyle.model_validate({"color": "k", "linewidth": 0.5})
     curve = PsychroCurve(x_data=x_data, y_data=y_data, style=style, label="T1")
 
     # Plotting

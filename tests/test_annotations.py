@@ -190,8 +190,8 @@ def test_connected_points():
 def test_marked_connected_points():
     chart = _make_base_chart()
     connectors = [item.copy() for item in _TEST_CONNECTORS]
-    connectors[0]["outline_marker_width"] = 50
-    connectors[1]["outline_marker_width"] = 50
+    connectors[0]["outline_marker_width"] = 50  # type: ignore[assignment]
+    connectors[1]["outline_marker_width"] = 50  # type: ignore[assignment]
     chart.plot_points_dbt_rh(_TEST_POINTS, connectors)
     _store_chart(chart, "testchart_marked_connected_points.svg")
 

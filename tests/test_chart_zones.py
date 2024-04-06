@@ -62,10 +62,12 @@ def test_rh_delimited_zones():
         points_x=[20, 35],
         points_y=[50, 95],
         label="Zone 'enthalpy-rh' 2",
-        style=ZoneStyle(
-            edgecolor=config.constant_h.color,
-            facecolor="yellow",
-            linewidth=0.5,
+        style=ZoneStyle.model_validate(
+            {
+                "edgecolor": config.constant_h.color,
+                "facecolor": "yellow",
+                "linewidth": 0.5,
+            }
         ),
     )
     hrh_zone3 = ChartZone(
@@ -73,14 +75,16 @@ def test_rh_delimited_zones():
         points_x=[50, 65],
         points_y=[20, 60],
         label="Zone 'enthalpy-rh' 3",
-        style=ZoneStyle(
-            edgecolor=config.saturation.color,
-            facecolor="red",
-            linewidth=0.5,
-            alpha=0.3,
+        style=ZoneStyle.model_validate(
+            {
+                "edgecolor": config.saturation.color,
+                "facecolor": "red",
+                "linewidth": 0.5,
+                "alpha": 0.3,
+            }
         ),
     )
-    vrh_zone1 = ChartZone(**_RAW_ZONE_V_RH)
+    vrh_zone1 = ChartZone.model_validate(_RAW_ZONE_V_RH)
     chart = PsychroChart.create(
         config,
         extra_zones={"zones": [hrh_zone1, hrh_zone2, hrh_zone3, vrh_zone1]},
@@ -115,11 +119,13 @@ def test_invisible_zones(caplog):
         points_x=[0.8, 0.82],
         points_y=[20, 70],
         label="test_hidden_vrh",
-        style=ZoneStyle(
-            edgecolor="darkred",
-            facecolor="red",
-            linewidth=3,
-            alpha=0.5,
+        style=ZoneStyle.model_validate(
+            {
+                "edgecolor": "darkred",
+                "facecolor": "red",
+                "linewidth": 3,
+                "alpha": 0.5,
+            }
         ),
     )
     top_right_hrh_zone = ChartZone(
@@ -127,11 +133,13 @@ def test_invisible_zones(caplog):
         points_x=[130, 135],
         points_y=[40, 90],
         label="test_hidden_hrh",
-        style=ZoneStyle(
-            edgecolor="none",
-            facecolor="green",
-            linewidth=0.5,
-            alpha=0.3,
+        style=ZoneStyle.model_validate(
+            {
+                "edgecolor": "none",
+                "facecolor": "green",
+                "linewidth": 0.5,
+                "alpha": 0.3,
+            }
         ),
     )
     chart = PsychroChart.create(
@@ -185,10 +193,12 @@ def test_max_humid_delimited_zones():
         points_x=[12, 40],
         points_y=[7, 13],
         label="Zone w_max 1",
-        style=ZoneStyle(
-            edgecolor=config.constant_h.color,
-            facecolor="yellow",
-            linewidth=0.5,
+        style=ZoneStyle.model_validate(
+            {
+                "edgecolor": config.constant_h.color,
+                "facecolor": "yellow",
+                "linewidth": 0.5,
+            }
         ),
     )
     wmax_z2 = ChartZone(
@@ -196,10 +206,12 @@ def test_max_humid_delimited_zones():
         points_x=[5, 30],
         points_y=[0, 8],
         label="Zone w_max 2",
-        style=ZoneStyle(
-            edgecolor=config.constant_h.color,
-            facecolor="#aa000033",
-            linewidth=1.5,
+        style=ZoneStyle.model_validate(
+            {
+                "edgecolor": config.constant_h.color,
+                "facecolor": "#aa000033",
+                "linewidth": 1.5,
+            }
         ),
     )
     wmax_z3 = ChartZone(
@@ -207,10 +219,12 @@ def test_max_humid_delimited_zones():
         points_x=[36, 45],
         points_y=[0, 24],
         label="Zone w_max 3",
-        style=ZoneStyle(
-            edgecolor=config.constant_h.color,
-            facecolor="#00aa0033",
-            linewidth=1.5,
+        style=ZoneStyle.model_validate(
+            {
+                "edgecolor": config.constant_h.color,
+                "facecolor": "#00aa0033",
+                "linewidth": 1.5,
+            }
         ),
     )
     wmax_z4 = ChartZone(
@@ -218,10 +232,12 @@ def test_max_humid_delimited_zones():
         points_x=[20, 60],
         points_y=[17, 19],
         label="Zone w_max 4",
-        style=ZoneStyle(
-            edgecolor=config.constant_h.color,
-            facecolor="#0000aa33",
-            linewidth=1.5,
+        style=ZoneStyle.model_validate(
+            {
+                "edgecolor": config.constant_h.color,
+                "facecolor": "#0000aa33",
+                "linewidth": 1.5,
+            }
         ),
     )
     config.chart_params.zones = [wmax_z1, wmax_z2, wmax_z3, wmax_z4]
@@ -252,7 +268,9 @@ def test_sat_no_sat_zones():
             zone_type="dbt-wmax",
             points_x=[chart.config.dbt_min, chart.config.dbt_max],
             points_y=[chart.config.w_min, chart.config.w_max],
-            style=ZoneStyle(edgecolor="k", facecolor="#e4a039", linewidth=0),
+            style=ZoneStyle.model_validate(
+                {"edgecolor": "k", "facecolor": "#e4a039", "linewidth": 0}
+            ),
         )
     )
     chart.plot_over_saturated_zone(color_fill="#5A90E4")

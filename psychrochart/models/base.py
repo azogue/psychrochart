@@ -30,8 +30,7 @@ class BaseConfig(BaseModel):
 
     def commit_changes(self):
         """Reset mutation flag 'has_changed' for the object and its childs."""
-        if self.has_changed:
-            self._has_changed = False
-            for field in self.__dict__.values():
-                if hasattr(field, "commit_changes") and field.has_changed:
-                    field.commit_changes()
+        self._has_changed = False
+        for field in self.__dict__.values():
+            if hasattr(field, "commit_changes") and field.has_changed:
+                field.commit_changes()

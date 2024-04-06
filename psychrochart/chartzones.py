@@ -595,7 +595,7 @@ def make_over_saturated_zone(
     return PsychroCurve(
         x_data=np.array(path_x),
         y_data=np.array(path_y),
-        style=ZoneStyle.validate(
+        style=ZoneStyle.model_validate(
             {
                 "edgecolor": [0, 0, 0, 0],
                 "facecolor": color_fill,

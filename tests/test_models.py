@@ -1,8 +1,8 @@
 import json
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-from pydantic import TypeAdapter
 import pytest
+from pydantic import TypeAdapter
 
 from psychrochart.models.annots import ChartAnnots, ChartArea, ChartPoint
 from psychrochart.models.config import (
@@ -20,6 +20,9 @@ from psychrochart.models.parsers import (
 )
 from psychrochart.models.styles import CurveStyle
 from psychrochart.process_logic import set_unit_system
+
+if TYPE_CHECKING:
+    from psychrochart.models.annots import ConvexGroupTuple
 
 
 def test_default_config():
@@ -91,11 +94,7 @@ def test_config_presets(style_file: str):
         ".0\n", "\n"
     ).replace(".0]", "]") == old_config.model_dump_json(indent=2).replace(
         ".0,", ","
-    ).replace(
-        ".0\n", "\n"
-    ).replace(
-        ".0]", "]"
-    )
+    ).replace(".0\n", "\n").replace(".0]", "]")
 
 
 def test_zone_presets():
@@ -106,11 +105,18 @@ def test_zone_presets():
 
 
 def test_styles_with_extra_fields():
-    style_extra = CurveStyle(
-        color=[0.3, 0.3, 0.3], linewidth=2, linestyle="-", marker="o"
+    style_extra = CurveStyle.model_validate(
+        {
+            "color": [0.3, 0.3, 0.3],
+            "linewidth": 2,
+            "linestyle": "-",
+            "marker": "o",
+        }
     )
     assert CurveStyle.model_validate(style_extra.model_dump()) == style_extra
-    assert style_extra.marker == "o"
+    assert style_extra.marker == "o"  # type: ignore[attr-defined]
+    assert style_extra.model_extra is not None
+    assert style_extra.model_extra["marker"] == "o"
 
 
 def test_style_parsing():
@@ -125,7 +131,7 @@ def test_style_parsing():
     assert style.linewidth == 5
     assert not hasattr(style, "c")
 
-    style = CurveStyle(**raw_style)
+    style = CurveStyle.model_validate(raw_style)
     assert isinstance(style, CurveStyle)
     assert isinstance(style.color, list)
     assert style.linestyle == ":"
@@ -293,7 +299,7 @@ def test_chart_annots_definition():
     )
 
     # minimal 1-point annot:
-    annot_1 = ChartAnnots(points={"p1": {"xy": [3, 4]}})
+    annot_1 = ChartAnnots.model_validate({"points": {"p1": {"xy": [3, 4]}}})
     # annot_1 = ChartAnnots(points={"p1": {"x_data": [3], "y_data": [4]}})
     assert isinstance(annot_1.points["p1"], ChartPoint)
     assert not annot_1.points["p1"].style
@@ -301,38 +307,44 @@ def test_chart_annots_definition():
     assert annot_1.points["p1"].xy == (3.0, 4.0)
 
     # cannot add lines if start/end points do not exist
-    annot_2 = ChartAnnots(
-        points={"p1": {"xy": [3, 4]}, "p2": {"xy": [5, 6]}},
-        connectors=[{"start": "p1", "end": "p2", "style": {"lw": 7}}],
+    annot_2 = ChartAnnots.model_validate(
+        {
+            "points": {"p1": {"xy": [3, 4]}, "p2": {"xy": [5, 6]}},
+            "connectors": [{"start": "p1", "end": "p2", "style": {"lw": 7}}],
+        }
     )
     # print(annot_2.model_dump_json(indent=2))
     assert annot_2.connectors[0].style.linewidth == 7
     assert annot_2.connectors[0].label is None
 
     # cannot add lines if start/end points do not exist
-    annot_3 = ChartAnnots(
-        points={"p1": {"xy": [3, 4]}, "p2": {"xy": [5, 6]}},
-        connectors=[{"start": "p1", "end": "p7"}],
+    annot_3 = ChartAnnots.model_validate(
+        {
+            "points": {"p1": {"xy": [3, 4]}, "p2": {"xy": [5, 6]}},
+            "connectors": [{"start": "p1", "end": "p7"}],
+        }
     )
     assert len(annot_3.points) == 2
     assert not annot_3.connectors
 
     # areas reduced to available points/series
-    annot_4 = ChartAnnots(
-        points={"p1": {"xy": [3, 4]}, "p2": {"xy": [5, 6]}},
-        series={"p3": {"x_data": [3, 4], "y_data": [4, 5]}},
-        areas=[
-            {
-                "point_names": ["p1", "p2", "p3", "p4"],
-                "line_style": {"color": "green", "lw": 0},
-                "fill_style": {"color": "darkgreen"},
-            },
-            {
-                "point_names": ["p7", "p8", "p4"],
-                "line_style": {"color": "orange", "lw": 0},
-                "fill_style": {"color": "darkorange"},
-            },
-        ],
+    annot_4 = ChartAnnots.model_validate(
+        {
+            "points": {"p1": {"xy": [3, 4]}, "p2": {"xy": [5, 6]}},
+            "series": {"p3": {"x_data": [3, 4], "y_data": [4, 5]}},
+            "areas": [
+                {
+                    "point_names": ["p1", "p2", "p3", "p4"],
+                    "line_style": {"color": "green", "lw": 0},
+                    "fill_style": {"color": "darkgreen"},
+                },
+                {
+                    "point_names": ["p7", "p8", "p4"],
+                    "line_style": {"color": "orange", "lw": 0},
+                    "fill_style": {"color": "darkorange"},
+                },
+            ],
+        }
     )
     assert len(annot_4.points) == 2
     assert len(annot_4.series) == 1
@@ -365,6 +377,17 @@ def test_parse_points():
     assert len(points_plot) == 3
     assert len(series_plot) == 2
 
+    annots = ChartAnnots(points=points_plot, series=series_plot)
+    assert annots.points
+    assert annots.series
+    assert not annots.areas
+    assert not annots.connectors
+
+    # check serialization
+    raw_annots = annots.model_dump_json()
+    annots_bis = ChartAnnots.model_validate_json(raw_annots)
+    assert annots_bis.model_dump_json() == raw_annots
+
 
 def test_parse_areas():
     set_unit_system()
@@ -374,7 +397,7 @@ def test_parse_areas():
         "interior": (29.42, 52.34),
     }
 
-    convex_groups_bad = [
+    convex_groups_bad: list[ConvexGroupTuple] = [
         (["exterior", "interior"], {}, {}),
     ]
     with pytest.raises(ValueError):
@@ -389,7 +412,7 @@ def test_parse_areas():
     with pytest.raises(ValueError):
         load_extra_annots([], convex_groups_bad_2)
 
-    convex_groups = [
+    convex_groups: list[ConvexGroupTuple] = [
         (["exterior", "exterior_estimated", "interior"], {}, {}),
     ]
     data_points, data_series = load_points_dbt_rh(points, 101325.0)
@@ -404,3 +427,9 @@ def test_parse_areas():
     assert not annots.series
     assert annots.areas
     assert not annots.connectors
+
+    # check serialization
+    raw_annots = annots.model_dump_json()
+    annots_bis = ChartAnnots.model_validate_json(raw_annots)
+    assert annots_bis.points == annots.points
+    assert annots_bis.areas == annots.areas

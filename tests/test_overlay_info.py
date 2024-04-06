@@ -1,5 +1,7 @@
 """Tests plotting."""
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pytest
 
@@ -7,6 +9,9 @@ from psychrochart import PsychroChart
 from psychrochart.models.config import ChartZone
 from psychrochart.models.parsers import load_config
 from tests.conftest import store_test_chart, TEST_BASEDIR
+
+if TYPE_CHECKING:
+    from psychrochart.models.annots import ConvexGroupTuple
 
 
 def test_chart_overlay_points_and_zones():
@@ -27,7 +32,7 @@ def test_chart_overlay_points_and_zones():
 
     # Chart creation
     chart = PsychroChart.create(config)
-    assert 90500.0 == chart.pressure
+    assert chart.pressure == 90500.0
 
     # bad zone definition
     with pytest.raises(ValueError):
@@ -64,7 +69,7 @@ def test_chart_overlay_points_and_zones():
         "interior": (29.42, 52.34),
     }
 
-    convex_groups = [
+    convex_groups: list[ConvexGroupTuple] = [
         (["exterior", "exterior_estimated", "interior"], {}, {}),
     ]
     chart.plot_points_dbt_rh(points, convex_groups=convex_groups)
@@ -94,9 +99,9 @@ def test_chart_overlay_minimal():
     chart.config.chart_params.with_constant_rh = False
 
     # config changes are not processed until plot
-    assert 100500.0 != chart.pressure
+    assert chart.pressure != 100500.0
     chart.plot()
-    assert 100500.0 == chart.pressure
+    assert chart.pressure == 100500.0
 
     # annotate plot
     points = {
@@ -104,7 +109,7 @@ def test_chart_overlay_minimal():
         "exterior_estimated": (36.7, 25.0),
         "interior": (29.42, 52.34),
     }
-    convex_groups = [
+    convex_groups: list[ConvexGroupTuple] = [
         (["exterior", "exterior_estimated", "interior"], {}, {}),
     ]
     chart.plot_points_dbt_rh(points, convex_groups=convex_groups)
@@ -175,11 +180,11 @@ def test_chart_overlay_convexhull():
     # Load config & customize chart
     chart = PsychroChart.create("minimal")
     chart.config.limits.pressure_kpa = 90.5
-    assert 90500.0 != chart.pressure
+    assert chart.pressure != 90500.0
 
     # Plotting
     chart.plot()
-    assert 90500.0 == chart.pressure
+    assert chart.pressure == 90500.0
 
     points = {
         "exterior": (31.06, 32.9),
@@ -187,7 +192,7 @@ def test_chart_overlay_convexhull():
         "interior": (29.42, 52.34),
     }
 
-    convex_groups_bad = [
+    convex_groups_bad: list[ConvexGroupTuple] = [
         (["exterior", "interior"], {}, {}),
     ]
     with pytest.raises(ValueError):
@@ -203,7 +208,7 @@ def test_chart_overlay_convexhull():
     with pytest.raises(ValueError):
         chart.plot_points_dbt_rh(points, convex_groups=convex_groups_bad_2)
 
-    convex_groups_ok = [
+    convex_groups_ok: list[ConvexGroupTuple] = [
         (["exterior", "exterior_estimated", "interior"], {}, {}),
     ]
     chart.plot_points_dbt_rh(points, convex_groups=convex_groups_ok)
@@ -221,11 +226,11 @@ def test_overlay_a_lot_of_points():
     chart = PsychroChart.create("minimal")
     chart.config.figure.dpi = 100
     chart.config.limits.pressure_kpa = 90.5
-    assert 90500.0 != chart.pressure
+    assert chart.pressure != 90500.0
 
     # Plotting
     chart.plot()
-    assert 90500.0 == chart.pressure
+    assert chart.pressure == 90500.0
 
     # Create a lot of points
     num_samples = 100000

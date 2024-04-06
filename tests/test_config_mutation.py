@@ -30,18 +30,18 @@ def test_default_config():
 def test_config_mutation():
     config = ChartConfig()
     with pytest.raises(TypeError):
-        config.limits.range_temp_c[1] = 35
+        config.limits.range_temp_c[1] = 35  # type: ignore[index]
 
     config.limits.range_temp_c = (10, 35)
     assert config.limits.has_changed
     assert config.has_changed
 
     # validation is done on assignment, so colors are parsed into RGBA
-    config.constant_humidity.color = "red"
+    config.constant_humidity.color = "red"  # type: ignore[assignment]
     assert config.constant_humidity.color == [1.0, 0.0, 0.0, 1.0]
-    config.constant_humidity.color = "#FF0000"
+    config.constant_humidity.color = "#FF0000"  # type: ignore[assignment]
     assert config.constant_humidity.color == [1.0, 0.0, 0.0, 1.0]
-    config.constant_humidity.color = "#FF000000"
+    config.constant_humidity.color = "#FF000000"  # type: ignore[assignment]
     assert config.constant_humidity.color == [1.0, 0.0, 0.0, 0.0]
 
     assert config.constant_humidity.has_changed

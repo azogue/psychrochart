@@ -81,30 +81,38 @@ def test_styled_psychrochart_with_negative_h_labels_loc():
         "constant_v_annotation": {
             "color": [0.2, 0.2, 0.2],
             "fontsize": 7,
-            "bbox": dict(
-                boxstyle="square,pad=-0.2", color=[1, 1, 1, 0.9], lw=0.5
-            ),
+            "bbox": {
+                "boxstyle": "square,pad=-0.2",
+                "color": [1, 1, 1, 0.9],
+                "lw": 0.5,
+            },
         },
         "constant_h_annotation": {
             "color": [0.2, 0.2, 0.2],
             "fontsize": 6,
-            "bbox": dict(
-                boxstyle="square,pad=-0.1", color=[1, 1, 1, 0.9], lw=0.5
-            ),
+            "bbox": {
+                "boxstyle": "square,pad=-0.1",
+                "color": [1, 1, 1, 0.9],
+                "lw": 0.5,
+            },
         },
         "constant_wet_temp_annotation": {
             "color": [0.2, 0.2, 0.2],
             "fontsize": 7,
-            "bbox": dict(
-                boxstyle="square,pad=0", color=[1, 1, 1, 0.9], lw=0.5
-            ),
+            "bbox": {
+                "boxstyle": "square,pad=0",
+                "color": [1, 1, 1, 0.9],
+                "lw": 0.5,
+            },
         },
         "constant_rh_annotation": {
             "color": [0.2, 0.2, 0.2],
             "fontsize": 7,
-            "bbox": dict(
-                boxstyle="square,pad=0", color=[1, 1, 1, 0.9], lw=0.5
-            ),
+            "bbox": {
+                "boxstyle": "square,pad=0",
+                "color": [1, 1, 1, 0.9],
+                "lw": 0.5,
+            },
         },
     }
 
