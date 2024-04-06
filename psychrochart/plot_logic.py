@@ -52,6 +52,7 @@ def add_label_to_curve(
     va: str | None = None,
     ha: str | None = None,
     loc: float | None = None,
+    **params,
 ) -> Annotation:
     """Annotate the curve with its label."""
     num_samples = len(curve.x_data)
@@ -110,6 +111,7 @@ def add_label_to_curve(
 
     if curve.annotation_style is not None:
         text_style.update(curve.annotation_style.export_style())
+    text_style.update(**params)
 
     return _annotate_label(ax, label, text_x, text_y, rotation, text_style)
 
