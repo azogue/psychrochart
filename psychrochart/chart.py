@@ -23,11 +23,10 @@ from psychrochart.chartdata import (
     make_saturation_line,
 )
 from psychrochart.chartzones import make_over_saturated_zone
-from psychrochart.models.annots import ChartAnnots
+from psychrochart.models.annots import ChartAnnots, ConvexGroupTuple
 from psychrochart.models.config import ChartConfig, ChartZones
 from psychrochart.models.curves import PsychroChartModel, PsychroCurve
 from psychrochart.models.parsers import (
-    ConvexGroupTuple,
     load_extra_annots,
     load_points_dbt_rh,
     obj_loader,

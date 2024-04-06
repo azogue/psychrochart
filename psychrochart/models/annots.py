@@ -101,6 +101,7 @@ class ChartAnnots(BaseModel):
     use_scatter: bool = Field(default=False)
 
     @model_validator(mode="before")
+    @classmethod
     def _validate_used_points(cls, values):
         return check_connector_and_areas_by_point_name(values)
 

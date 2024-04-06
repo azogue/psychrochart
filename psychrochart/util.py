@@ -65,7 +65,7 @@ def solve_curves_with_iteration(
         "CONSTANT VOLUME": (0.0005, 1, 0.00025),
     }
     # "CONSTANT VOLUME": (0.0005, 1, 0.00000025, 0.0025, 0.75, 0.00000025),
-    if family_name not in families.keys():  # pragma: no cover
+    if family_name not in families:  # pragma: no cover
         raise AssertionError(
             f"Need a valid family of curves: {list(families.keys())}"
         )
@@ -106,7 +106,7 @@ def solve_curves_with_iteration(
 def mod_color(color: Sequence[float], modification: float) -> list[float]:
     """Modify color with an alpha value or a darken/lighten percentage."""
     if abs(modification) < 0.999:  # is alpha level
-        color = list(color[:3]) + [modification]
+        color = [*list(color[:3]), modification]
     else:
         color = [
             max(0.0, min(1.0, c * (1 + modification / 100))) for c in color

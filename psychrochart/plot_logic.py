@@ -4,12 +4,12 @@ import logging
 from math import atan2, degrees
 from typing import Any, AnyStr
 
+import numpy as np
 from matplotlib import patches
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.path import Path
 from matplotlib.text import Annotation
-import numpy as np
 from scipy.spatial import ConvexHull, QhullError
 
 from psychrochart.chart_entities import (
@@ -52,7 +52,6 @@ def add_label_to_curve(
     va: str | None = None,
     ha: str | None = None,
     loc: float | None = None,
-    **params,
 ) -> Annotation:
     """Annotate the curve with its label."""
     num_samples = len(curve.x_data)
@@ -69,10 +68,7 @@ def add_label_to_curve(
         delta_x = x_data[idx_f] - curve.x_data[idx_0]
         delta_y = y_data[idx_f] - curve.y_data[idx_0]
         rotation_deg = degrees(atan2(delta_y, delta_x))
-        if delta_x == 0:
-            tilt_curve = 1e12
-        else:
-            tilt_curve = delta_y / delta_x
+        tilt_curve = 1e12 if delta_x == 0 else delta_y / delta_x
         return rotation_deg, tilt_curve
 
     if num_samples == 2:
@@ -241,14 +237,14 @@ def _apply_spines_style(axes, style, location="right") -> None:
     for key in style:
         try:
             getattr(axes.spines[location], f"set_{key}")(style[key])
-        except Exception as exc:  # pragma: no cover
+        except Exception as exc:  # noqa: BLE001, pragma: no cover
             logging.error(
                 f"Error trying to apply spines attrs: {exc}. "
                 f"({dir(axes.spines[location])})"
             )
 
 
-def apply_axis_styling(config: ChartConfig, ax: Axes) -> dict[str, Artist]:
+def apply_axis_styling(config: ChartConfig, ax: Axes) -> dict[str, Artist]:  # noqa: C901
     """Setup matplotlib Axes object for the chart."""
     layout_artists: dict[str, Artist] = {}
     reg_artist("chart_x_axis", ax.xaxis, layout_artists)

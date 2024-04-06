@@ -595,11 +595,13 @@ def make_over_saturated_zone(
     return PsychroCurve(
         x_data=np.array(path_x),
         y_data=np.array(path_y),
-        style=ZoneStyle(
-            edgecolor=[0, 0, 0, 0],
-            facecolor=color_fill,
-            linewidth=0,
-            linestyle="none",
+        style=ZoneStyle.validate(
+            {
+                "edgecolor": [0, 0, 0, 0],
+                "facecolor": color_fill,
+                "linewidth": 0,
+                "linestyle": "none",
+            }
         ),
         type_curve="over_saturated",
         internal_value=0,

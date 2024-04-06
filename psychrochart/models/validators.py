@@ -1,5 +1,5 @@
-from matplotlib.colors import to_rgba
 import numpy as np
+from matplotlib.colors import to_rgba
 
 
 def parse_color(raw_color) -> list[float]:

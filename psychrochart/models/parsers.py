@@ -47,18 +47,19 @@ def obj_loader(
         return data_cls.model_validate_json(STYLES[data].read_text())
     if isinstance(data, (str, Path)):
         return data_cls.model_validate_json(Path(data).read_text())
+    assert isinstance(data, dict)
     return data_cls(**data)
 
 
 def load_config(
-    config: ChartConfig | dict[str, Any] | Path | str | None = None
+    config: ChartConfig | dict[str, Any] | Path | str | None = None,
 ) -> ChartConfig:
     """Load the plot params for the psychrometric chart."""
     return obj_loader(ChartConfig, config)
 
 
 def load_zones(
-    zones: ChartZones | dict[str, Any] | str | None = None
+    zones: ChartZones | dict[str, Any] | str | None = None,
 ) -> ChartZones:  # pragma: no cover
     """Load a zones JSON file to overlay in the psychrometric chart."""
     return obj_loader(ChartZones, zones, default_obj=DEFAULT_ZONES)
@@ -114,7 +115,7 @@ def load_points_dbt_rh(
                 style=plot_params,
                 label=label,
             )
-        elif isinstance(point_data, list) or isinstance(point_data, tuple):
+        elif isinstance(point_data, (list, tuple)):
             # simple labeled data
             x_data = point_data[0]
             y_data = point_data[1]
@@ -159,6 +160,7 @@ def load_extra_annots(
         )
     elif convex_groups and isinstance(convex_groups[0], tuple):
         data_areas = [
-            ChartArea.from_tuple(it) for it in convex_groups  # type: ignore
+            ChartArea.from_tuple(it)  # type: ignore
+            for it in convex_groups
         ]
     return data_connectors, data_areas

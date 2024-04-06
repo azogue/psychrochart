@@ -16,6 +16,7 @@ class CurveStyle(BaseConfig):
     model_config = ConfigDict(extra="allow")
 
     @field_validator("color", mode="before")
+    @classmethod
     def _color_arr(cls, value):
         return parse_color(value)
 
@@ -34,6 +35,7 @@ class LabelStyle(BaseConfig):
     model_config = ConfigDict(extra="allow")
 
     @field_validator("color", mode="before")
+    @classmethod
     def _color_arr(cls, value):
         return parse_color(value)
 
@@ -48,6 +50,7 @@ class AnnotationStyle(BaseConfig):
     model_config = ConfigDict(extra="allow")
 
     @field_validator("color", mode="before")
+    @classmethod
     def _color_arr(cls, value):
         return parse_color(value) if value else None
 
@@ -67,6 +70,7 @@ class TickStyle(BaseConfig):
     model_config = ConfigDict(extra="allow")
 
     @field_validator("color", mode="before")
+    @classmethod
     def _color_arr(cls, value):
         return parse_color(value)
 
@@ -82,6 +86,7 @@ class ZoneStyle(BaseConfig):
     model_config = ConfigDict(extra="allow")
 
     @field_validator("edgecolor", "facecolor", mode="before")
+    @classmethod
     def _color_arr(cls, value):
         return parse_color(value)
 
