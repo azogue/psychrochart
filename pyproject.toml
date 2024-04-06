@@ -1,17 +1,37 @@
-[tool.black]
-line_length = 79
-target_version = ["py311"]
-
-[tool.isort]
-profile = "black"
-force_sort_within_sections = true
-combine_as_imports = true
-line_length = 79
-py_version=311
-
 [tool.ruff]
+target-version = "py311"
 fix = true
 line-length = 79
+
+[tool.ruff.lint]
+select = ["A", "ARG", "ASYNC", "B", "BLE", "C", "C4", "E", "F", "FA", "I", "INT", "N", "PIE", "PTH", "RUF", "SIM", "TCH", "TD", "W", "YTT"]
+ignore = ["B008", "B904", "B905", "TD002", "TD003", "TD004", "RUF012"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["psychrochart"]
+order-by-type = false
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+
+follow_imports = "silent"
+warn_redundant_casts = true
+warn_unused_ignores = true
+#disallow_any_generics = true
+check_untyped_defs = true
+no_implicit_reexport = true
+
+# for strict mypy: (this is the tricky one :-))
+# disallow_untyped_defs = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+#profile = "black"
+#force_sort_within_sections = true
+#combine_as_imports = true
 
 [tool.coverage.run]
 branch = true
