@@ -57,18 +57,18 @@ z
 " clip-path="url(#p411d26f6a5)" style="fill: #7f9fff; fill-opacity: 0.5; stroke-dasharray: 7.4,3.2; stroke-dashoffset: 0; stroke: #7f9fcc; stroke-width: 2; stroke-linejoin: miter"/>
    </g>
    <g id="convexhull_aseo_cocina_dormitorio_esp_dormitorio_estudio_office_office_window_sofa">
-    <path d="M 642.048 351.244972 
-L 580.608 404.875619 
+    <path d="M 580.608 404.875619 
 L 625.92 445.719156 
 L 675.84 447.746596 
 L 777.216 413.099015 
+L 642.048 351.244972 
 z
 " clip-path="url(#p411d26f6a5)" style="fill: #008000; opacity: 0.3"/>
    </g>
    <g id="convexhull_galeria_sombra_terraza_terraza_sombra">
-    <path d="M 391.68 185.033723 
-L 269.568 363.717527 
+    <path d="M 269.568 363.717527 
 L 298.752 349.164848 
+L 391.68 185.033723 
 z
 " clip-path="url(#p411d26f6a5)" style="fill: #e37207; opacity: 0.2"/>
    </g>
@@ -1038,44 +1038,20 @@ z
      <use xlink:href="#mf0b808afb0" x="298.752" y="349.164848" style="fill: #cc9706; fill-opacity: 0.9; stroke: #cc9706; stroke-opacity: 0.9"/>
     </g>
    </g>
-   <g id="convexhull_aseo_cocina_dormitorio_esp_dormitorio_estudio_office_office_window_sofa_s1">
-    <path d="M 642.048 351.244972 
-L 580.608 404.875619 
-" clip-path="url(#p411d26f6a5)" style="fill: none; stroke-dasharray: 2,3.3; stroke-dashoffset: 0; stroke: #006400; stroke-opacity: 0.5; stroke-width: 2"/>
-   </g>
-   <g id="convexhull_aseo_cocina_dormitorio_esp_dormitorio_estudio_office_office_window_sofa_s2">
-    <path d="M 642.048 351.244972 
-L 777.216 413.099015 
-" clip-path="url(#p411d26f6a5)" style="fill: none; stroke-dasharray: 2,3.3; stroke-dashoffset: 0; stroke: #006400; stroke-opacity: 0.5; stroke-width: 2"/>
-   </g>
-   <g id="convexhull_aseo_cocina_dormitorio_esp_dormitorio_estudio_office_office_window_sofa_s3">
-    <path d="M 625.92 445.719156 
-L 580.608 404.875619 
-" clip-path="url(#p411d26f6a5)" style="fill: none; stroke-dasharray: 2,3.3; stroke-dashoffset: 0; stroke: #006400; stroke-opacity: 0.5; stroke-width: 2"/>
-   </g>
-   <g id="convexhull_aseo_cocina_dormitorio_esp_dormitorio_estudio_office_office_window_sofa_s4">
-    <path d="M 675.84 447.746596 
-L 777.216 413.099015 
-" clip-path="url(#p411d26f6a5)" style="fill: none; stroke-dasharray: 2,3.3; stroke-dashoffset: 0; stroke: #006400; stroke-opacity: 0.5; stroke-width: 2"/>
-   </g>
-   <g id="convexhull_aseo_cocina_dormitorio_esp_dormitorio_estudio_office_office_window_sofa_s5">
-    <path d="M 675.84 447.746596 
+   <g id="convexhull_aseo_cocina_dormitorio_esp_dormitorio_estudio_office_office_window_sofa_edge">
+    <path d="M 580.608 404.875619 
 L 625.92 445.719156 
+L 675.84 447.746596 
+L 777.216 413.099015 
+L 642.048 351.244972 
+L 580.608 404.875619 
 " clip-path="url(#p411d26f6a5)" style="fill: none; stroke-dasharray: 2,3.3; stroke-dashoffset: 0; stroke: #006400; stroke-opacity: 0.5; stroke-width: 2"/>
    </g>
-   <g id="convexhull_galeria_sombra_terraza_terraza_sombra_s1">
-    <path d="M 391.68 185.033723 
-L 269.568 363.717527 
-" clip-path="url(#p411d26f6a5)" style="fill: none; stroke-dasharray: 3.7,1.6; stroke-dashoffset: 0; stroke: #e37207; stroke-opacity: 0.5"/>
-   </g>
-   <g id="convexhull_galeria_sombra_terraza_terraza_sombra_s2">
-    <path d="M 298.752 349.164848 
-L 269.568 363.717527 
-" clip-path="url(#p411d26f6a5)" style="fill: none; stroke-dasharray: 3.7,1.6; stroke-dashoffset: 0; stroke: #e37207; stroke-opacity: 0.5"/>
-   </g>
-   <g id="convexhull_galeria_sombra_terraza_terraza_sombra_s3">
-    <path d="M 298.752 349.164848 
+   <g id="convexhull_galeria_sombra_terraza_terraza_sombra_edge">
+    <path d="M 269.568 363.717527 
+L 298.752 349.164848 
 L 391.68 185.033723 
+L 269.568 363.717527 
 " clip-path="url(#p411d26f6a5)" style="fill: none; stroke-dasharray: 3.7,1.6; stroke-dashoffset: 0; stroke: #e37207; stroke-opacity: 0.5"/>
    </g>
    <g id="chart_y_axis_right_line">

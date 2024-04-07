@@ -312,3 +312,54 @@ def test_ha_addon_psychrochart():
         frameon=False, fontsize=15, labelspacing=0.8, markerscale=0.8
     )
     store_test_chart(chart, "test_ha_addon_psychrochart-3.svg", png=True)
+
+
+def test_bad_convex_hull():
+    set_unit_system()
+    chart_config = TEST_EXAMPLE_CHART_CONFIG.copy()
+    t_min, t_max, w_min, w_max = _get_dynamic_limits(_EXAMPLE_SENSOR_POINTS)
+    chart_config["limits"].update(  # type: ignore[attr-defined]
+        {
+            "range_temp_c": (t_min, t_max),
+            "range_humidity_g_kg": (w_min, w_max),
+        }
+    )
+    chart = PsychroChart.create(chart_config)
+
+    points = {
+        "Aseo": {
+            "xy": (20.63, 55.86),
+            "label": "Aseo",
+            "style": {"color": "#007bff", "alpha": 0.9, "markersize": 8},
+        },
+        "Cocina": {
+            "xy": (20.15, 55.38),
+            "label": "Cocina",
+            "style": {"alpha": 0.9, "color": "#F15346", "markersize": 9},
+        },
+        "Dormitorio (ESP)": {
+            "xy": (20.15, 55.38),
+            "label": "Dormitorio (ESP)",
+            "style": {"alpha": 0.9, "color": "darkgreen", "markersize": 10},
+        },
+        "Dormitorio": {
+            "xy": (20.63, 55.86),
+            "label": "Dormitorio",
+            "style": {"alpha": 0.9, "color": "#51E81F", "markersize": 10},
+        },
+        "Estudio": {
+            "xy": (20.15, 55.38),
+            "label": "Estudio",
+            "style": {"alpha": 0.9, "color": "#FFA067", "markersize": 9},
+        },
+    }
+    zones = [
+        (
+            ["Aseo", "Cocina", "Dormitorio (ESP)", "Dormitorio"],
+            {"color": "#E37207", "lw": 1, "alpha": 0.5, "ls": "--"},
+            {"color": "#E37207", "lw": 0, "alpha": 0.2},
+        ),
+    ]
+
+    chart.plot_points_dbt_rh(points, convex_groups=zones)
+    store_test_chart(chart, "test_bad_hull.svg", png=True, svg_rsc=True)

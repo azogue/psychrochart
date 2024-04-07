@@ -33,6 +33,64 @@ class Interp1D:
         return float(self.y[i] + slope * (x_new - self.x[i]))
 
 
+def orientation(
+    p: tuple[float, float],
+    q: tuple[float, float],
+    r: tuple[float, float],
+) -> int:
+    """
+    Function to find orientation of ordered triplet (p, q, r).
+    Returns:
+    0 : Colinear points
+    1 : Clockwise points
+    2 : Counterclockwise points
+    """
+    val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])
+    if val == 0:  # pragma: no cover
+        return 0  # Colinear
+    elif val > 0:
+        return 1  # Clockwise
+    else:
+        return 2  # Counterclockwise
+
+
+def convex_hull_graham_scan(
+    points: list[tuple[float, float]],
+) -> tuple[list[float], list[float]]:
+    """Function to compute the convex hull of a set of 2-D points."""
+    # If number of points is less than 3, convex hull is not possible
+    numpoints = len(points)
+    assert numpoints >= 3
+
+    # Find the leftmost point
+    leftp = min(points)
+
+    # Sort points based on polar angle with respect to the leftmost point
+    sorted_points = sorted(
+        [p for p in points if p != leftp],
+        key=lambda x: (
+            np.arctan2(x[1] - leftp[1], x[0] - leftp[0]),
+            x[0],
+            x[1],
+        ),
+    )
+
+    # Initialize an empty stack to store points on the convex hull
+    # Start from the leftmost point and proceed to build the convex hull
+    hull = [leftp, sorted_points[0]]
+    for i in range(1, len(sorted_points)):
+        while (
+            len(hull) > 1
+            and orientation(hull[-2], hull[-1], sorted_points[i]) != 2
+        ):
+            hull.pop()
+        hull.append(sorted_points[i])
+
+    hull_x, hull_y = list(zip(*hull))
+    assert len(hull_x) >= 2
+    return list(hull_x), list(hull_y)
+
+
 def _iter_solver(
     initial_value: np.ndarray,
     objective_value: np.ndarray,
