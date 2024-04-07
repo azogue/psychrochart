@@ -1,7 +1,11 @@
-from typing import AbstractSet, Any, Mapping
-
 import numpy as np
-from pydantic import BaseModel, Field, root_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    model_validator,
+)
 
 from psychrochart.models.styles import AnnotationStyle, CurveStyle, ZoneStyle
 from psychrochart.models.validators import parse_curve_arrays
@@ -19,11 +23,14 @@ class PsychroCurve(BaseModel):
     internal_value: float | None = None
     annotation_style: AnnotationStyle | None = None
 
-    class Config:
-        arbitrary_types_allowed = True
-        json_encoders = {np.ndarray: lambda x: x.tolist()}
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    @root_validator(pre=True)
+    @field_serializer("x_data", "y_data")
+    def _serialize_arrays(self, values: np.ndarray, _info):
+        return values.tolist()
+
+    @model_validator(mode="before")
+    @classmethod
     def _parse_curve_data(cls, values):
         if (
             values.get("label") is None
@@ -41,35 +48,6 @@ class PsychroCurve(BaseModel):
             return f"{self.internal_value:g}".replace("-", "minus")
         assert self.label is not None
         return self.label
-
-    def dict(
-        self,
-        *,
-        include: (
-            AbstractSet[int | str] | Mapping[int | str, Any] | None
-        ) = None,
-        exclude: (
-            AbstractSet[int | str] | Mapping[int | str, Any] | None
-        ) = None,
-        by_alias: bool = False,
-        skip_defaults: bool | None = None,
-        exclude_unset: bool = False,
-        exclude_defaults: bool = False,
-        exclude_none: bool = False,
-    ) -> dict[str, Any]:
-        """Override pydantic.BaseModel.dict() to export arrays as list."""
-        plain_dict = super().dict(
-            include=include,
-            exclude=exclude,
-            by_alias=by_alias,
-            skip_defaults=skip_defaults,
-            exclude_unset=exclude_unset,
-            exclude_defaults=exclude_defaults,
-            exclude_none=exclude_none,
-        )
-        plain_dict["x_data"] = plain_dict["x_data"].tolist()
-        plain_dict["y_data"] = plain_dict["y_data"].tolist()
-        return plain_dict
 
     def __repr__(self) -> str:
         """Object string representation."""
@@ -96,7 +74,7 @@ class PsychroCurve(BaseModel):
 class PsychroCurves(BaseModel):
     """Pydantic model to store a list of psychrometric curves for plotting."""
 
-    curves: list[PsychroCurve] = Field(min_items=1)
+    curves: list[PsychroCurve] = Field(min_length=1)
     family_label: str | None = None
 
     def __repr__(self) -> str:

@@ -4,12 +4,12 @@ import logging
 from math import atan2, degrees
 from typing import Any, AnyStr
 
+import numpy as np
 from matplotlib import patches
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.path import Path
 from matplotlib.text import Annotation
-import numpy as np
 from scipy.spatial import ConvexHull, QhullError
 
 from psychrochart.chart_entities import (
@@ -24,7 +24,7 @@ from psychrochart.models.curves import (
     PsychroCurve,
     PsychroCurves,
 )
-from psychrochart.models.styles import ZoneStyle
+from psychrochart.models.styles import CurveStyle, ZoneStyle
 from psychrochart.util import mod_color
 
 
@@ -69,10 +69,7 @@ def add_label_to_curve(
         delta_x = x_data[idx_f] - curve.x_data[idx_0]
         delta_y = y_data[idx_f] - curve.y_data[idx_0]
         rotation_deg = degrees(atan2(delta_y, delta_x))
-        if delta_x == 0:
-            tilt_curve = 1e12
-        else:
-            tilt_curve = delta_y / delta_x
+        tilt_curve = 1e12 if delta_x == 0 else delta_y / delta_x
         return rotation_deg, tilt_curve
 
     if num_samples == 2:
@@ -102,7 +99,11 @@ def add_label_to_curve(
         text_x, text_y = curve.x_data[idx], curve.y_data[idx]
         text_style["ha"] = "center"
 
-    text_style["color"] = mod_color(curve.style.color, -25)
+    text_style["color"] = (
+        mod_color(curve.style.color, -25)
+        if isinstance(curve.style, CurveStyle)
+        else mod_color(curve.style.edgecolor, -25)
+    )
     if ha is not None:
         text_style["ha"] = ha
     if va is not None:
@@ -110,6 +111,7 @@ def add_label_to_curve(
 
     if curve.annotation_style is not None:
         text_style.update(curve.annotation_style.export_style())
+    text_style.update(**params)
 
     return _annotate_label(ax, label, text_x, text_y, rotation, text_style)
 
@@ -142,7 +144,7 @@ def plot_curve(
                 (curve.x_data[0], curve.y_data[0]),
                 width=curve.x_data[1] - curve.x_data[0],
                 height=curve.y_data[1] - curve.y_data[0],
-                **curve.style.dict(),
+                **curve.style.model_dump(),
             )
             bbox_p = patch.get_extents()
         else:
@@ -154,7 +156,7 @@ def plot_curve(
                 + [Path.CLOSEPOLY]
             )
             path = Path(verts, codes)
-            patch = patches.PathPatch(path, **curve.style.dict())
+            patch = patches.PathPatch(path, **curve.style.model_dump())
             bbox_p = path.get_extents()
         ax.add_patch(patch)
         gid_zone = make_item_gid(
@@ -188,7 +190,7 @@ def plot_curve(
             )
     else:
         [artist_line] = ax.plot(
-            curve.x_data, curve.y_data, **curve.style.dict()
+            curve.x_data, curve.y_data, **curve.style.model_dump()
         )
         kind = (
             (label_prefix or curve.type_curve)
@@ -226,7 +228,7 @@ def plot_curves_family(
             [-1],
             [-1],
             label=family.family_label,
-            **(min_params | family.curves[0].style.dict()),
+            **(min_params | family.curves[0].style.model_dump()),
         )
         gid_family_label = make_item_gid(
             "label_legend", name=family.family_label
@@ -241,14 +243,14 @@ def _apply_spines_style(axes, style, location="right") -> None:
     for key in style:
         try:
             getattr(axes.spines[location], f"set_{key}")(style[key])
-        except Exception as exc:  # pragma: no cover
+        except Exception as exc:  # noqa: BLE001, pragma: no cover
             logging.error(
                 f"Error trying to apply spines attrs: {exc}. "
                 f"({dir(axes.spines[location])})"
             )
 
 
-def apply_axis_styling(config: ChartConfig, ax: Axes) -> dict[str, Artist]:
+def apply_axis_styling(config: ChartConfig, ax: Axes) -> dict[str, Artist]:  # noqa: C901
     """Setup matplotlib Axes object for the chart."""
     layout_artists: dict[str, Artist] = {}
     reg_artist("chart_x_axis", ax.xaxis, layout_artists)
@@ -260,12 +262,12 @@ def apply_axis_styling(config: ChartConfig, ax: Axes) -> dict[str, Artist]:
     ax.grid(False, which="both")
     # Apply axis styles
     if config.figure.x_label is not None:
-        style_axis = config.figure.x_axis_labels.dict()
+        style_axis = config.figure.x_axis_labels.model_dump()
         style_axis["fontsize"] *= 1.2
         artist_xlabel = ax.set_xlabel(config.figure.x_label, **style_axis)
         reg_artist("chart_x_axis_label", artist_xlabel, layout_artists)
     if config.figure.y_label is not None:
-        style_axis = config.figure.y_axis_labels.dict()
+        style_axis = config.figure.y_axis_labels.model_dump()
         style_axis["fontsize"] *= 1.2
         artist_ylabel = ax.set_ylabel(config.figure.y_label, **style_axis)
         reg_artist("chart_y_axis_label", artist_ylabel, layout_artists)
@@ -277,22 +279,30 @@ def apply_axis_styling(config: ChartConfig, ax: Axes) -> dict[str, Artist]:
         )
         reg_artist("chart_title", artist_title, layout_artists)
 
-    _apply_spines_style(ax, config.figure.y_axis.dict(), location="right")
-    _apply_spines_style(ax, config.figure.x_axis.dict(), location="bottom")
+    _apply_spines_style(
+        ax, config.figure.y_axis.model_dump(), location="right"
+    )
+    _apply_spines_style(
+        ax, config.figure.x_axis.model_dump(), location="bottom"
+    )
     reg_artist("chart_x_axis_bottom_line", ax.spines["bottom"], layout_artists)
     reg_artist("chart_y_axis_right_line", ax.spines["right"], layout_artists)
     if config.figure.partial_axis:  # Hide left and top axis
         ax.spines["left"].set_visible(False)
         ax.spines["top"].set_visible(False)
     else:
-        _apply_spines_style(ax, config.figure.y_axis.dict(), location="left")
-        _apply_spines_style(ax, config.figure.x_axis.dict(), location="top")
+        _apply_spines_style(
+            ax, config.figure.y_axis.model_dump(), location="left"
+        )
+        _apply_spines_style(
+            ax, config.figure.x_axis.model_dump(), location="top"
+        )
         reg_artist("chart_x_axis_top_line", ax.spines["top"], layout_artists)
         reg_artist("chart_y_axis_left_line", ax.spines["left"], layout_artists)
     if config.figure.x_axis_ticks is not None:
-        ax.tick_params(axis="x", **config.figure.x_axis_ticks.dict())
+        ax.tick_params(axis="x", **config.figure.x_axis_ticks.model_dump())
     if config.figure.y_axis_ticks is not None:
-        ax.tick_params(axis="y", **config.figure.y_axis_ticks.dict())
+        ax.tick_params(axis="y", **config.figure.y_axis_ticks.model_dump())
 
     # set tick labels in main axes
     if config.chart_params.with_constant_dry_temp:
@@ -309,7 +319,8 @@ def apply_axis_styling(config: ChartConfig, ax: Axes) -> dict[str, Artist]:
                 ]
             ax.set_xticks(ticks)
             ax.set_xticklabels(
-                [f"{t:g}" for t in ticks], **config.figure.x_axis_labels.dict()
+                [f"{t:g}" for t in ticks],
+                **config.figure.x_axis_labels.model_dump(),
             )
     else:
         ax.set_xticks([])
@@ -326,7 +337,8 @@ def apply_axis_styling(config: ChartConfig, ax: Axes) -> dict[str, Artist]:
                 ]
             ax.set_yticks(ticks)
             ax.set_yticklabels(
-                [f"{t:g}" for t in ticks], **config.figure.y_axis_labels.dict()
+                [f"{t:g}" for t in ticks],
+                **config.figure.y_axis_labels.model_dump(),
             )
     else:
         ax.set_yticks([])
@@ -376,7 +388,7 @@ def plot_annots_dbt_rh(ax: Axes, annots: ChartAnnots) -> dict[str, Artist]:
             y_line,
             label=d_con.label,
             dash_capstyle="round",
-            **d_con.style.dict(),
+            **d_con.style.model_dump(),
         )
         reg_artist(d_con_gid, artist_connector, annot_artists)
         if d_con.outline_marker_width:

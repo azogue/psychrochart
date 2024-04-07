@@ -9,7 +9,7 @@
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.8.0, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.8.4, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -2099,7 +2099,7 @@ z
    </g>
    <g id="label_vline_constant_dbt_too_cold_16degc">
     <!--   TOO COLD (16°C) -->
-    <g style="fill: #001848" transform="translate(228.320312 720) rotate(-90) scale(0.1 -0.1)">
+    <g style="fill: #001848" transform="translate(227.488437 720) rotate(-90) scale(0.14 -0.14)">
      <defs>
       <path id="DejaVuSans-54" d="M -19 4666 
 L 3928 4666 
@@ -2194,7 +2194,7 @@ z
    </g>
    <g id="label_vline_constant_dbt_too_hot_30degc">
     <!-- TOO HOT (30°C)   -->
-    <g style="fill: #bf002f" transform="translate(770.079687 631.425) rotate(-270) scale(0.1 -0.1)">
+    <g style="fill: #bf002f" transform="translate(770.911563 595.995) rotate(-270) scale(0.14 -0.14)">
      <defs>
       <path id="DejaVuSans-33" d="M 2597 2516 
 Q 3050 2419 3304 2112 

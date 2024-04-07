@@ -44,4 +44,4 @@ def test_registry_fill_on_plot():
     )
     assert chart.artists.zones.keys() == new_registry.zones.keys()
     assert not chart.artists.annotations
-    assert all(k in chart.artists.layout.keys() for k in artists_layout.keys())
+    assert all(k in chart.artists.layout for k in artists_layout)

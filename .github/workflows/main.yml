@@ -1,23 +1,27 @@
-name: CI
+name: Publish package on pypi
 
 on:
-  pull_request:
   push:
     branches: [master]
 
 jobs:
-  test-and-publish-flow:
+  publish-flow:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up python
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: 3.12
 
       - name: Run Poetry image
-        uses: abatilo/actions-poetry@v2
+        uses: abatilo/actions-poetry@v2.0.0
         with:
-          poetry-version: 1.5.0
+          poetry-version: 1.7.1
 
       - name: Install library
         run: poetry install --no-interaction
@@ -25,12 +29,7 @@ jobs:
       - name: Run tests
         run: poetry run pytest
 
-      #      - name: Upload coverage reports to Codecov
-      #        uses: codecov/codecov-action@v3
-      #        env:
-      #          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-      # publish version only when pyproject.toml is changed in master
+        # publish version only when pyproject.toml is changed in master
       - name: Filter changes in pyproject
         uses: dorny/paths-filter@v2
         id: changes
@@ -40,8 +39,9 @@ jobs:
               - 'pyproject.toml'
 
       - if: ${{ (github.ref == 'refs/heads/master') && (steps.changes.outputs.root == 'true')}}
-        name: Build and publish
-        env:
-          PYPI_USER: ${{ secrets.PYPI_USER }}
-          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: poetry publish --username $PYPI_USER --password $PYPI_PASSWORD --build
+        name: Build
+        run: poetry build
+
+      - if: ${{ (github.ref == 'refs/heads/master') && (steps.changes.outputs.root == 'true')}}
+        name: Publish release distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

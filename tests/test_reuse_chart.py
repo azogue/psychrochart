@@ -120,12 +120,12 @@ def _add_points(chart, with_connectors=True, path_save=None):
         ]
         chart.plot_points_dbt_rh(points, connectors)
     else:
-        points = {
+        points_simple = {
             "exterior": (31.06, 32.9),
             "exterior_estimated": (36.7, 25.0),
             "interior": (29.42, 52.34),
         }
-        chart.plot_points_dbt_rh(points)
+        chart.plot_points_dbt_rh(points_simple)
     # Save to disk
     if path_save is not None:
         path_svg = TEST_BASEDIR / path_save

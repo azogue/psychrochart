@@ -10,6 +10,7 @@ from matplotlib.axes import Axes
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backends.backend_svg import FigureCanvasSVG
+from pydantic import ConfigDict, PrivateAttr
 
 from psychrochart.chart_entities import (
     ChartRegistry,
@@ -22,11 +23,10 @@ from psychrochart.chartdata import (
     make_saturation_line,
 )
 from psychrochart.chartzones import make_over_saturated_zone
-from psychrochart.models.annots import ChartAnnots
+from psychrochart.models.annots import ChartAnnots, ConvexGroupTuple
 from psychrochart.models.config import ChartConfig, ChartZones
 from psychrochart.models.curves import PsychroChartModel, PsychroCurve
 from psychrochart.models.parsers import (
-    ConvexGroupTuple,
     load_extra_annots,
     load_points_dbt_rh,
     obj_loader,
@@ -64,17 +64,14 @@ class PsychroChart(PsychroChartModel):
     """Psychrometric chart object handler."""
 
     config: ChartConfig
-    _fig: figure.Figure | None = None
-    _axes: Axes | None = None
-    _artists: ChartRegistry
+    _fig: figure.Figure | None = PrivateAttr(default=None)
+    _axes: Axes | None = PrivateAttr(default=None)
+    _artists: ChartRegistry = PrivateAttr(default_factory=ChartRegistry)
 
-    class Config:
-        arbitrary_types_allowed = True
-        underscore_attrs_are_private = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def _init_private_attributes(self) -> None:
-        self._artists = ChartRegistry()
-        super()._init_private_attributes()
+    def __init__(self, **data):
+        super().__init__(**data)
         self.config._has_changed = True
 
     @classmethod

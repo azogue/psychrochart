@@ -21,16 +21,17 @@ def test_load_plot_config():
 
     # Test passing dict vs JSON path:
     config_2 = load_config(config=DEFAULT_CHART_CONFIG_FILE)
-    with open(DEFAULT_CHART_CONFIG_FILE) as f:
-        config_3 = load_config(config=json.load(f))
+    config_3 = load_config(
+        config=json.loads(DEFAULT_CHART_CONFIG_FILE.read_text())
+    )
     assert config_2 == config_3
 
     # Test update config:
     config_custom = load_config(config=_PATH_CONFIG_UPDATE)
-    assert default_config.dict() != config_custom.dict()
-    assert "constant_h" in config_custom.dict()
-    assert "constant_v" in config_custom.dict()
-    assert "test_fake_param" not in config_custom.dict()
+    assert default_config.model_dump() != config_custom.model_dump()
+    assert "constant_h" in config_custom.model_dump()
+    assert "constant_v" in config_custom.model_dump()
+    assert "test_fake_param" not in config_custom.model_dump()
 
     # Test config styles:
     default_config_s = load_config(config="default")

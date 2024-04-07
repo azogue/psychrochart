@@ -1,7 +1,13 @@
 from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, Field, root_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    model_validator,
+)
 
 from psychrochart.models.styles import CurveStyle
 from psychrochart.models.validators import (
@@ -28,11 +34,14 @@ class ChartSeries(BaseModel):
     style: dict[str, Any] = Field(default_factory=dict)
     label: str | None = None
 
-    class Config:
-        arbitrary_types_allowed = True
-        json_encoders = {np.ndarray: lambda x: x.tolist()}
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    @root_validator(pre=True)
+    @field_serializer("x_data", "y_data")
+    def _serialize_arrays(self, values: np.ndarray, _info):
+        return values.tolist()
+
+    @model_validator(mode="before")
+    @classmethod
     def _parse_curve_data(cls, values):
         return parse_curve_arrays(values)
 
@@ -50,7 +59,7 @@ class ChartLine(BaseModel):
 class ChartArea(BaseModel):
     """Pydantic model for convex area delimited by a list of named points."""
 
-    point_names: list[str] = Field(min_items=3)
+    point_names: list[str] = Field(min_length=3)
     line_style: dict[str, Any] = Field(default_factory=dict)
     fill_style: dict[str, Any] = Field(default_factory=dict)
     # label: str | None = None
@@ -77,7 +86,7 @@ class ChartArea(BaseModel):
             # ...
         ]
         """
-        return cls.validate(
+        return cls.model_validate(
             dict(zip(["point_names", "line_style", "fill_style"], item))
         )
 
@@ -91,7 +100,8 @@ class ChartAnnots(BaseModel):
     areas: list[ChartArea] = Field(default_factory=list)
     use_scatter: bool = Field(default=False)
 
-    @root_validator
+    @model_validator(mode="before")
+    @classmethod
     def _validate_used_points(cls, values):
         return check_connector_and_areas_by_point_name(values)
 

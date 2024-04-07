@@ -101,25 +101,29 @@ def test_custom_style_psychrochart():
         "constant_v_annotation": {
             "color": [0.2, 0.2, 0.2],
             "fontsize": 7,
-            "bbox": dict(
-                boxstyle="square,pad=-0.2", color=[1, 1, 1, 0.9], lw=0.5
-            ),
+            "bbox": {
+                "boxstyle": "square,pad=-0.2",
+                "color": [1, 1, 1, 0.9],
+                "lw": 0.5,
+            },
         },
         "constant_h_annotation": {
             "color": [0.2, 0.2, 0.2],
             "fontsize": 6,
-            "bbox": dict(
-                boxstyle="square,pad=-0.1", color=[1, 1, 1, 0.9], lw=0.5
-            ),
+            "bbox": {
+                "boxstyle": "square,pad=-0.1",
+                "color": [1, 1, 1, 0.9],
+                "lw": 0.5,
+            },
         },
         "constant_wet_temp_annotation": {
             "color": "#7f1cd0",
             "fontsize": 15,
-            "bbox": dict(boxstyle="round", ec="#0909f310", lw=0.5),
+            "bbox": {"boxstyle": "round", "ec": "#0909f310", "lw": 0.5},
         },
         "constant_rh_annotation": {
             "fontsize": 12,
-            "bbox": dict(boxstyle="square,pad=2", color=[1, 1, 1, 0.3]),
+            "bbox": {"boxstyle": "square,pad=2", "color": [1, 1, 1, 0.3]},
         },
     }
     chart = PsychroChart.create(custom_style)
@@ -178,9 +182,11 @@ def test_custom_style_psychrochart_2():
         },
         "constant_h_annotation": {
             "fontsize": 15,
-            "bbox": dict(
-                boxstyle="square,pad=-0.1", color=[1, 1, 1, 0.9], lw=0.5
-            ),
+            "bbox": {
+                "boxstyle": "square,pad=-0.1",
+                "color": [1, 1, 1, 0.9],
+                "lw": 0.5,
+            },
         },
         "constant_humidity": {
             "color": [0.0, 0.125, 0.376, 0.7],
@@ -200,9 +206,11 @@ def test_custom_style_psychrochart_2():
         "constant_v_annotation": {
             "color": [0.2, 0.2, 0.2],
             "fontsize": 12,
-            "bbox": dict(
-                boxstyle="square,pad=-0.2", color=[1, 1, 1, 0.9], lw=0.5
-            ),
+            "bbox": {
+                "boxstyle": "square,pad=-0.2",
+                "color": [1, 1, 1, 0.9],
+                "lw": 0.5,
+            },
         },
         "constant_wet_temp": {
             "color": [0.498, 0.875, 1.0, 0.7],
@@ -226,7 +234,7 @@ def test_custom_style_psychrochart_2():
     store_test_chart(chart, "test_custom_psychrochart_2.svg")
 
     for p in np.arange(90.0, 105.0):
-        custom_style["limits"]["pressure_kpa"] = p
+        custom_style["limits"]["pressure_kpa"] = p  # type: ignore[index]
         PsychroChart.create(custom_style)
 
 
@@ -315,7 +323,7 @@ def test_custom_style_psychrochart_3():
     store_test_chart(chart, "test_custom_psychrochart_3.svg")
 
     for p in np.arange(90.0, 105.0):
-        custom_style["limits"]["pressure_kpa"] = p
+        custom_style["limits"]["pressure_kpa"] = p  # type: ignore[index]
         PsychroChart.create(custom_style)
 
 

@@ -11,8 +11,8 @@ def test_default_config():
     config_default = ChartConfig()
     assert not config_default.has_changed
 
-    config_json = ChartConfig.parse_file(
-        PATH_STYLES / "default_chart_config.json"
+    config_json = ChartConfig.model_validate_json(
+        (PATH_STYLES / "default_chart_config.json").read_text()
     )
     assert not config_json.has_changed
 
@@ -22,26 +22,26 @@ def test_default_config():
     config_style = PsychroChart.create("default").config
     assert config_style.has_changed
 
-    assert config_default == config_style
-    assert config_style_none == config_style
-    assert config_json == config_style
+    assert config_default.model_dump() == config_style.model_dump()
+    assert config_style_none.model_dump() == config_style.model_dump()
+    assert config_json.model_dump() == config_style.model_dump()
 
 
 def test_config_mutation():
     config = ChartConfig()
     with pytest.raises(TypeError):
-        config.limits.range_temp_c[1] = 35
+        config.limits.range_temp_c[1] = 35  # type: ignore[index]
 
     config.limits.range_temp_c = (10, 35)
     assert config.limits.has_changed
     assert config.has_changed
 
     # validation is done on assignment, so colors are parsed into RGBA
-    config.constant_humidity.color = "red"
+    config.constant_humidity.color = "red"  # type: ignore[assignment]
     assert config.constant_humidity.color == [1.0, 0.0, 0.0, 1.0]
-    config.constant_humidity.color = "#FF0000"
+    config.constant_humidity.color = "#FF0000"  # type: ignore[assignment]
     assert config.constant_humidity.color == [1.0, 0.0, 0.0, 1.0]
-    config.constant_humidity.color = "#FF000000"
+    config.constant_humidity.color = "#FF000000"  # type: ignore[assignment]
     assert config.constant_humidity.color == [1.0, 0.0, 0.0, 0.0]
 
     assert config.constant_humidity.has_changed

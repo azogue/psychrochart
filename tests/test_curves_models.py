@@ -16,7 +16,7 @@ def test_curve_validation():
     raw_style = {"color": "blue", "lw": 0.5}
 
     # pydantic validation for raw dicts
-    curve = PsychroCurve.validate(
+    curve = PsychroCurve.model_validate(
         {"x_data": x_data, "y_data": y_data, "style": raw_style, "label": "T1"}
     )
     assert (curve.x_data == x_data).all()
@@ -26,7 +26,7 @@ def test_curve_validation():
     assert curve.curve_id == "T1"
 
     # also for styling
-    style = CurveStyle.validate(raw_style)
+    style = CurveStyle.model_validate(raw_style)
     assert style.color[2] == 1.0
     assert style.linewidth == 0.5
 
@@ -55,29 +55,29 @@ def test_curve_serialization():
     """Test the PsychroCurve object."""
     x_data = np.arange(0, 50, 1)
     y_data = np.arange(0, 50, 1)
-    style = CurveStyle(color="k", linewidth=0.5)
+    style = CurveStyle.model_validate({"color": "k", "linewidth": 0.5})
     curve = PsychroCurve(
         x_data=x_data, y_data=y_data, style=style, internal_value=2
     )
 
     # Dict export and import:
-    d_curve = curve.dict()
-    curve_d = PsychroCurve.validate(d_curve)
-    assert curve == curve_d
+    d_curve = curve.model_dump()
+    curve_d = PsychroCurve.model_validate(d_curve)
+    assert curve.model_dump() == curve_d.model_dump()
 
     # JSON import export
-    json_curve = curve.json()
-    curve_js = PsychroCurve.parse_raw(json_curve)
+    json_curve = curve.model_dump_json()
+    curve_js = PsychroCurve.model_validate_json(json_curve)
     assert isinstance(curve_js, PsychroCurve)
     assert repr(curve_js) == "<PsychroCurve 50 values>"
-    assert curve == curve_js
+    assert curve.model_dump() == curve_js.model_dump()
 
 
 def test_plot_single_curves():
     """Test the plotting of PsychroCurve objects."""
     x_data = np.arange(0, 50, 1)
     y_data = np.arange(0, 50, 1)
-    style = CurveStyle(color="k", linewidth=0.5)
+    style = CurveStyle.model_validate({"color": "k", "linewidth": 0.5})
     curve = PsychroCurve(x_data=x_data, y_data=y_data, style=style, label="T1")
 
     # Plotting

@@ -1,10 +1,10 @@
 from typing import Literal
 
-from pydantic import Extra, Field, root_validator
+from pydantic import Field, model_validator
 
+from psychrochart.models.base import BaseConfig
 from psychrochart.models.styles import (
     AnnotationStyle,
-    BaseConfig,
     CurveStyle,
     LabelStyle,
     TickStyle,
@@ -19,8 +19,17 @@ _DEFAULT_POSITION = [0.025, 0.075, 0.925, 0.875]
 _DEFAULT_RH_CURVES = [10, 20, 30, 40, 45, 50, 55, 60, 70, 80, 90]
 _DEFAULT_CONSTANT_RH_LABELS = [20, 30, 40, 50, 60, 70, 80]
 _DEFAULT_CONSTANT_V_LABELS = [0.8, 0.9, 0.96]
-_DEFAULT_CONSTANT_H_LABELS = [5, 25, 50, 75, 100, 125]
-_DEFAULT_CONSTANT_WET_TEMP_LABELS = [0, 5, 10, 15, 20, 25, 30, 35]
+_DEFAULT_CONSTANT_H_LABELS = [5.0, 25.0, 50.0, 75.0, 100.0, 125.0]
+_DEFAULT_CONSTANT_WET_TEMP_LABELS = [
+    0.0,
+    5.0,
+    10.0,
+    15.0,
+    20.0,
+    25.0,
+    30.0,
+    35.0,
+]
 
 _DEFAULT_X_AXIS = CurveStyle(color=[0.2, 0.2, 0.2], linewidth=2)
 _DEFAULT_Y_AXIS = CurveStyle(color=[0.3, 0.3, 0.3], linewidth=2)
@@ -86,23 +95,21 @@ class ChartZone(BaseConfig):
     points_y: list[float]
     label: str | None = Field(default=None)
     zone_type: ZoneKind = Field(default="xy-points")
-    style: ZoneStyle = Field(default_factory=ZoneStyle)
+    style: ZoneStyle
     annotation_style: AnnotationStyle = Field(default_factory=AnnotationStyle)
 
-    @root_validator
-    def _validate_zone_definition(cls, values):
-        shape = len(values["points_x"]), len(values["points_y"])
+    @model_validator(mode="after")
+    def _validate_zone_definition(self):
+        shape = len(self.points_x), len(self.points_y)
         if shape[0] < 2 or shape[1] < 2 or shape[0] != shape[1]:
             raise ValueError(f"Invalid shape: {shape}")
-        if values["zone_type"] != "xy-points" and (
+        if self.zone_type != "xy-points" and (
             shape != (2, 2)
-            or (values["points_x"][1] < values["points_x"][0])
-            or (values["points_y"][1] < values["points_y"][0])
+            or (self.points_x[1] < self.points_x[0])
+            or (self.points_y[1] < self.points_y[0])
         ):
-            raise ValueError(
-                f"Invalid shape for {values['zone_type']}: {shape}"
-            )
-        return values
+            raise ValueError(f"Invalid shape for {self.zone_type}: {shape}")
+        return self
 
 
 class ChartZones(BaseConfig):
@@ -126,14 +133,18 @@ class ChartParams(BaseConfig):
     range_vol_m3_kg: tuple[float, float] = Field(
         default=_DEFAULT_RANGE_VOL_M3_KG
     )
-    constant_v_labels: list[float] = Field(default=_DEFAULT_CONSTANT_V_LABELS)
+    constant_v_labels: list[float] = Field(
+        default_factory=_DEFAULT_CONSTANT_V_LABELS.copy
+    )
     constant_v_labels_loc: float = Field(default=1.0)
 
     with_constant_h: bool = Field(default=True)
     constant_h_label: str | None = Field(default="Constant enthalpy")
     constant_h_step: float = Field(default=5)
     range_h: tuple[float, float] = Field(default=_DEFAULT_RANGE_ENTALPHY)
-    constant_h_labels: list[float] = Field(default=_DEFAULT_CONSTANT_H_LABELS)
+    constant_h_labels: list[float] = Field(
+        default_factory=_DEFAULT_CONSTANT_H_LABELS.copy
+    )
     constant_h_labels_loc: float = Field(default=1)
 
     with_constant_wet_temp: bool = Field(default=True)
@@ -145,7 +156,7 @@ class ChartParams(BaseConfig):
         default=_DEFAULT_RANGE_WET_TEMP
     )
     constant_wet_temp_labels: list[float] = Field(
-        default=_DEFAULT_CONSTANT_WET_TEMP_LABELS
+        default_factory=_DEFAULT_CONSTANT_WET_TEMP_LABELS.copy
     )
     constant_wet_temp_labels_loc: float = Field(default=0.05)
 
@@ -199,9 +210,6 @@ class ChartConfig(BaseConfig):
     )
 
     chart_params: ChartParams = Field(default_factory=ChartParams)
-
-    class Config:
-        extra = Extra.ignore
 
     @property
     def dbt_min(self) -> float:

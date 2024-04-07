@@ -1,8 +1,8 @@
 """Common helpers for tests"""
 
 import logging
-from pathlib import Path
 import re
+from pathlib import Path
 from time import time
 from typing import Callable
 
@@ -46,13 +46,13 @@ def timeit(msg_log: str) -> Callable:
     return _real_deco
 
 
-def pytest_sessionstart(session):
+def pytest_sessionstart(session):  # noqa: ARG001
     # set seed for matplotlib 'svg.hashsalt', to generate same ids in SVG
     rcParams["svg.hashsalt"] = "a0576956-8d4f-4e8b-bc5b-7c1effb98147"
 
 
 # comment to explore generated plots in tests
-def pytest_sessionfinish(session):
+def pytest_sessionfinish(session):  # noqa: ARG001
     from shutil import rmtree
 
     if TEST_BASEDIR.exists():

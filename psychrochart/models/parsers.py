@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any, Iterable, Type, TypeVar
 
 import numpy as np
-from pydantic import BaseModel, parse_obj_as
+from pydantic import BaseModel, TypeAdapter
 
 from psychrochart.chartdata import gen_points_in_constant_relative_humidity
 from psychrochart.models.annots import (
@@ -44,21 +44,22 @@ def obj_loader(
     if isinstance(data, data_cls):
         return data
     if isinstance(data, str) and data in STYLES:
-        return data_cls.parse_file(STYLES[data])
+        return data_cls.model_validate_json(STYLES[data].read_text())
     if isinstance(data, (str, Path)):
-        return data_cls.parse_file(data)
+        return data_cls.model_validate_json(Path(data).read_text())
+    assert isinstance(data, dict)
     return data_cls(**data)
 
 
 def load_config(
-    config: ChartConfig | dict[str, Any] | Path | str | None = None
+    config: ChartConfig | dict[str, Any] | Path | str | None = None,
 ) -> ChartConfig:
     """Load the plot params for the psychrometric chart."""
     return obj_loader(ChartConfig, config)
 
 
 def load_zones(
-    zones: ChartZones | dict[str, Any] | str | None = None
+    zones: ChartZones | dict[str, Any] | str | None = None,
 ) -> ChartZones:  # pragma: no cover
     """Load a zones JSON file to overlay in the psychrometric chart."""
     return obj_loader(ChartZones, zones, default_obj=DEFAULT_ZONES)
@@ -114,7 +115,7 @@ def load_points_dbt_rh(
                 style=plot_params,
                 label=label,
             )
-        elif isinstance(point_data, list) or isinstance(point_data, tuple):
+        elif isinstance(point_data, (list, tuple)):
             # simple labeled data
             x_data = point_data[0]
             y_data = point_data[1]
@@ -149,12 +150,17 @@ def load_extra_annots(
     convex_groups: list[dict[str, Any]] | list[ConvexGroupTuple] | None = None,
 ) -> tuple[list[ChartLine], list[ChartArea]]:
     """Load chart lines + convex groups annotations."""
-    data_connectors = parse_obj_as(list[ChartLine], connectors or [])
+    data_connectors = TypeAdapter(list[ChartLine]).validate_python(
+        connectors or []
+    )
     data_areas = []
     if convex_groups and isinstance(convex_groups[0], dict):
-        data_areas = parse_obj_as(list[ChartArea], convex_groups)
+        data_areas = TypeAdapter(list[ChartArea]).validate_python(
+            convex_groups
+        )
     elif convex_groups and isinstance(convex_groups[0], tuple):
         data_areas = [
-            ChartArea.from_tuple(it) for it in convex_groups  # type: ignore
+            ChartArea.from_tuple(it)  # type: ignore
+            for it in convex_groups
         ]
     return data_connectors, data_areas
