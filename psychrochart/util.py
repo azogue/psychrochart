@@ -9,6 +9,30 @@ NUM_ITERS_MAX = 100
 TESTING_MODE = os.getenv("PYTEST_CURRENT_TEST") is not None
 
 
+class Interp1D:
+    """Simple 1D interpolation with extrapolation."""
+
+    def __init__(self, x: Sequence[float], y: Sequence[float]):
+        self.x = np.array(x)
+        self.y = np.array(y)
+
+    def __call__(self, x_new: float) -> float:
+        """Linear interpolation with extrapolation."""
+        # Perform linear interpolation
+        for i in range(len(self.x) - 1):
+            if self.x[i] <= x_new <= self.x[i + 1]:
+                slope = (self.y[i + 1] - self.y[i]) / (
+                    self.x[i + 1] - self.x[i]
+                )
+                return float(self.y[i] + slope * (x_new - self.x[i]))
+
+        # Extrapolation
+        assert x_new < self.x[0] or x_new > self.x[-1]
+        i = 1 if x_new < self.x[0] else -1
+        slope = (self.y[i] - self.y[i - 1]) / (self.x[i] - self.x[i - 1])
+        return float(self.y[i] + slope * (x_new - self.x[i]))
+
+
 def _iter_solver(
     initial_value: np.ndarray,
     objective_value: np.ndarray,
