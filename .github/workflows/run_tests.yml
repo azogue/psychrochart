@@ -1,0 +1,37 @@
+name: Tests on PRs
+
+on:
+  pull_request:
+
+jobs:
+  test-flow:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: Run Poetry image
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.7.1
+
+      - name: Install library
+        run: poetry install --no-interaction
+
+      - name: Run tests
+        run: poetry run pytest --cov-report xml:coverage.xml
+
+      - name: Get Cover
+        uses: orgoro/coverage@v3.1
+        with:
+          coverageFile: coverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
