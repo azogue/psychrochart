@@ -18,11 +18,10 @@ from psychrolib import (
     GetVapPresFromHumRatio,
     isIP,
 )
-from scipy.interpolate import interp1d
 
 from psychrochart.models.curves import PsychroCurve, PsychroCurves
 from psychrochart.models.styles import AnnotationStyle, CurveStyle
-from psychrochart.util import solve_curves_with_iteration
+from psychrochart.util import Interp1D, solve_curves_with_iteration
 
 f_vec_hum_ratio_from_vap_press = np.vectorize(GetHumRatioFromVapPres)
 f_vec_moist_air_enthalpy = np.vectorize(GetMoistAirEnthalpy)
@@ -273,12 +272,7 @@ def make_constant_enthalpy_lines(
         )
         / _factor_out_h()
     )
-    t_sat_interpolator = interp1d(
-        h_in_sat,
-        saturation_curve.x_data,
-        fill_value="extrapolate",
-        assume_sorted=True,
-    )
+    t_sat_interpolator = Interp1D(h_in_sat, saturation_curve.x_data)
     h_min = (
         GetMoistAirEnthalpy(
             dbt_min_seen or saturation_curve.x_data[0],
@@ -412,12 +406,7 @@ def make_constant_specific_volume_lines(
     temps_max_constant_v = f_vec_dry_temp_from_spec_vol(
         np.array(v_objective), w_humidity_ratio_min / _factor_out_w(), pressure
     )
-    t_sat_interpolator = interp1d(
-        v_in_sat,
-        saturation_curve.x_data,
-        fill_value="extrapolate",
-        assume_sorted=True,
-    )
+    t_sat_interpolator = Interp1D(v_in_sat, saturation_curve.x_data)
     t_sat_points = solve_curves_with_iteration(
         "CONSTANT VOLUME",
         v_objective,

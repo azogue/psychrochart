@@ -10,7 +10,6 @@ from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.path import Path
 from matplotlib.text import Annotation
-from scipy.spatial import ConvexHull, QhullError
 
 from psychrochart.chart_entities import (
     ChartRegistry,
@@ -25,7 +24,7 @@ from psychrochart.models.curves import (
     PsychroCurves,
 )
 from psychrochart.models.styles import CurveStyle, ZoneStyle
-from psychrochart.util import mod_color
+from psychrochart.util import convex_hull_graham_scan, mod_color
 
 
 def _annotate_label(
@@ -427,33 +426,31 @@ def plot_annots_dbt_rh(ax: Axes, annots: ChartAnnots) -> dict[str, Artist]:
         line_gid = make_item_gid("point", name=point.label or name)
         reg_artist(line_gid, artist_point, annot_artists)
 
-    if ConvexHull is None or not annots.areas:
+    if not annots.areas:
         return annot_artists
 
     for convex_area in annots.areas:
-        int_points = np.array(
-            [annots.get_point_by_name(key) for key in convex_area.point_names]
-        )
+        raw_points = [
+            annots.get_point_by_name(key) for key in convex_area.point_names
+        ]
         try:
-            assert len(int_points) >= 3
-            hull = ConvexHull(int_points)
-        except (AssertionError, QhullError):  # pragma: no cover
-            logging.error(f"QhullError with points: {int_points}")
-            continue
+            points_hull_x, points_hull_y = convex_hull_graham_scan(raw_points)
+        except (AssertionError, IndexError):  # pragma: no cover
+            logging.error("Convex hull error with points: %s", raw_points)
+            return annot_artists
 
         area_gid = make_item_gid(
             "convexhull", name=",".join(convex_area.point_names)
         )
-        for i, simplex in enumerate(hull.simplices):
-            [artist_contour] = ax.plot(
-                int_points[simplex, 0],
-                int_points[simplex, 1],
-                **convex_area.line_style,
-            )
-            reg_artist(area_gid + f"_s{i+1}", artist_contour, annot_artists)
+        [artist_contour] = ax.plot(
+            [*points_hull_x, points_hull_x[0]],
+            [*points_hull_y, points_hull_y[0]],
+            **convex_area.line_style,
+        )
+        reg_artist(area_gid + "_edge", artist_contour, annot_artists)
         [artist_area] = ax.fill(
-            int_points[hull.vertices, 0],
-            int_points[hull.vertices, 1],
+            points_hull_x,
+            points_hull_y,
             **convex_area.fill_style,
         )
         reg_artist(area_gid, artist_area, annot_artists)

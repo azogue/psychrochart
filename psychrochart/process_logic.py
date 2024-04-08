@@ -9,7 +9,6 @@ from psychrolib import (
     SetUnitSystem,
     SI,
 )
-from scipy.interpolate import interp1d
 
 from psychrochart.chartdata import (
     get_rh_max_min_in_limits,
@@ -24,6 +23,7 @@ from psychrochart.chartdata import (
 from psychrochart.chartzones import make_zone_curve
 from psychrochart.models.config import ChartConfig, ChartLimits, DEFAULT_ZONES
 from psychrochart.models.curves import PsychroChartModel
+from psychrochart.util import Interp1D
 
 spec_vol_vec = np.vectorize(psy.GetMoistAirVolume)
 
@@ -53,10 +53,9 @@ def _gen_interior_lines(config: ChartConfig, chart: PsychroChartModel) -> None:
     # check if sat curve cuts x-axis with T > config.dbt_min
     dbt_min_seen: float | None = None
     if chart.saturation.y_data[0] < config.w_min:
-        temp_sat_interpolator = interp1d(
+        temp_sat_interpolator = Interp1D(
             chart.saturation.y_data,
             chart.saturation.x_data,
-            assume_sorted=True,
         )
         dbt_min_seen = temp_sat_interpolator(config.w_min)
 
