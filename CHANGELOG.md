@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 📦️ Remove scipy dependency - 2024-04-08
+
+##### Changes
+
+- ⚡️ Use simple **1D interpolator** to project lines, instead of `scipy.interpolate.interp1d`
+- ✅ Add tests for convex hulls of given points
+- ⚡️ Use simple **convex hull algorithm**, to compute zones to group annotated points, instead of using `scipy.spatial.ConvexHull`
+- 📦️ Bump version, removing `scipy` dependency
+
 ## [0.10.0] - 📦 Migrate to pydantic v2 - 2024-04-07
 
 Move to recent versions of `pydantic`, and also upgrade internal _linters_, moving to `ruff-format`
