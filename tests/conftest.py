@@ -4,11 +4,14 @@ import logging
 import re
 from pathlib import Path
 from time import time
-from typing import Callable
+from typing import Callable, ParamSpec, TypeVar
 
 from matplotlib import rcParams
 
 from psychrochart import PsychroChart
+
+T = TypeVar("T")
+P = ParamSpec("P")
 
 _RG_SVGDATE = re.compile(r"(\s+?<dc:date>.*</dc:date>\s+?)")
 RSC_EXAMPLES = Path(__file__).parent / "example-charts"
@@ -31,10 +34,10 @@ def store_test_chart(
         chart.save(p_svg, metadata={"Date": None})
 
 
-def timeit(msg_log: str) -> Callable:
+def timeit(msg_log: str):
     """Wrap a method to print the execution time of a method call."""
 
-    def _real_deco(func) -> Callable:
+    def _real_deco(func: Callable[P, T]) -> Callable[P, T]:
         def _wrapper(*args, **kwargs):
             tic = time()
             out = func(*args, **kwargs)
