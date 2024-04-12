@@ -1902,7 +1902,7 @@ z
 " style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
     </g>
     <!-- Summer -->
-    <g transform="translate(576.105937 395.674005) scale(0.09 -0.09)">
+    <g style="fill: #bf8f00; opacity: 0.6" transform="translate(576.105937 395.674005) scale(0.09 -0.09)">
      <defs>
       <path id="DejaVuSans-53" d="M 3425 4513 
 L 3425 3897 
@@ -1954,7 +1954,7 @@ z
 " style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
     </g>
     <!-- Winter -->
-    <g transform="translate(388.366875 505.460067) scale(0.09 -0.09)">
+    <g style="fill: #5f7799" transform="translate(388.366875 505.460067) scale(0.09 -0.09)">
      <defs>
       <path id="DejaVuSans-57" d="M 213 4666 
 L 850 4666 
@@ -2010,7 +2010,7 @@ z
 " style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
     </g>
     <!-- V-RH zone -->
-    <g transform="translate(15.600362 596.83266) scale(0.09 -0.09)">
+    <g style="opacity: 0.75" transform="translate(15.600362 596.83266) scale(0.09 -0.09)">
      <defs>
       <path id="DejaVuSans-56" d="M 1831 0 
 L 50 4666 
@@ -2085,7 +2085,7 @@ z
 " style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
     </g>
     <!-- H-RH zone -->
-    <g transform="translate(890.075236 143.691692) scale(0.09 -0.09)">
+    <g style="opacity: 0.75" transform="translate(890.075236 143.691692) scale(0.09 -0.09)">
      <use xlink:href="#DejaVuSans-48"/>
      <use xlink:href="#DejaVuSans-2d" x="75.195312"/>
      <use xlink:href="#DejaVuSans-52" x="111.279297"/>

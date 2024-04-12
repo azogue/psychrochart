@@ -180,6 +180,7 @@ def plot_curve(
             assert isinstance(curve.style, ZoneStyle)
             if curve.annotation_style is not None:
                 style_params.update(curve.annotation_style.export_style())
+            style_params["color"] = mod_color(curve.style.edgecolor, -25)
             reg_artist(
                 "label_" + gid_zone,
                 _annotate_label(

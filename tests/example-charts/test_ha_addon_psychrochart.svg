@@ -1574,7 +1574,7 @@ z
 " style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
     </g>
     <!-- Summer -->
-    <g transform="translate(902.505937 334.997241) scale(0.09 -0.09)">
+    <g style="fill: #bf8f00; opacity: 0.6" transform="translate(902.505937 334.997241) scale(0.09 -0.09)">
      <defs>
       <path id="DejaVuSans-53" d="M 3425 4513 
 L 3425 3897 
@@ -1720,7 +1720,7 @@ z
 " style="fill: #ffffff; fill-opacity: 0.4; stroke: #ffffff; stroke-opacity: 0.4; stroke-linejoin: miter"/>
     </g>
     <!-- Winter -->
-    <g transform="translate(753.166875 491.691307) scale(0.09 -0.09)">
+    <g style="fill: #5f7799" transform="translate(753.166875 491.691307) scale(0.09 -0.09)">
      <defs>
       <path id="DejaVuSans-57" d="M 213 4666 
 L 850 4666 
