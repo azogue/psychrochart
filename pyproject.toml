@@ -17,21 +17,14 @@ plugins = ["pydantic.mypy"]
 follow_imports = "silent"
 warn_redundant_casts = true
 warn_unused_ignores = true
-#disallow_any_generics = true
+disallow_any_generics = true
 check_untyped_defs = true
 no_implicit_reexport = true
-
-# for strict mypy: (this is the tricky one :-))
-# disallow_untyped_defs = true
 
 [tool.pydantic-mypy]
 init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true
-
-#profile = "black"
-#force_sort_within_sections = true
-#combine_as_imports = true
 
 [tool.coverage.run]
 branch = true
@@ -62,7 +55,7 @@ log_date_format = "%Y-%m-%d %H:%M:%S"
 
 [tool.poetry]
 name = "psychrochart"
-version = "0.11.0"
+version = "0.11.1"
 description = "A python 3 library to make psychrometric charts and overlay information on them"
 authors = ["Eugenio Panadero <eugenio.panadero@gmail.com>"]
 packages = [
@@ -90,7 +83,7 @@ keywords=["psychrometrics", "moist", "humid air", "climate control", "matplotlib
 include = ["CHANGELOG.md"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.13"
+python = ">=3.10,<3.14"
 matplotlib = ">=3.7"
 psychrolib = ">=2.5"
 pydantic = ">=2.3.0"

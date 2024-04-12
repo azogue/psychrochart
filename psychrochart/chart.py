@@ -332,7 +332,7 @@ class PsychroChart(PsychroChartModel):
         markerscale: float = 0.9,
         frameon: bool = True,
         fancybox: bool = True,
-        edgecolor: str | Iterable = "darkgrey",
+        edgecolor: str | Iterable[float] = "darkgrey",
         fontsize: float = 15.0,
         labelspacing: float = 1.5,
         **params,
