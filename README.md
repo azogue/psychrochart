@@ -97,14 +97,14 @@ from pathlib import Path
 from psychrochart import load_config, PsychroChart
 
 # Load preconfigured styles:
-chart_ashrae_style = PsychroChart.create('ashrae')
+chart_ashrae_style = PsychroChart.create("ashrae")
 chart_ashrae_style.plot()
 
-chart_minimal = PsychroChart.create('minimal')
+chart_minimal = PsychroChart.create("minimal")
 chart_minimal.plot()
 
 # Get a preconfigured style model and customize it
-chart_config = load_config('interior')
+chart_config = load_config("interior")
 chart_config.limits.range_temp_c = (18.0, 32.0)
 chart_config.limits.range_humidity_g_kg = (1.0, 40.0)
 chart_config.limits.altitude_m = 3000
@@ -114,14 +114,14 @@ custom_chart.save("custom-chart.svg")
 
 # serialize the config for future uses
 assert chart_config.json() == custom_chart.config.json()
-Path('path/to/chart_config_file.json').write_text(chart_config.json())
-custom_chart_bis = PsychroChart.create('path/to/chart_config_file.json')
+Path("path/to/chart_config_file.json").write_text(chart_config.json())
+custom_chart_bis = PsychroChart.create("path/to/chart_config_file.json")
 # or even the full psychrochart
-Path('path/to/chart_file.json').write_text(custom_chart.json())
-custom_chart_bis_2 = PsychroChart.parse_file('path/to/chart_file.json')
+Path("path/to/chart_file.json").write_text(custom_chart.json())
+custom_chart_bis_2 = PsychroChart.parse_file("path/to/chart_file.json")
 
 # Specify the styles JSON file:
-chart_custom = PsychroChart.create('/path/to/json_file.json')
+chart_custom = PsychroChart.create("/path/to/json_file.json")
 chart_custom.plot()
 
 # Pass a dict with the changes wanted:
@@ -132,17 +132,20 @@ custom_style = {
         "title": "My chart",
         "x_label": None,
         "y_label": None,
-        "partial_axis": False
+        "partial_axis": False,
     },
     "limits": {
         "range_temp_c": [15, 30],
         "range_humidity_g_kg": [0, 25],
         "altitude_m": 900,
-        "step_temp": .5
+        "step_temp": 0.5,
     },
-    "saturation": {"color": [0, .3, 1.], "linewidth": 2},
-    "constant_rh": {"color": [0.0, 0.498, 1.0, .7], "linewidth": 2.5,
-                    "linestyle": ":"},
+    "saturation": {"color": [0, 0.3, 1.0], "linewidth": 2},
+    "constant_rh": {
+        "color": [0.0, 0.498, 1.0, 0.7],
+        "linewidth": 2.5,
+        "linestyle": ":",
+    },
     "chart_params": {
         "with_constant_rh": True,
         "constant_rh_curves": [25, 50, 75],
@@ -150,28 +153,28 @@ custom_style = {
         "with_constant_v": False,
         "with_constant_h": False,
         "with_constant_wet_temp": False,
-        "with_zones": False
+        "with_zones": False,
     },
     "constant_v_annotation": {
-        "color":[0.2, 0.2, 0.2],
-        "fontsize":7,
-        "bbox": dict(boxstyle="square,pad=-0.2", color=[1, 1, 1, 0.9], lw=0.5)
+        "color": [0.2, 0.2, 0.2],
+        "fontsize": 7,
+        "bbox": dict(boxstyle="square,pad=-0.2", color=[1, 1, 1, 0.9], lw=0.5),
     },
     "constant_h_annotation": {
-        "color":[0.2, 0.2, 0.2],
-        "fontsize":6,
-        "bbox": dict(boxstyle="square,pad=-0.1", color=[1, 1, 1, 0.9], lw=0.5)
+        "color": [0.2, 0.2, 0.2],
+        "fontsize": 6,
+        "bbox": dict(boxstyle="square,pad=-0.1", color=[1, 1, 1, 0.9], lw=0.5),
     },
     "constant_wet_temp_annotation": {
-        "color":[0.2, 0.2, 0.2],
-        "fontsize":7,
-        "bbox": dict(boxstyle="square,pad=0", color=[1, 1, 1, 0.9], lw=0.5)
+        "color": [0.2, 0.2, 0.2],
+        "fontsize": 7,
+        "bbox": dict(boxstyle="square,pad=0", color=[1, 1, 1, 0.9], lw=0.5),
     },
     "constant_rh_annotation": {
-        "color":[0.2, 0.2, 0.2],
-        "fontsize":7,
-        "bbox": dict(boxstyle="square,pad=0", color=[1, 1, 1, 0.9], lw=0.5)
-    }
+        "color": [0.2, 0.2, 0.2],
+        "fontsize": 7,
+        "bbox": dict(boxstyle="square,pad=0", color=[1, 1, 1, 0.9], lw=0.5),
+    },
 }
 
 chart_custom_2 = PsychroChart.create(custom_style)

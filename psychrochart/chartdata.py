@@ -302,10 +302,12 @@ def make_constant_enthalpy_lines(
         "ENTHALPHY",
         h_objective,
         lambda *x: t_sat_interpolator(x[0]),
-        lambda x: GetMoistAirEnthalpy(
-            x, GetHumRatioFromVapPres(GetSatVapPres(x), pressure)
-        )
-        / _factor_out_h(),
+        lambda x: (
+            GetMoistAirEnthalpy(
+                x, GetHumRatioFromVapPres(GetSatVapPres(x), pressure)
+            )
+            / _factor_out_h()
+        ),
     )
     w_in_sat = _get_humid_ratio_in_saturation(t_sat_points, pressure)
 
